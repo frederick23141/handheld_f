@@ -89,19 +89,40 @@ public class Pedido extends AppCompatActivity implements AdapterView.OnItemClick
     @Override
     public void onItemClick(AdapterView<?> adapterView, View view, int position, long l) {
         //Toast.makeText(this, "Elemento clicado: " + position, Toast.LENGTH_SHORT).show();
-        Intent intent = new Intent(this,Escaner.class);
-        //Enviamos al siguiente Activity los datos del Listview Seleccionado
-        intent.putExtra("numero", ListaPedidos.get(position).getNumero());
-        intent.putExtra("fecha",ListaPedidos.get(position).getFecha());
-        intent.putExtra("codigo",ListaPedidos.get(position).getCodigo());
-        intent.putExtra("pendiente",ListaPedidos.get(position).getPendiente());
-        intent.putExtra("descripcion",ListaPedidos.get(position).getDescripcion());
-        //Enviamos al siguiente activity los datos traidos desde el primer activity
-        intent.putExtra("nit_usuario",nit_usuario);
-        intent.putExtra("bod_origen",bod_origen);
-        intent.putExtra("bod_destino",bod_destino);
-        intent.putExtra("modelo",modelo);
-        startActivity(intent);
+        int intPendiente = Integer.parseInt(ListaPedidos.get(position).getPendiente());
+
+        if (intPendiente > 0){
+            Intent intent = new Intent(this,Escaner.class);
+            //Enviamos al siguiente Activity los datos del Listview Seleccionado
+            intent.putExtra("numero", ListaPedidos.get(position).getNumero());
+            intent.putExtra("fecha",ListaPedidos.get(position).getFecha());
+            intent.putExtra("codigo",ListaPedidos.get(position).getCodigo());
+            intent.putExtra("pendiente",ListaPedidos.get(position).getPendiente());
+            intent.putExtra("descripcion",ListaPedidos.get(position).getDescripcion());
+            //Enviamos al siguiente activity los datos traidos desde el primer activity
+            intent.putExtra("nit_usuario",nit_usuario);
+            intent.putExtra("bod_origen",bod_origen);
+            intent.putExtra("bod_destino",bod_destino);
+            intent.putExtra("modelo",modelo);
+            startActivity(intent);
+        }else{
+            toastError("!NO es posible leer más tiquetes de alambron¡");
+        }
+
+    }
+
+    //METODO DE TOAST PERSONALIZADO : PERSONA NO ENCONTRADA
+    public void toastError(String msg){
+        LayoutInflater layoutInflater = getLayoutInflater();
+        View view = layoutInflater.inflate(R.layout.custom_toast_per_no_encon, (ViewGroup) findViewById(R.id.ll_custom_toast_per_no_encon));
+        TextView txtMensaje = view.findViewById(R.id.txtMensajeToast1);
+        txtMensaje.setText(msg);
+
+        Toast toast = new Toast(getApplicationContext());
+        toast.setGravity(Gravity.CENTER_VERTICAL | Gravity.BOTTOM,0,200);
+        toast.setDuration(Toast.LENGTH_SHORT);
+        toast.setView(view);
+        toast.show();
     }
 
     //METODO DE TOAST PERSONALIZADO : ACTUALIZADO

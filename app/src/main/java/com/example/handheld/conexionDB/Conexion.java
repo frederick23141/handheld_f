@@ -12,6 +12,7 @@ import com.example.handheld.modelos.TipotransModelo;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -65,6 +66,7 @@ public class Conexion {
             if (rs.next()){
                 id = rs.getString("id");
             }
+
         }catch (Exception e){
             Toast.makeText(context, e.getMessage(), Toast.LENGTH_SHORT).show();
         }
@@ -72,7 +74,7 @@ public class Conexion {
     }
 
     public String obtenerPesoAlamImport(Context context, String sql){
-        String peso = null;
+        String peso = "";
 
         try {
             Statement st = conexionBD("JJVPRGPRODUCCION", context).createStatement();
@@ -101,19 +103,117 @@ public class Conexion {
         return codigo;
     }
 
-    public String obtenerNumTranAlamImport(Context context, String sql){
-        String num_importacion = null;
+    public String obtenerConsecutivo(Context context, String sql){
+        String numero = "";
+
+        try {
+            Statement st = conexionBD("JJVDMSCIERREAGOSTO", context).createStatement();
+            ResultSet rs = st.executeQuery(sql);
+            if (rs.next()){
+                numero = rs.getString("consecutivo");
+            }
+        }catch (Exception e){
+            Toast.makeText(context, e.getMessage(), Toast.LENGTH_SHORT).show();
+        }
+        return numero;
+    }
+
+    public String obtenerCostoUnit(Context context, String sql){
+        String costo_kilo = null;
 
         try {
             Statement st = conexionBD("JJVPRGPRODUCCION", context).createStatement();
             ResultSet rs = st.executeQuery(sql);
             if (rs.next()){
-                num_importacion = rs.getString("num_importacion");
+                costo_kilo = rs.getString("costo_kilo");
             }
         }catch (Exception e){
             Toast.makeText(context, e.getMessage(), Toast.LENGTH_SHORT).show();
         }
-        return num_importacion;
+        return costo_kilo;
+    }
+
+    public String obtenerDescripcionCodigo(Context context, String sql){
+        String descripcion = "";
+
+        try {
+            Statement st = conexionBD("JJVDMSCIERREAGOSTO", context).createStatement();
+            ResultSet rs = st.executeQuery(sql);
+            if (rs.next()){
+                descripcion = rs.getString("descripcion");
+            }
+        }catch (Exception e){
+            Toast.makeText(context, e.getMessage(), Toast.LENGTH_SHORT).show();
+        }
+        return descripcion;
+    }
+
+    public String obtenerCantidadPedido(Context context, String sql){
+        String cantidad = null;
+
+        try {
+            Statement st = conexionBD("JJVPRGPRODUCCION", context).createStatement();
+            ResultSet rs = st.executeQuery(sql);
+            if (rs.next()){
+                cantidad = rs.getString("pendiente");
+            }
+        }catch (Exception e){
+            Toast.makeText(context, e.getMessage(), Toast.LENGTH_SHORT).show();
+        }
+        return cantidad;
+    }
+
+    public String obtenerNumTranAlamImport(Context context, String sql){
+        String numImport = "";
+
+        try {
+            Statement st = conexionBD("JJVPRGPRODUCCION", context).createStatement();
+            ResultSet rs = st.executeQuery(sql);
+            if (rs.next()){
+                numImport = rs.getString("num_importacion");
+            }
+        }catch (Exception e){
+            Toast.makeText(context, e.getMessage(), Toast.LENGTH_SHORT).show();
+        }
+        return numImport;
+    }
+
+    public boolean existeCodigo(Context context, String codigo){
+        String Pcodigo = null;
+        boolean resp = false;
+
+        try {
+            Statement st = conexionBD("JJVDMSCIERREAGOSTO", context).createStatement();
+            ResultSet rs = st.executeQuery("SELECT codigo FROM referencias WHERE codigo = '" + codigo + "'");
+            if (rs.next()){
+                Pcodigo = rs.getString("codigo");
+                if (!Pcodigo.equals("")){
+                    resp = true;
+                }
+            }
+        }catch (Exception e){
+            Toast.makeText(context, e.getMessage(), Toast.LENGTH_SHORT).show();
+        }
+        return resp;
+    }
+
+    public boolean existeTipoTransaccion(Context context, String tipoSpinner){
+        String tipo = null;
+        boolean resp = false;
+
+        try {
+            Statement st = conexionBD("JJVDMSCIERREAGOSTO", context).createStatement();
+            ResultSet rs = st.executeQuery("SELECT tipo FROM tipo_transacciones WHERE tipo = '" + tipoSpinner + "'");
+            if (rs.next()){
+                tipo = rs.getString("tipo");
+                if (!tipo.equals("")){
+                    resp = true;
+                }
+            }
+        }catch (Exception e){
+            Toast.makeText(context, e.getMessage(), Toast.LENGTH_SHORT).show();
+        }
+        return resp;
     }
 
     public ArrayList<TipotransModelo> obtenerTipos(Context context){
@@ -133,6 +233,22 @@ public class Conexion {
             Toast.makeText(context, e.getMessage(), Toast.LENGTH_SHORT).show();
         }
         return tipos;
+    }
+
+    public boolean eliminarTiqueteUnico(Context context, String num_importacion, String num_rollo, String nit_proveedor, String detalle){
+        boolean resp = false;
+        Connection connection = conexionBD("JJVPRGPRODUCCION", context);
+        try {
+            if (connection != null){
+                PreparedStatement stm = conexionBD("JJVPRGPRODUCCION", context).prepareStatement("DELETE FROM  J_alambron_importacion_det_rollos WHERE num_importacion =" + num_importacion + " AND numero_rollo = " + num_rollo + " AND nit_proveedor=" + nit_proveedor + " AND id_solicitud_det =" + detalle);
+                stm.executeQuery();
+                resp = true;
+                Toast.makeText(context, "Tiquete borrado", Toast.LENGTH_SHORT).show();
+            }
+        }catch (Exception e){
+            Toast.makeText(context, e.getMessage(), Toast.LENGTH_SHORT).show();
+        }
+        return resp;
     }
 
     public List<PedidoModelo> obtenerPedidos(Context context){

@@ -107,17 +107,17 @@
             android:backgroundTint="#FF0000"
             android:drawableBottom="@drawable/escaner_de_codigo_de_barras__2_" />
 
-        <Button
-            android:id="@+id/btnprueba"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="Button" />
-
         <Space
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="1" />
+
+        <Button
+            android:id="@+id/btnPrueba"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Button" />
     </LinearLayout>
 
     <LinearLayout
@@ -176,14 +176,15 @@
             android:textStyle="bold" />
         .
 
-        <EditText
-            android:id="@+id/txtIngKilos"
-            android:layout_width="47dp"
+        <TextView
+            android:id="@+id/txtKilosRollo"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginRight="15dp"
             android:layout_weight="1"
-            android:ems="10"
-            android:inputType="numberDecimal" />
+            android:textColor="#586BD6"
+            android:textSize="24sp"
+            android:textStyle="bold" />
 
         <Button
             android:id="@+id/btnSalida"
@@ -226,6 +227,8 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:text="0"
+            android:textColor="#FF0000"
+            android:textColorHint="#FF0000"
             android:textSize="24sp"
             android:textStyle="bold" />
 
