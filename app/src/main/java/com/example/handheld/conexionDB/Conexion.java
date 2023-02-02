@@ -17,6 +17,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 
 public class Conexion {
@@ -103,6 +104,21 @@ public class Conexion {
         return codigo;
     }
 
+    public String obtenerCodigo(Context context, String sql){
+        String codigo = null;
+
+        try {
+            Statement st = conexionBD("JJVPRGPRODUCCION", context).createStatement();
+            ResultSet rs = st.executeQuery(sql);
+            if (rs.next()){
+                codigo = rs.getString("codigo");
+            }
+        }catch (Exception e){
+            Toast.makeText(context, e.getMessage(), Toast.LENGTH_SHORT).show();
+        }
+        return codigo;
+    }
+
     public String obtenerConsecutivo(Context context, String sql){
         String numero = "";
 
@@ -110,12 +126,57 @@ public class Conexion {
             Statement st = conexionBD("JJVDMSCIERREAGOSTO", context).createStatement();
             ResultSet rs = st.executeQuery(sql);
             if (rs.next()){
-                numero = rs.getString("consecutivo");
+                numero = rs.getString("numero");
             }
         }catch (Exception e){
             Toast.makeText(context, e.getMessage(), Toast.LENGTH_SHORT).show();
         }
         return numero;
+    }
+
+    public String obtenerDescripcion(Context context, String sql){
+        String descripcion = "";
+
+        try {
+            Statement st = conexionBD("JJVDMSCIERREAGOSTO", context).createStatement();
+            ResultSet rs = st.executeQuery(sql);
+            if (rs.next()){
+                descripcion = rs.getString("descripcion");
+            }
+        }catch (Exception e){
+            Toast.makeText(context, e.getMessage(), Toast.LENGTH_SHORT).show();
+        }
+        return descripcion;
+    }
+
+    public String obtenerCodigoReferencias(Context context, String sql){
+        String codigo = "";
+
+        try {
+            Statement st = conexionBD("JJVDMSCIERREAGOSTO", context).createStatement();
+            ResultSet rs = st.executeQuery(sql);
+            if (rs.next()){
+                codigo = rs.getString("codigo");
+            }
+        }catch (Exception e){
+            Toast.makeText(context, e.getMessage(), Toast.LENGTH_SHORT).show();
+        }
+        return codigo;
+    }
+
+    public String obtenerMes(Context context, String sql){
+        String mes = "";
+
+        try {
+            Statement st = conexionBD("JJVDMSCIERREAGOSTO", context).createStatement();
+            ResultSet rs = st.executeQuery(sql);
+            if (rs.next()){
+                mes = rs.getString("mes");
+            }
+        }catch (Exception e){
+            Toast.makeText(context, e.getMessage(), Toast.LENGTH_SHORT).show();
+        }
+        return mes;
     }
 
     public String obtenerCostoUnit(Context context, String sql){
@@ -257,13 +318,14 @@ public class Conexion {
 
         try {
             Statement st = conexionBD("JJVPRGPRODUCCION", context).createStatement();
-            ResultSet rs = st.executeQuery("SELECT E.numero,E.fecha,D.codigo,(D.cantidad - (SELECT COUNT(numero) FROM J_salida_alambron_transaccion  WHERE numero = D.numero AND id_detalle = D.id_detalle))As pendiente,R.descripcion \n" +
+            ResultSet rs = st.executeQuery("SELECT E.numero,D.id_detalle,E.fecha,D.codigo,(D.cantidad - (SELECT COUNT(numero) FROM J_salida_alambron_transaccion  WHERE numero = D.numero AND id_detalle = D.id_detalle))As pendiente,R.descripcion \n" +
                     "                               FROM J_salida_alambron_enc E ,J_salida_alambron_det D, CORSAN.dbo.referencias R \n" +
                     "                                  WHERE E.anulado is null AND  R.codigo = D.codigo AND D.numero = E.numero AND (D.cantidad - (SELECT COUNT(numero) FROM J_salida_alambron_transaccion  WHERE numero = D.numero AND id_detalle = D.id_detalle)) > 0 AND (e.devolver = 'N' OR e.devolver IS NULL ) \n" +
                     "                                    ORDER BY E.fecha");
             while (rs.next()){
                 modelo = new PedidoModelo();
                 modelo.setNumero(rs.getString("numero"));
+                modelo.setIdDetalle(rs.getString("id_detalle"));
                 modelo.setFecha(rs.getString("fecha"));
                 modelo.setCodigo(rs.getString("codigo"));
                 modelo.setPendiente(rs.getString("pendiente"));

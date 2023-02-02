@@ -95,6 +95,7 @@ public class Pedido extends AppCompatActivity implements AdapterView.OnItemClick
             Intent intent = new Intent(this,Escaner.class);
             //Enviamos al siguiente Activity los datos del Listview Seleccionado
             intent.putExtra("numero", ListaPedidos.get(position).getNumero());
+            intent.putExtra("idDetalle", ListaPedidos.get(position).getIdDetalle());
             intent.putExtra("fecha",ListaPedidos.get(position).getFecha());
             intent.putExtra("codigo",ListaPedidos.get(position).getCodigo());
             intent.putExtra("pendiente",ListaPedidos.get(position).getPendiente());

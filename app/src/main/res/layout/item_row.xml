@@ -53,7 +53,7 @@
                     android:textStyle="bold" />
 
                 <TextView
-                    android:id="@+id/txtcodigo"
+                    android:id="@+id/txtPeso"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content" />
             </LinearLayout>
@@ -69,26 +69,26 @@
                 android:orientation="vertical">
 
                 <TextView
-                    android:id="@+id/txt_tfecha"
+                    android:id="@+id/txt_tnum_trans"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/txt_tfecha"
                     android:textStyle="bold" />
 
                 <TextView
-                    android:id="@+id/txtfecha"
+                    android:id="@+id/txtNumtrans"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content" />
 
                 <TextView
-                    android:id="@+id/txt_tpendiente"
+                    android:id="@+id/txt_tpeso"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/txt_tpendiente"
                     android:textStyle="bold" />
 
                 <TextView
-                    android:id="@+id/txtpendiente"
+                    android:id="@+id/txtNumimp"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content" />
             </LinearLayout>

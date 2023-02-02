@@ -7,9 +7,12 @@ import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ListAdapter;
+import android.widget.ListView;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -18,19 +21,22 @@ import androidx.activity.result.ActivityResultLauncher;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.example.handheld.adapters.listescanerAdapter;
 import com.example.handheld.conexionDB.Conexion;
 import com.example.handheld.databinding.ActivityEscanerBinding;
+import com.example.handheld.modelos.DetalleTranModelo;
 import com.example.handheld.modelos.TipotransModelo;
 import com.journeyapps.barcodescanner.ScanContract;
 import com.journeyapps.barcodescanner.ScanOptions;
 
+import java.sql.SQLException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
-public class Escaner extends AppCompatActivity {
+public class Escaner extends AppCompatActivity implements AdapterView.OnItemClickListener {
 
     ActivityEscanerBinding binding;
     ArrayList<String> listaTipos;
@@ -38,13 +44,25 @@ public class Escaner extends AppCompatActivity {
     ArrayList<TipotransModelo> tiposLista = new ArrayList<TipotransModelo>();
     Spinner spinner;
     Conexion conexion;
+
+    //Herramientas para el listview
+    private ListView listviewEscaner;
+    private List<DetalleTranModelo> ListaEscaner = new ArrayList<DetalleTranModelo>();
+    ListAdapter EscanerAdapter;
+    DetalleTranModelo escanerModelo;
+
+
     Gestion_alambronLn obj_gestion_alambronLn = new Gestion_alambronLn();
+    ObjTraslado_bodLn objTraslado_bodLn = new ObjTraslado_bodLn();
+    objOperacionesDb objOperacionesDb = new objOperacionesDb();
+    Ing_prod_ad ing_prod_ad = new Ing_prod_ad();
     EditText etCodigo;
     TextView txtKilosRollo;
     TextView lblCodigo;
     TextView lblDescripcion;
     Button btnTransaccion;
     String pNumero;
+    String pIdDetalle;
     String pfecha;
     String pcodigo;
     String pPendiente;
@@ -52,13 +70,11 @@ public class Escaner extends AppCompatActivity {
     String numero_transaccion;
     String nit_usuario, bod_origen, bod_destino, modelo;
     String consecutivo;
-    Button btnPrueba;
     String nit_proveedor,num_importacion,id_detalle,numero_rollo;
 
     private final ActivityResultLauncher<ScanOptions> barcodeLauncher = registerForActivityResult(new ScanContract(), result -> {
         if (result.getContents() == null){
             Toast.makeText(this, "CANCELADO", Toast.LENGTH_SHORT).show();
-            //codigoIngresado();
         }else{
             binding.etCodigo.setText(result.getContents());
             codigoIngresado();
@@ -77,10 +93,16 @@ public class Escaner extends AppCompatActivity {
         lblDescripcion = findViewById(R.id.lblDescripcion);
         txtKilosRollo = findViewById(R.id.txtKilosRollo);
         btnTransaccion = findViewById(R.id.btnTransaccion);
-        btnPrueba = findViewById(R.id.btnPrueba);
+
+        //Herramientas para el listView
+        listviewEscaner = findViewById(R.id.listviewEscaner);
+        listviewEscaner.setOnItemClickListener(this);
+
+        escanerModelo = new DetalleTranModelo();
 
         //Recibimos los datos del pedido desde el anterior Activity
         pNumero = getIntent().getStringExtra("numero");
+        pIdDetalle = getIntent().getStringExtra("idDetalle");
         pfecha = getIntent().getStringExtra("fecha");
         pcodigo = getIntent().getStringExtra("codigo");
         pPendiente = getIntent().getStringExtra("pendiente");
@@ -106,22 +128,26 @@ public class Escaner extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 if (validarFrm()){
-                    guardar();
-                    Toast.makeText(Escaner.this,"Todo esta bien", Toast.LENGTH_SHORT).show();
+                    try {
+                        guardar();
+                    } catch (SQLException e) {
+                        e.printStackTrace();
+                    }
                 }
             }
         });
 
-        btnPrueba.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                numero_transaccion = Obj_ordenprodLn.mover_consecutivo("TRB1", Escaner.this);
-            }
-        });
 
     }
 
-    private void guardar(){
+    //METODO AÑADIR ROLLOS
+    public void addrollotrans(List<DetalleTranModelo> listaRollo){
+
+        EscanerAdapter = new listescanerAdapter(Escaner.this,R.layout.item_row,listaRollo);
+        listviewEscaner.setAdapter(EscanerAdapter);
+    }
+
+    private void guardar() throws SQLException {
         String gTipo = spinner.getSelectedItem().toString();
         String gNotas = "SPIC traslado(HandHeld) usuario: " + nit_usuario;
         String gPeso = txtKilosRollo.getText().toString();
@@ -138,11 +164,16 @@ public class Escaner extends AppCompatActivity {
         String sql_costo_unit = "SELECT d.costo_kilo FROM J_alambron_solicitud_det d WHERE d.num_importacion =" + gNum_importa + " AND d.nit_proveedor =" + gNit_prov + "  AND d.id_det =" + gDeta;
         String gCosto_unit = conexion.obtenerCostoUnit(Escaner.this,sql_costo_unit);
 
-        realizar_transaccion(gCodigo, gPeso, gNit_prov, gNum_importa, gTipo, gDeta, gNum_rollo, gCosto_unit);
+        try {
+            realizar_transaccion(gCodigo, gPeso, gNit_prov, gNum_importa, gTipo, gDeta, gNum_rollo, gCosto_unit);
+        }catch (Exception e){
+            Toast.makeText(Escaner.this,e.getMessage(),Toast.LENGTH_SHORT).show();
+        }
+
 
     }
 
-    public Boolean realizar_transaccion(String gCodigo, String gPeso, String gNit_prov, String gNum_importa, String gTipo, String gDeta, String gNum_rollo, String gCosto_unit){
+    public Boolean realizar_transaccion(String gCodigo, String gPeso, String gNit_prov, String gNum_importa, String gTipo, String gDeta, String gNum_rollo, String gCosto_unit) throws SQLException {
         Boolean resp = true;
         List<Object> listTransaccion_prod = new ArrayList<Object>();
         List<Object> listTransaccion_corsan = new ArrayList<Object>();
@@ -151,9 +182,80 @@ public class Escaner extends AppCompatActivity {
         String sql_solicitud = "";
         String sql_devuelto = "";
         listTransaccion_corsan = traslado_bodega(gCodigo, gPeso, gTipo, gCosto_unit);
-        //sql_solicitud = "INSERT INTO J_salida_alambron_transaccion(numero,id_detalle,tipo,num_transaccion) VALUES (" + pNumero + "," + num_sol_detalle + ",'" + tipo + "'," + numero_transaccion + ") ";
+        sql_solicitud = "INSERT INTO J_salida_alambron_transaccion (numero,id_detalle,tipo,num_transaccion) " +
+                "VALUES (" + pNumero + "," + pIdDetalle + ",'" + gTipo + "'," + numero_transaccion + ") ";
+        try {
+            listTransaccion_prod.add(sql_solicitud);
+        }catch (Exception e){
+            Toast.makeText(Escaner.this, e.getMessage(), Toast.LENGTH_SHORT).show();
+        }
+
+        if (bod_origen.equals("1")  && bod_destino.equals("2")){
+            sql_rollo = "UPDATE J_alambron_importacion_det_rollos SET " +
+                    "num_transaccion_salida =" + numero_transaccion + " ,tipo_salida = '" + gTipo + "' " +
+                    "WHERE num_importacion=" + num_importacion + " AND  id_solicitud_det =" + gDeta + " " +
+                    "AND numero_rollo =" + gNum_rollo + " AND nit_proveedor =" + gNit_prov;
+        }else{
+            sql_rollo = "UPDATE J_alambron_importacion_det_rollos  SET num_transaccion_salida = NULL " +
+                    ",tipo_salida = NULL WHERE num_importacion=" + num_importacion + " " +
+                    "AND  id_solicitud_det =" + gDeta + " AND numero_rollo =" + gNum_rollo + " " +
+                    "AND nit_proveedor =" + gNit_prov;
+
+            sql_devuelto = "UPDATE J_alambron_importacion_det_rollos " +
+                    "SET num_transaccion_dev =" + numero_transaccion + "" +
+                    "WHERE num_importacion=" + num_importacion + " AND  id_solicitud_det =" + gDeta + " " +
+                    "AND numero_rollo =" + gNum_rollo + " AND nit_proveedor =" + gNit_prov;
+
+            objOperacionesDb.ejecutarUpdateProduccion(sql_devuelto,Escaner.this);
+        }
+
+        try {
+            listTransaccion_prod.add(sql_rollo);
+        }catch (Exception e){
+            Toast.makeText(Escaner.this, e.getMessage(), Toast.LENGTH_SHORT).show();
+        }
+
+        if (ing_prod_ad.ExecuteSqlTransaction(listTransaccion_corsan, "JJVDMSCIERREAGOSTO", Escaner.this)){
+            Toast.makeText(Escaner.this,"Transaccion Realizada con Exito! "+ gTipo +":" + numero_transaccion, Toast.LENGTH_SHORT).show();
+            addRollo(num_importacion, consecutivo, gPeso, gNum_rollo, gDeta, gNit_prov, gTipo);
+            leer_nuevo();
+            //contar_movimientos();
+            if (ing_prod_ad.ExecuteSqlTransaction(listTransaccion_prod, "JJVPRGPRODUCCION", Escaner.this).equals(false)){
+                Toast.makeText(Escaner.this,"Problemas, EEror al actualziar los Códigos de barra,comuniquese con sistemas!", Toast.LENGTH_SHORT).show();
+                resp = false;
+            }
+
+        }else{
+            Toast.makeText(Escaner.this,"Error al realizar la transacción!", Toast.LENGTH_SHORT).show();
+            resp = false;
+        }
         return  resp;
     }
+
+    public void addRollo(String num_importacion, String consecutivo, String peso, String num_rollo, String id_detalle, String nit_prov, String tipo){
+        String sql_codigo = "SELECT codigo FROM  J_alambron_solicitud_det WHERE num_importacion = " + num_importacion + " AND nit_proveedor =" + nit_prov + " AND id_det =" + id_detalle;
+        String codigo = conexion.obtenerCodigo(Escaner.this, sql_codigo);
+        String sql_descripcion = "SELECT descripcion  FROM  referencias WHERE codigo = '" + codigo + "'";
+        String descripcion = conexion.obtenerDescripcion(Escaner.this, sql_codigo);
+
+        escanerModelo = new DetalleTranModelo();
+        escanerModelo.setNumero(consecutivo);
+        escanerModelo.setTipo(tipo);
+        escanerModelo.setNum_trans(numero_transaccion);
+        escanerModelo.setCodigo(codigo);
+        escanerModelo.setPeso(peso);
+        escanerModelo.setNum_imp(num_importacion);
+        escanerModelo.setDetalle(id_detalle);
+        escanerModelo.setNum_rollo(num_rollo);
+        escanerModelo.setEstado_muestra("0");
+        escanerModelo.setNit_prov(nit_prov);
+        escanerModelo.setCosto_unit("0");
+        ListaEscaner.add(escanerModelo);
+
+        addrollotrans(ListaEscaner);
+
+    }
+
 
     private boolean validarFrm(){
         String sql_cantidad = "SELECT (D.cantidad - (SELECT COUNT(numero) FROM J_salida_alambron_transaccion  WHERE numero = D.numero AND id_detalle = D.id_detalle))As pendiente FROM J_salida_alambron_enc E ,J_salida_alambron_det D, CORSAN.dbo.referencias R WHERE E.anulado is null AND  R.codigo = D.codigo AND D.numero = E.numero  and e.numero=" + pNumero + "";
@@ -211,8 +313,8 @@ public class Escaner extends AppCompatActivity {
     }
 
     private void codigoIngresado(){
-        //consecutivo = etCodigo.getText().toString();
-        consecutivo = "444444218-4-3-168";
+        consecutivo = etCodigo.getText().toString();
+        //consecutivo = "444444218-4-3-168";
         if (validarCodigoBarras(consecutivo)){
             nit_proveedor = obj_gestion_alambronLn.extraerDatoCodigoBarras("proveedor", consecutivo);
             num_importacion = obj_gestion_alambronLn.extraerDatoCodigoBarras("num_importacion", consecutivo);
@@ -273,7 +375,7 @@ public class Escaner extends AppCompatActivity {
             }else{
                 toastError("El codigo de barras no se encuentra asignado");
                 //Toast.makeText(this,"El codigo de barras no se encuentra asignado", Toast.LENGTH_SHORT).show();
-            };
+            }
         }
     }
 
@@ -384,16 +486,23 @@ public class Escaner extends AppCompatActivity {
 
     //Solo para 'TRB1' modelo 08 traslado de la 1 a la 2
     // Solo para 'TRB1' modelo 12 traslado de la 2 a la 1
-    private List<Object> traslado_bodega(String Codigo, String cantidad, String tipo, String costo_unit){
-        List<Object> listSql = new ArrayList<Object>();
-        Date fecha = new Date(Calendar.getInstance().getTimeInMillis());
+    private List<Object> traslado_bodega(String codigo, String cantidad, String tipo, String costo_unit){
+        List<Object> listSql;
+
+        Calendar calendar = Calendar.getInstance();
         @SuppressLint("SimpleDateFormat")
-        SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy - HH:mm:ss");
-        String fechaTexto = formatter.format(fecha);
+        SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy");
+        String fecha = dateFormat.format(calendar.getTime());
+
         String usuario = nit_usuario;
-        String notas = "SPIC fecha:" + fechaTexto + " usuario:" + usuario;
-        numero_transaccion = Obj_ordenprodLn.mover_consecutivo(tipo, getApplicationContext());
+        String notas = "SPIC fecha:" + fecha + " usuario:" + usuario;
+        numero_transaccion = Obj_ordenprodLn.mover_consecutivo(tipo, Escaner.this);
+        listSql = objTraslado_bodLn.listaTransaccionDatable_traslado_bodega(numero_transaccion, codigo, bod_origen, bod_destino, calendar, notas, usuario, cantidad, tipo, modelo, costo_unit,Escaner.this);
         return listSql;
     }
 
+    @Override
+    public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+
+    }
 }

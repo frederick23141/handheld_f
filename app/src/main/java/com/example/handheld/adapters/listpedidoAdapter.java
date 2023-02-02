@@ -41,13 +41,13 @@ public class listpedidoAdapter extends ArrayAdapter<PedidoModelo> {
         TextView textonumero = view.findViewById(R.id.txtnumero);
         textonumero.setText(modelo.getNumero());
 
-        TextView textocodigo = view.findViewById(R.id.txtcodigo);
+        TextView textocodigo = view.findViewById(R.id.txtPeso);
         textocodigo.setText(modelo.getCodigo());
 
-        TextView textofecha = view.findViewById(R.id.txtfecha);
+        TextView textofecha = view.findViewById(R.id.txtNumtrans);
         textofecha.setText(modelo.getFecha());
 
-        TextView textopendiente = view.findViewById(R.id.txtpendiente);
+        TextView textopendiente = view.findViewById(R.id.txtNumimp);
         textopendiente.setText(modelo.getPendiente());
 
         TextView textodescripcion = view.findViewById(R.id.txtdescripcion);
