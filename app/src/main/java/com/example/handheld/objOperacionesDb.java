@@ -35,7 +35,7 @@ public class objOperacionesDb {
                 PreparedStatement stm = cnn.prepareStatement(Sql);
                 stm.executeUpdate();
                 resp = 1;
-                Toast.makeText(context, "REGISTRO MODIFICADO CORRECTAMENTE", Toast.LENGTH_SHORT).show();
+                //Toast.makeText(context, "REGISTRO MODIFICADO CORRECTAMENTE", Toast.LENGTH_SHORT).show();
             }
 
         }catch (Exception e){

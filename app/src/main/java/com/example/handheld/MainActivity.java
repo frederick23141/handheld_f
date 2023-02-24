@@ -49,11 +49,12 @@ public class MainActivity extends AppCompatActivity {
         conexion = new Conexion();
 
         consultar.setOnClickListener(new View.OnClickListener() {
+            @SuppressLint("SetTextI18n")
             @Override
             public void onClick(View view) {
                 if(validar()){
                     cd = cedula.getText().toString();
-                    nombre_usuario = conexion.obtenerPersona(getApplicationContext(),cd );
+                    nombre_usuario = conexion.obtenerPersona(MainActivity.this,cd );
 
                     if(nombre_usuario == null){
                         //Toast.makeText(this, "Persona no encontrada", Toast.LENGTH_SHORT).show();
@@ -74,7 +75,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public boolean validar(){
-        Boolean retorno = true;
+        boolean retorno = true;
 
         String text = cedula.getText().toString();
         if(text.isEmpty()){
@@ -128,13 +129,14 @@ public class MainActivity extends AppCompatActivity {
         MyHolder.IconTreeItem subChildItem1_1 = new MyHolder.IconTreeItem(R.drawable.ic_folder, "Traslado de Bodega (1-2)");
         TreeNode subChild1_1 = new TreeNode(subChildItem1_1).setViewHolder(new MyHolder(getApplicationContext(), false, R.layout.child, 100));
 
+        //Al darle clic a este elemento en el treeview se abrira una nueva pantalla y se enviaran unos datos
         subChild1_1.setClickListener(new TreeNode.TreeNodeClickListener() {
             @Override
             public void onClick(TreeNode node, Object value) {
                 Intent i = new Intent(MainActivity.this,Pedido.class);
                 i.putExtra("nit_usuario",cd);
-                i.putExtra("bod_origen","1");
-                i.putExtra("bod_destino","2");
+                i.putExtra("bod_origen",1);
+                i.putExtra("bod_destino",2);
                 i.putExtra("modelo","08");
 
                 startActivity(i);

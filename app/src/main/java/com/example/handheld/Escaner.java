@@ -3,10 +3,13 @@ package com.example.handheld;
 import android.annotation.SuppressLint;
 import android.content.DialogInterface;
 import android.os.Bundle;
+import android.text.InputType;
 import android.view.Gravity;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.EditorInfo;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
@@ -46,10 +49,9 @@ public class Escaner extends AppCompatActivity implements AdapterView.OnItemClic
     Conexion conexion;
 
     //Herramientas para el listview
-    private ListView listviewEscaner;
-    private List<DetalleTranModelo> ListaEscaner = new ArrayList<DetalleTranModelo>();
+    ListView listviewEscaner;
     ListAdapter EscanerAdapter;
-    DetalleTranModelo escanerModelo;
+    List<DetalleTranModelo> ListaEscaner = new ArrayList<>();
 
 
     Gestion_alambronLn obj_gestion_alambronLn = new Gestion_alambronLn();
@@ -58,29 +60,27 @@ public class Escaner extends AppCompatActivity implements AdapterView.OnItemClic
     Ing_prod_ad ing_prod_ad = new Ing_prod_ad();
     EditText etCodigo;
     TextView txtKilosRollo;
-    TextView lblCodigo;
-    TextView lblDescripcion;
-    Button btnTransaccion;
-    String pNumero;
-    String pIdDetalle;
-    String pfecha;
-    String pcodigo;
-    String pPendiente;
-    String pDescripcion;
-    String numero_transaccion;
-    String nit_usuario, bod_origen, bod_destino, modelo;
+    TextView lblCodigo, txtIngMovimientos;
+    TextView lblDescripcion, txtTransaccion;
+    Button btnTransaccion, btnSalida, teclado;
+    String pfecha, pcodigo, pPendiente, pDescripcion;
+    Integer pNumero, pIdDetalle;
+    Integer numero_transaccion;
+    String nit_usuario, modelo;
+    Integer bod_origen, bod_destino;
     String consecutivo;
     String nit_proveedor,num_importacion,id_detalle,numero_rollo;
 
     private final ActivityResultLauncher<ScanOptions> barcodeLauncher = registerForActivityResult(new ScanContract(), result -> {
         if (result.getContents() == null){
-            Toast.makeText(this, "CANCELADO", Toast.LENGTH_SHORT).show();
+            toastError("CANCELADO");
         }else{
             binding.etCodigo.setText(result.getContents());
             codigoIngresado();
         }
     });
 
+    @SuppressLint("SetTextI18n")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -90,40 +90,75 @@ public class Escaner extends AppCompatActivity implements AdapterView.OnItemClic
         spinner = findViewById(R.id.spinner);
         etCodigo = findViewById(R.id.etCodigo);
         lblCodigo = findViewById(R.id.lblCodigo);
+        txtIngMovimientos = findViewById(R.id.txtIngMovimientos);
         lblDescripcion = findViewById(R.id.lblDescripcion);
         txtKilosRollo = findViewById(R.id.txtKilosRollo);
         btnTransaccion = findViewById(R.id.btnTransaccion);
+        txtTransaccion = findViewById(R.id.txtTransaccion);
+        btnSalida = findViewById(R.id.btnSalida);
+        teclado = findViewById(R.id.teclado);
 
         //Herramientas para el listView
         listviewEscaner = findViewById(R.id.listviewEscaner);
         listviewEscaner.setOnItemClickListener(this);
 
-        escanerModelo = new DetalleTranModelo();
-
         //Recibimos los datos del pedido desde el anterior Activity
-        pNumero = getIntent().getStringExtra("numero");
-        pIdDetalle = getIntent().getStringExtra("idDetalle");
+        pNumero = getIntent().getIntExtra("numero", 0);
+        pIdDetalle = getIntent().getIntExtra("idDetalle", 0);
         pfecha = getIntent().getStringExtra("fecha");
         pcodigo = getIntent().getStringExtra("codigo");
         pPendiente = getIntent().getStringExtra("pendiente");
         pDescripcion = getIntent().getStringExtra("descripcion");
         //Recibimos los datos traidos desed el primer activity
         nit_usuario = getIntent().getStringExtra("nit_usuario");
-        bod_origen = getIntent().getStringExtra("bod_origen");
-        bod_destino = getIntent().getStringExtra("bod_destino");
+        bod_origen = getIntent().getIntExtra("bod_origen", 0);
+        bod_destino = getIntent().getIntExtra("bod_destino", 0);
         modelo = getIntent().getStringExtra("modelo");
 
+        //Colocamos el titulo con la informacion
+        txtTransaccion.setText(pcodigo + " - movimiento: bodega " + bod_origen + " - " + bod_destino);
+
+        //Se establece el foco en el edit text
+        etCodigo.setInputType(InputType.TYPE_NULL);
+        etCodigo.requestFocus();
 
         consultarTipos();
 
+        //Se programa el boton de salida de la apicación
+        btnSalida.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                salir(v);
+            }
+        });
+
+        //Se programa el boton de lectura de codigo
         binding.btnLeerCodigo.setOnClickListener(new View.OnClickListener() {
 
             @Override
             public void onClick(View view) {
-                escanear();
+                String barras = etCodigo.getText().toString();
+                if (barras.equals("")){
+                    escanear();
+                }else{
+                    codigoIngresado();
+                }
             }
         });
 
+        //Se programa para que al presionar el boton se active o desactive le teclado
+        teclado.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (etCodigo.getInputType() == InputType.TYPE_NULL){
+                    etCodigo.setInputType(InputType.TYPE_CLASS_TEXT);
+                }else{
+                    etCodigo.setInputType(InputType.TYPE_NULL);
+                }
+            }
+        });
+
+        //Se programa el boton de transacción
         btnTransaccion.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -137,44 +172,69 @@ public class Escaner extends AppCompatActivity implements AdapterView.OnItemClic
             }
         });
 
+        //Se programa para que al presionar enter en el edit text haga el proceso
+        etCodigo.setOnKeyListener(new View.OnKeyListener() {
+            @Override
+            public boolean onKey(View v, int keyCode, KeyEvent event) {
+                if (keyCode == KeyEvent.KEYCODE_ENTER) {
+                    if(etCodigo.getText().equals("")){
+                        toastError("Por favor escribir o escanear el codigo de barras");
+                    }else{
+                        codigoIngresado();
+                    }
+                    return true;
+                }
+                return false;
+            }
+        });
 
+
+    }
+    //METODO PARA CERRAR LA APLICACION
+    @SuppressLint("")
+    public void salir(View view){
+        finishAffinity();;
     }
 
     //METODO AÑADIR ROLLOS
-    public void addrollotrans(List<DetalleTranModelo> listaRollo){
+    public void addrollotrans(){
 
-        EscanerAdapter = new listescanerAdapter(Escaner.this,R.layout.item_row,listaRollo);
+        EscanerAdapter = new listescanerAdapter(Escaner.this,R.layout.item_row_escaner,ListaEscaner);
         listviewEscaner.setAdapter(EscanerAdapter);
     }
 
     private void guardar() throws SQLException {
         String gTipo = spinner.getSelectedItem().toString();
         String gNotas = "SPIC traslado(HandHeld) usuario: " + nit_usuario;
-        String gPeso = txtKilosRollo.getText().toString();
+        Double gPeso = Double.parseDouble(txtKilosRollo.getText().toString());
         String gCodigo = lblCodigo.getText().toString().trim();
-        String gBodega;
+        String gBodega = objTraslado_bodLn.obtenerBodegaXcodigo(gCodigo);
         Date gDFec = Calendar.getInstance().getTime();
         String gUsuario = nit_usuario;
-        String gStock;
+        String gStock = conexion.consultarStock(Escaner.this,gCodigo,gBodega);
         String gConsecutivo = etCodigo.getText().toString();
-        String gNit_prov = obj_gestion_alambronLn.extraerDatoCodigoBarras("proveedor", consecutivo);
-        String gNum_importa = obj_gestion_alambronLn.extraerDatoCodigoBarras("num_importacion", consecutivo);
-        String gDeta = obj_gestion_alambronLn.extraerDatoCodigoBarras("detalle", consecutivo);
-        String gNum_rollo = obj_gestion_alambronLn.extraerDatoCodigoBarras("num_rollo", consecutivo);
+        Double gNit_prov = Double.parseDouble(obj_gestion_alambronLn.extraerDatoCodigoBarras("proveedor", consecutivo));
+        Double gNum_importa = Double.parseDouble(obj_gestion_alambronLn.extraerDatoCodigoBarras("num_importacion", consecutivo));
+        Double gDeta = Double.parseDouble(obj_gestion_alambronLn.extraerDatoCodigoBarras("detalle", consecutivo));
+        Double gNum_rollo = Double.parseDouble(obj_gestion_alambronLn.extraerDatoCodigoBarras("num_rollo", consecutivo));
         String sql_costo_unit = "SELECT d.costo_kilo FROM J_alambron_solicitud_det d WHERE d.num_importacion =" + gNum_importa + " AND d.nit_proveedor =" + gNit_prov + "  AND d.id_det =" + gDeta;
-        String gCosto_unit = conexion.obtenerCostoUnit(Escaner.this,sql_costo_unit);
+        Double gCosto_unit = Double.parseDouble(conexion.obtenerCostoUnit(Escaner.this,sql_costo_unit));
 
         try {
             realizar_transaccion(gCodigo, gPeso, gNit_prov, gNum_importa, gTipo, gDeta, gNum_rollo, gCosto_unit);
+            etCodigo.requestFocus();
         }catch (Exception e){
-            Toast.makeText(Escaner.this,e.getMessage(),Toast.LENGTH_SHORT).show();
+            leer_nuevo();
+            txtKilosRollo.setText("");
+            etCodigo.setText("");
+            toastError(e.getMessage());
         }
 
 
     }
 
-    public Boolean realizar_transaccion(String gCodigo, String gPeso, String gNit_prov, String gNum_importa, String gTipo, String gDeta, String gNum_rollo, String gCosto_unit) throws SQLException {
-        Boolean resp = true;
+    public Boolean realizar_transaccion(String gCodigo, Double gPeso, Double gNit_prov, Double gNum_importa, String gTipo, Double gDeta, Double gNum_rollo, Double gCosto_unit) throws SQLException {
+        boolean resp = true;
         List<Object> listTransaccion_prod = new ArrayList<Object>();
         List<Object> listTransaccion_corsan = new ArrayList<Object>();
         String sql_rollo = "";
@@ -190,7 +250,7 @@ public class Escaner extends AppCompatActivity implements AdapterView.OnItemClic
             Toast.makeText(Escaner.this, e.getMessage(), Toast.LENGTH_SHORT).show();
         }
 
-        if (bod_origen.equals("1")  && bod_destino.equals("2")){
+        if (bod_origen.equals(1)  && bod_destino.equals(2)){
             sql_rollo = "UPDATE J_alambron_importacion_det_rollos SET " +
                     "num_transaccion_salida =" + numero_transaccion + " ,tipo_salida = '" + gTipo + "' " +
                     "WHERE num_importacion=" + num_importacion + " AND  id_solicitud_det =" + gDeta + " " +
@@ -216,43 +276,62 @@ public class Escaner extends AppCompatActivity implements AdapterView.OnItemClic
         }
 
         if (ing_prod_ad.ExecuteSqlTransaction(listTransaccion_corsan, "JJVDMSCIERREAGOSTO", Escaner.this)){
-            Toast.makeText(Escaner.this,"Transaccion Realizada con Exito! "+ gTipo +":" + numero_transaccion, Toast.LENGTH_SHORT).show();
-            addRollo(num_importacion, consecutivo, gPeso, gNum_rollo, gDeta, gNit_prov, gTipo);
-            leer_nuevo();
-            //contar_movimientos();
-            if (ing_prod_ad.ExecuteSqlTransaction(listTransaccion_prod, "JJVPRGPRODUCCION", Escaner.this).equals(false)){
-                Toast.makeText(Escaner.this,"Problemas, EEror al actualziar los Códigos de barra,comuniquese con sistemas!", Toast.LENGTH_SHORT).show();
+            //Toast.makeText(Escaner.this,"Transaccion Realizada con Exito! "+ gTipo +":" + numero_transaccion, Toast.LENGTH_SHORT).show();
+            if (ing_prod_ad.ExecuteSqlTransaction(listTransaccion_prod, "JJVPRGPRODUCCION", Escaner.this)){
+                //Toast.makeText(Escaner.this,"Solucion, Se realizo correctamente lo de produccion ", Toast.LENGTH_SHORT).show();
+                //toastAcierto("Solucion, Se realizo correctamente lo de produccion ");
+                addRollo(num_importacion, consecutivo, gPeso, gNum_rollo, gDeta, gNit_prov, gTipo);
+                leer_nuevo();
+                contar_movimientos();
+                txtKilosRollo.setText("");
+                etCodigo.setText("");
+
+                toastAcierto("Transaccion Realizada con Exito! - "+ gTipo +": " + numero_transaccion);
+            }else{
+                toastError("Problemas, No se realizó correctamente la transacción!");
+                txtKilosRollo.setText("");
+                etCodigo.setText("");
                 resp = false;
             }
 
         }else{
-            Toast.makeText(Escaner.this,"Error al realizar la transacción!", Toast.LENGTH_SHORT).show();
+            //Toast.makeText(Escaner.this,"Error al realizar la transacción!", Toast.LENGTH_SHORT).show();
+            toastError("Error al realizar la transacción!");
             resp = false;
         }
         return  resp;
     }
 
-    public void addRollo(String num_importacion, String consecutivo, String peso, String num_rollo, String id_detalle, String nit_prov, String tipo){
+    private void contar_movimientos() {
+        int size = ListaEscaner.size();
+        String sizeString = Integer.toString(size);
+        txtIngMovimientos.setText(sizeString);
+
+    }
+
+    public void addRollo(String num_importacion, String consecutivo, Double peso, Double num_rollo, Double id_detalle, Double nit_prov, String tipo){
+        DetalleTranModelo escanerModelo;
+
         String sql_codigo = "SELECT codigo FROM  J_alambron_solicitud_det WHERE num_importacion = " + num_importacion + " AND nit_proveedor =" + nit_prov + " AND id_det =" + id_detalle;
         String codigo = conexion.obtenerCodigo(Escaner.this, sql_codigo);
         String sql_descripcion = "SELECT descripcion  FROM  referencias WHERE codigo = '" + codigo + "'";
-        String descripcion = conexion.obtenerDescripcion(Escaner.this, sql_codigo);
+        String descripcion = conexion.obtenerDescripcionCodigo(Escaner.this, sql_descripcion);
 
         escanerModelo = new DetalleTranModelo();
         escanerModelo.setNumero(consecutivo);
         escanerModelo.setTipo(tipo);
-        escanerModelo.setNum_trans(numero_transaccion);
+        escanerModelo.setNum_trans(numero_transaccion.toString());
         escanerModelo.setCodigo(codigo);
-        escanerModelo.setPeso(peso);
+        escanerModelo.setPeso(peso.toString());
         escanerModelo.setNum_imp(num_importacion);
-        escanerModelo.setDetalle(id_detalle);
-        escanerModelo.setNum_rollo(num_rollo);
+        escanerModelo.setDetalle(id_detalle.toString());
+        escanerModelo.setNum_rollo(num_rollo.toString());
         escanerModelo.setEstado_muestra("0");
-        escanerModelo.setNit_prov(nit_prov);
+        escanerModelo.setNit_prov(nit_prov.toString());
         escanerModelo.setCosto_unit("0");
         ListaEscaner.add(escanerModelo);
 
-        addrollotrans(ListaEscaner);
+        addrollotrans();
 
     }
 
@@ -260,7 +339,7 @@ public class Escaner extends AppCompatActivity implements AdapterView.OnItemClic
     private boolean validarFrm(){
         String sql_cantidad = "SELECT (D.cantidad - (SELECT COUNT(numero) FROM J_salida_alambron_transaccion  WHERE numero = D.numero AND id_detalle = D.id_detalle))As pendiente FROM J_salida_alambron_enc E ,J_salida_alambron_det D, CORSAN.dbo.referencias R WHERE E.anulado is null AND  R.codigo = D.codigo AND D.numero = E.numero  and e.numero=" + pNumero + "";
         String cantidad = conexion.obtenerCantidadPedido(Escaner.this, sql_cantidad);
-        if (!lblCodigo.getText().toString().isEmpty()){
+        if (!lblCodigo.getText().toString().isEmpty() && !lblCodigo.getText().toString().equals("LEA CODIGO")){
             if (!txtKilosRollo.getText().toString().isEmpty()){
                 if (!spinner.getSelectedItem().equals("Seleccione")){
                     if (conexion.existeCodigo(Escaner.this, lblCodigo.getText().toString())){
@@ -303,7 +382,7 @@ public class Escaner extends AppCompatActivity implements AdapterView.OnItemClic
 
     private ArrayList<String> obtenerLista(ArrayList<TipotransModelo> tiposLista ){
         listaTipos = new ArrayList<String>();
-        listaTipos.add("Seleccione");
+        //listaTipos.add("Seleccione");
 
         for(int i = 0; i < tiposLista.size(); i++){
             listaTipos.add(tiposLista.get(i).getTipo().toString());
@@ -386,6 +465,8 @@ public class Escaner extends AppCompatActivity implements AdapterView.OnItemClic
         tiposLista = conexion.obtenerTipos(getApplication());
         listaTp = obtenerLista(tiposLista);
         ArrayAdapter<CharSequence> adapter = new ArrayAdapter(Escaner.this, android.R.layout.simple_spinner_item, listaTp);
+        spinner.setEnabled(false);
+        spinner.setClickable(false);
         spinner.setAdapter(adapter);
     }
 
@@ -441,6 +522,21 @@ public class Escaner extends AppCompatActivity implements AdapterView.OnItemClic
         toast.show();
     }
 
+    //METODO DE TOAST PERSONALIZADO : ACIERTO
+    public void toastAcierto(String msg){
+        LayoutInflater layoutInflater = getLayoutInflater();
+        View view = layoutInflater.inflate(R.layout.custom_toast_acierto, (ViewGroup) findViewById(R.id.ll_custom_toast_acierto));
+        @SuppressLint({"MissingInflatedId", "LocalSuppress"})
+        TextView txtMens = view.findViewById(R.id.txtMensa);
+        txtMens.setText(msg);
+
+        Toast toast = new Toast(getApplicationContext());
+        toast.setGravity(Gravity.CENTER_VERTICAL | Gravity.BOTTOM,0,200);
+        toast.setDuration(Toast.LENGTH_SHORT);
+        toast.setView(view);
+        toast.show();
+    }
+
     private boolean validarRolloRegistrado(String num_importacion, String num_rollo, String nit_proveedor, String id_detalle){
         boolean resp = false;
         String sql = "SELECT peso FROM J_alambron_importacion_det_rollos WHERE peso IS NOT NULL AND num_importacion =" + num_importacion + " AND numero_rollo = " + num_rollo + " AND nit_proveedor=" + nit_proveedor + " AND id_solicitud_det =" + id_detalle;
@@ -486,7 +582,7 @@ public class Escaner extends AppCompatActivity implements AdapterView.OnItemClic
 
     //Solo para 'TRB1' modelo 08 traslado de la 1 a la 2
     // Solo para 'TRB1' modelo 12 traslado de la 2 a la 1
-    private List<Object> traslado_bodega(String codigo, String cantidad, String tipo, String costo_unit){
+    private List<Object> traslado_bodega(String codigo, Double cantidad, String tipo, Double costo_unit){
         List<Object> listSql;
 
         Calendar calendar = Calendar.getInstance();
@@ -495,8 +591,8 @@ public class Escaner extends AppCompatActivity implements AdapterView.OnItemClic
         String fecha = dateFormat.format(calendar.getTime());
 
         String usuario = nit_usuario;
-        String notas = "SPIC fecha:" + fecha + " usuario:" + usuario;
-        numero_transaccion = Obj_ordenprodLn.mover_consecutivo(tipo, Escaner.this);
+        String notas = "MOVIL fecha:" + fecha + " usuario:" + usuario;
+        numero_transaccion = Integer.valueOf(Obj_ordenprodLn.mover_consecutivo(tipo, Escaner.this));
         listSql = objTraslado_bodLn.listaTransaccionDatable_traslado_bodega(numero_transaccion, codigo, bod_origen, bod_destino, calendar, notas, usuario, cantidad, tipo, modelo, costo_unit,Escaner.this);
         return listSql;
     }

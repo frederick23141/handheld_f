@@ -13,7 +13,7 @@ import java.util.List;
 
 public class Ing_prod_ad {
     public Boolean ExecuteSqlTransaction(List<Object> listSql , String db, Context context) throws SQLException {
-        Boolean resp = false;
+        boolean resp = false;
         String ip="10.10.10.246", port="1433", username = "Practicante.sistemas", password = "+Psis.*";
         String connectionUrl= "jdbc:jtds:sqlserver://"+ip+":"+port+";databasename="+ db +";User="+username+";password="+password+";";
 

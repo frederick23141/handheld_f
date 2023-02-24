@@ -39,7 +39,7 @@ public class listpedidoAdapter extends ArrayAdapter<PedidoModelo> {
         PedidoModelo modelo = mlist.get(position);
 
         TextView textonumero = view.findViewById(R.id.txtnumero);
-        textonumero.setText(modelo.getNumero());
+        textonumero.setText(modelo.getNumero().toString());
 
         TextView textocodigo = view.findViewById(R.id.txtPeso);
         textocodigo.setText(modelo.getCodigo());

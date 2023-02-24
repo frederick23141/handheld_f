@@ -2,14 +2,14 @@ package com.example.handheld.modelos;
 
 public class PedidoModelo {
 
-    private String numero;
-    private String idDetalle;
+    private Integer numero;
+    private Integer idDetalle;
     private String fecha;
     private String codigo;
     private String pendiente;
     private String descripcion;
 
-    public PedidoModelo(String numero, String idDetalle, String fecha, String codigo, String pendiente, String descripcion) {
+    public PedidoModelo(Integer numero, Integer idDetalle, String fecha, String codigo, String pendiente, String descripcion) {
         this.numero = numero;
         this.idDetalle = idDetalle;
         this.fecha = fecha;
@@ -22,19 +22,19 @@ public class PedidoModelo {
 
     }
 
-    public String getNumero() {
+    public Integer getNumero() {
         return numero;
     }
 
-    public void setNumero(String numero) {
+    public void setNumero(Integer numero) {
         this.numero = numero;
     }
 
-    public String getIdDetalle() {
+    public Integer getIdDetalle() {
         return idDetalle;
     }
 
-    public void setIdDetalle(String idDetalle) {
+    public void setIdDetalle(Integer idDetalle) {
         this.idDetalle = idDetalle;
     }
 

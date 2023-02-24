@@ -119,6 +119,21 @@ public class Conexion {
         return codigo;
     }
 
+    public String consultarStock(Context context,String codigo, String bodega){
+        String Stock = null;
+
+        try {
+            Statement st = conexionBD("JJVDMSCIERREAGOSTO", context).createStatement();
+            ResultSet rs = st.executeQuery("SELECT stock,bodega FROM v_referencias_sto_hoy WHERE codigo = '" + codigo + "' and bodega = " + bodega + " ");
+            if (rs.next()){
+                Stock = rs.getString("stock");
+            }
+        }catch (Exception e){
+            Toast.makeText(context, e.getMessage(), Toast.LENGTH_SHORT).show();
+        }
+        return Stock;
+    }
+
     public String obtenerConsecutivo(Context context, String sql){
         String numero = "";
 
@@ -134,7 +149,8 @@ public class Conexion {
         return numero;
     }
 
-    public String obtenerDescripcion(Context context, String sql){
+
+    public String obtenerDescripcionCodigo(Context context, String sql){
         String descripcion = "";
 
         try {
@@ -192,21 +208,6 @@ public class Conexion {
             Toast.makeText(context, e.getMessage(), Toast.LENGTH_SHORT).show();
         }
         return costo_kilo;
-    }
-
-    public String obtenerDescripcionCodigo(Context context, String sql){
-        String descripcion = "";
-
-        try {
-            Statement st = conexionBD("JJVDMSCIERREAGOSTO", context).createStatement();
-            ResultSet rs = st.executeQuery(sql);
-            if (rs.next()){
-                descripcion = rs.getString("descripcion");
-            }
-        }catch (Exception e){
-            Toast.makeText(context, e.getMessage(), Toast.LENGTH_SHORT).show();
-        }
-        return descripcion;
     }
 
     public String obtenerCantidadPedido(Context context, String sql){
@@ -324,8 +325,8 @@ public class Conexion {
                     "                                    ORDER BY E.fecha");
             while (rs.next()){
                 modelo = new PedidoModelo();
-                modelo.setNumero(rs.getString("numero"));
-                modelo.setIdDetalle(rs.getString("id_detalle"));
+                modelo.setNumero(Integer.valueOf(rs.getString("numero")));
+                modelo.setIdDetalle(Integer.valueOf(rs.getString("id_detalle")));
                 modelo.setFecha(rs.getString("fecha"));
                 modelo.setCodigo(rs.getString("codigo"));
                 modelo.setPendiente(rs.getString("pendiente"));

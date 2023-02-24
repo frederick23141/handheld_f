@@ -18,7 +18,7 @@ public class ObjTraslado_bodLn {
     Obj_ordenprodLn obj_ordenprodLn = new Obj_ordenprodLn();
     Conexion conexion = new Conexion();
 
-    public List<Object> listaTransaccionDatable_traslado_bodega(String num, String cod, String bod_orig, String bod_dest, Calendar dFec, String notas, String usuario, String cantidad, String tipo, String modelo, String costo_kilo, Context context){
+    public List<Object> listaTransaccionDatable_traslado_bodega(Integer num, String cod, Integer bod_orig, Integer bod_dest, Calendar dFec, String notas, String usuario, Double cantidad, String tipo, String modelo, Double costo_kilo, Context context){
         String sql = "";
         String sql_lin_salida = "";
         String sql_lin_entrada = "";
@@ -28,16 +28,16 @@ public class ObjTraslado_bodLn {
         String fecha_hora = dateFormat.format(dFec.getTime());
         List<Object> listSql = new ArrayList<>();;
         String nit = "890900160";
-        double vrTotal = Double.parseDouble(costo_kilo) * Double.parseDouble(cantidad);
-        Double costo_total = Double.parseDouble(costo_kilo) * Double.parseDouble(cantidad);
+        double vrTotal = costo_kilo * cantidad;
+        Double costo_total = costo_kilo * cantidad;
         int vendedor = 0;
-        String pc = Build.BRAND +"-"+ fecha_hora +"-"+ Build.MODEL +"-"+ usuario;
+        String pc = Build.BRAND +"-"+ Build.MODEL;
         String sFecha_hora = "";
         String sFecha = "";
         int swDoc = 16;
         int swDoc_lin = 0;
         Boolean inserto = false;
-        double vr_unitario = Double.parseDouble(costo_kilo);
+        double vr_unitario = costo_kilo;
 
         if (obj_ordenprodLn.insertarProxMes(cod,context)){
             dFec.add(Calendar.MONTH, 1);
@@ -80,7 +80,7 @@ public class ObjTraslado_bodLn {
             sFecha_hora = dateFormatsFecha_hora.format(calendar.getTime());
 
             @SuppressLint("SimpleDateFormat")
-            SimpleDateFormat dateFormatfecha_hora = new SimpleDateFormat("MM-dd-yyyy HH:mm:ss");
+            SimpleDateFormat dateFormatfecha_hora = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
             fecha_hora = dateFormatfecha_hora.format(calendar.getTime());
 
 
@@ -89,9 +89,9 @@ public class ObjTraslado_bodLn {
             sFecha = dateFormatsFecha.format(calendar.getTime());
         }
 
-        if (existe_referencias_sto(cod, java.lang.Integer.valueOf(bod_dest), dFec, context).equals(false)){
+        if (existe_referencias_sto(cod, bod_dest, dFec, context).equals(false)){
             try {
-                listSql.add(crear_referencias_sto(cod, Integer.valueOf(bod_dest), dFec));
+                listSql.add(crear_referencias_sto(cod, bod_dest, dFec));
             }catch (Exception e){
                 Toast.makeText(context, e.getMessage(), Toast.LENGTH_SHORT).show();
             }
@@ -99,7 +99,7 @@ public class ObjTraslado_bodLn {
 
         sql = "INSERT INTO  documentos (sw,tipo,numero,nit,fecha,vencimiento,valor_total,vendedor,valor_aplicado" +
                 ",anulado,modelo,notas ,usuario,pc,fecha_hora,bodega,duracion,concepto ,centro_doc,spic) VALUES " +
-                "(" + swDoc + ",'" + tipo + "'," + num + "," + nit + ",'" + sFecha + "','" + sFecha + "'," +
+                "(" + swDoc + ",'" + tipo + "'," + num + "," + Integer.parseInt(nit) + ",'" + sFecha + "','" + sFecha + "'," +
                 "" + vrTotal + "," + vendedor + "," + 0 + ",0 ,'" + modelo + "','" + notas + "','" + usuario + "" +
                 "','" + pc + "','" + sFecha_hora + "'," + bod_orig + ",15,0,0,'S') ";
 
@@ -128,7 +128,7 @@ public class ObjTraslado_bodLn {
         }
 
         //'Script para ingresar a referencias_sto (STOCK)
-        listSql.add(actualizarRefSto(Double.parseDouble(cantidad), Double.parseDouble(costo_kilo), cod, dFec, Integer.parseInt(bod_orig), swDoc_lin));
+        listSql.add(actualizarRefSto(cantidad, costo_kilo, cod, dFec, bod_orig, swDoc_lin));
         listSql.add(sqlActUltEntradaUltSalida(swDoc_lin, cod));
 
 
@@ -148,12 +148,17 @@ public class ObjTraslado_bodLn {
         }
 
         //'Script para ingresar a referencias_sto (STOCK)
-        String actRef = actualizarRefSto(Double.parseDouble(cantidad), Double.parseDouble(costo_kilo), cod, dFec, Integer.parseInt(bod_dest), swDoc_lin);
+        String actRef = actualizarRefSto(cantidad, costo_kilo, cod, dFec, bod_dest, swDoc_lin);
         listSql.add(actRef);
         String actUlt = sqlActUltEntradaUltSalida(swDoc_lin, cod);
         listSql.add(actUlt);
 
         return (listSql);
+    }
+
+    public String obtenerBodegaXcodigo(String codigo){
+        char primerCaracter = codigo.charAt(0);
+        return Character.toString(primerCaracter);
     }
 
     public String sqlActUltEntradaUltSalida(Integer swTipo, String codigo){

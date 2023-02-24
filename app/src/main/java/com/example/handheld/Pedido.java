@@ -34,8 +34,8 @@ public class Pedido extends AppCompatActivity implements AdapterView.OnItemClick
     Button btnActualizar;
     TextView movimiento;
     String nit_usuario;
-    String bod_origen;
-    String bod_destino;
+    Integer bod_origen;
+    Integer bod_destino;
     String modelo;
 
     @SuppressLint({"MissingInflatedId", "SetTextI18n"})
@@ -51,11 +51,11 @@ public class Pedido extends AppCompatActivity implements AdapterView.OnItemClick
         listviewPedido.setOnItemClickListener(this); //Determinamos a que elemento va dirigido el OnItemClick
 
         nit_usuario = getIntent().getStringExtra("nit_usuario");
-        bod_origen = getIntent().getStringExtra("bod_origen");
-        bod_destino = getIntent().getStringExtra("bod_destino");
+        bod_origen = getIntent().getIntExtra("bod_origen", 0);
+        bod_destino = getIntent().getIntExtra("bod_destino", 0);
         modelo = getIntent().getStringExtra("modelo");
 
-        movimiento.setText("Movimiento: Bodega " + bod_origen + " - " + bod_destino);
+        movimiento.setText("Movimiento: Bodega " + bod_origen.toString() + " - " + bod_destino.toString());
 
         pedidoModelo = new PedidoModelo();
         consultarPedidos();
