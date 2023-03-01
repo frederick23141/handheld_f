@@ -1,6 +1,7 @@
 package com.example.handheld;
 
 import android.annotation.SuppressLint;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.text.InputType;
@@ -10,6 +11,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
@@ -62,7 +64,7 @@ public class Escaner extends AppCompatActivity implements AdapterView.OnItemClic
     TextView txtKilosRollo;
     TextView lblCodigo, txtIngMovimientos;
     TextView lblDescripcion, txtTransaccion;
-    Button btnTransaccion, btnSalida, teclado;
+    Button btnTransaccion, btnSalida;
     String pfecha, pcodigo, pPendiente, pDescripcion;
     Integer pNumero, pIdDetalle;
     Integer numero_transaccion;
@@ -70,6 +72,7 @@ public class Escaner extends AppCompatActivity implements AdapterView.OnItemClic
     Integer bod_origen, bod_destino;
     String consecutivo;
     String nit_proveedor,num_importacion,id_detalle,numero_rollo;
+    boolean yaentre=false;
 
     private final ActivityResultLauncher<ScanOptions> barcodeLauncher = registerForActivityResult(new ScanContract(), result -> {
         if (result.getContents() == null){
@@ -77,6 +80,7 @@ public class Escaner extends AppCompatActivity implements AdapterView.OnItemClic
         }else{
             binding.etCodigo.setText(result.getContents());
             codigoIngresado();
+            closeTecladoMovil();
         }
     });
 
@@ -96,7 +100,6 @@ public class Escaner extends AppCompatActivity implements AdapterView.OnItemClic
         btnTransaccion = findViewById(R.id.btnTransaccion);
         txtTransaccion = findViewById(R.id.txtTransaccion);
         btnSalida = findViewById(R.id.btnSalida);
-        teclado = findViewById(R.id.teclado);
 
         //Herramientas para el listView
         listviewEscaner = findViewById(R.id.listviewEscaner);
@@ -118,9 +121,6 @@ public class Escaner extends AppCompatActivity implements AdapterView.OnItemClic
         //Colocamos el titulo con la informacion
         txtTransaccion.setText(pcodigo + " - movimiento: bodega " + bod_origen + " - " + bod_destino);
 
-        //Se establece el foco en el edit text
-        etCodigo.setInputType(InputType.TYPE_NULL);
-        etCodigo.requestFocus();
 
         consultarTipos();
 
@@ -141,22 +141,14 @@ public class Escaner extends AppCompatActivity implements AdapterView.OnItemClic
                 if (barras.equals("")){
                     escanear();
                 }else{
+                    closeTecladoMovil();
                     codigoIngresado();
                 }
             }
         });
 
-        //Se programa para que al presionar el boton se active o desactive le teclado
-        teclado.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (etCodigo.getInputType() == InputType.TYPE_NULL){
-                    etCodigo.setInputType(InputType.TYPE_CLASS_TEXT);
-                }else{
-                    etCodigo.setInputType(InputType.TYPE_NULL);
-                }
-            }
-        });
+        //Se establece el foco en el edit text
+        etCodigo.requestFocus();
 
         //Se programa el boton de transacción
         btnTransaccion.setOnClickListener(new View.OnClickListener() {
@@ -176,10 +168,13 @@ public class Escaner extends AppCompatActivity implements AdapterView.OnItemClic
         etCodigo.setOnKeyListener(new View.OnKeyListener() {
             @Override
             public boolean onKey(View v, int keyCode, KeyEvent event) {
-                if (keyCode == KeyEvent.KEYCODE_ENTER) {
+
+
+                if (yaentre==false && keyCode == KeyEvent.KEYCODE_ENTER) {
                     if(etCodigo.getText().equals("")){
                         toastError("Por favor escribir o escanear el codigo de barras");
                     }else{
+                        closeTecladoMovil();
                         codigoIngresado();
                     }
                     return true;
@@ -190,19 +185,31 @@ public class Escaner extends AppCompatActivity implements AdapterView.OnItemClic
 
 
     }
+
+    //Metodo para ocultar el teclado virtual
+    private void closeTecladoMovil() {
+        View view = this.getCurrentFocus();
+        if(view != null){
+            InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+            imm.hideSoftInputFromWindow(view.getWindowToken(),0);
+        }
+    }
+
     //METODO PARA CERRAR LA APLICACION
     @SuppressLint("")
     public void salir(View view){
         finishAffinity();;
     }
 
-    //METODO AÑADIR ROLLOS
+    //Se envia la lista de rollos al EscanerAdapter y despues a la listview
     public void addrollotrans(){
 
         EscanerAdapter = new listescanerAdapter(Escaner.this,R.layout.item_row_escaner,ListaEscaner);
         listviewEscaner.setAdapter(EscanerAdapter);
     }
 
+    //Metodo donde se obtienen todos los datos del rollo obtenidos por su codigo de barras
+    //Y se envian al metodo realizar_transacción
     private void guardar() throws SQLException {
         String gTipo = spinner.getSelectedItem().toString();
         String gNotas = "SPIC traslado(HandHeld) usuario: " + nit_usuario;
@@ -229,10 +236,9 @@ public class Escaner extends AppCompatActivity implements AdapterView.OnItemClic
             etCodigo.setText("");
             toastError(e.getMessage());
         }
-
-
     }
 
+    //Metodo donde se agregan las consultas sql a una lista y se envian a otro metodo para ejecutarlas
     public Boolean realizar_transaccion(String gCodigo, Double gPeso, Double gNit_prov, Double gNum_importa, String gTipo, Double gDeta, Double gNum_rollo, Double gCosto_unit) throws SQLException {
         boolean resp = true;
         List<Object> listTransaccion_prod = new ArrayList<Object>();
@@ -244,7 +250,9 @@ public class Escaner extends AppCompatActivity implements AdapterView.OnItemClic
         listTransaccion_corsan = traslado_bodega(gCodigo, gPeso, gTipo, gCosto_unit);
         sql_solicitud = "INSERT INTO J_salida_alambron_transaccion (numero,id_detalle,tipo,num_transaccion) " +
                 "VALUES (" + pNumero + "," + pIdDetalle + ",'" + gTipo + "'," + numero_transaccion + ") ";
+
         try {
+            //Se añade el sql a la lista
             listTransaccion_prod.add(sql_solicitud);
         }catch (Exception e){
             Toast.makeText(Escaner.this, e.getMessage(), Toast.LENGTH_SHORT).show();
@@ -270,6 +278,7 @@ public class Escaner extends AppCompatActivity implements AdapterView.OnItemClic
         }
 
         try {
+            //Se añade el sql a la lista
             listTransaccion_prod.add(sql_rollo);
         }catch (Exception e){
             Toast.makeText(Escaner.this, e.getMessage(), Toast.LENGTH_SHORT).show();
@@ -283,32 +292,25 @@ public class Escaner extends AppCompatActivity implements AdapterView.OnItemClic
                 addRollo(num_importacion, consecutivo, gPeso, gNum_rollo, gDeta, gNit_prov, gTipo);
                 leer_nuevo();
                 contar_movimientos();
-                txtKilosRollo.setText("");
-                etCodigo.setText("");
 
                 toastAcierto("Transaccion Realizada con Exito! - "+ gTipo +": " + numero_transaccion);
             }else{
                 toastError("Problemas, No se realizó correctamente la transacción!");
                 txtKilosRollo.setText("");
-                etCodigo.setText("");
+                leer_nuevo();
                 resp = false;
             }
 
         }else{
             //Toast.makeText(Escaner.this,"Error al realizar la transacción!", Toast.LENGTH_SHORT).show();
             toastError("Error al realizar la transacción!");
+            leer_nuevo();
             resp = false;
         }
         return  resp;
     }
 
-    private void contar_movimientos() {
-        int size = ListaEscaner.size();
-        String sizeString = Integer.toString(size);
-        txtIngMovimientos.setText(sizeString);
-
-    }
-
+    //Se añaden los datos del rollo en la lista "ListaEscaner"
     public void addRollo(String num_importacion, String consecutivo, Double peso, Double num_rollo, Double id_detalle, Double nit_prov, String tipo){
         DetalleTranModelo escanerModelo;
 
@@ -332,10 +334,18 @@ public class Escaner extends AppCompatActivity implements AdapterView.OnItemClic
         ListaEscaner.add(escanerModelo);
 
         addrollotrans();
-
     }
 
+    @SuppressLint("SetTextI18n")
+    private void leer_nuevo(){
+        lblCodigo.setText("LEA CODIGO");
+        lblDescripcion.setText("LEA CODIGO");
+        etCodigo.setText("");
+        txtKilosRollo.setText("");
+        yaentre = false;
+    }
 
+    //Se verifica que todos los datos del codigo de barras
     private boolean validarFrm(){
         String sql_cantidad = "SELECT (D.cantidad - (SELECT COUNT(numero) FROM J_salida_alambron_transaccion  WHERE numero = D.numero AND id_detalle = D.id_detalle))As pendiente FROM J_salida_alambron_enc E ,J_salida_alambron_det D, CORSAN.dbo.referencias R WHERE E.anulado is null AND  R.codigo = D.codigo AND D.numero = E.numero  and e.numero=" + pNumero + "";
         String cantidad = conexion.obtenerCantidadPedido(Escaner.this, sql_cantidad);
@@ -380,6 +390,7 @@ public class Escaner extends AppCompatActivity implements AdapterView.OnItemClic
     }
 
 
+    //Metodoque recibe una lista tipo transmodelo, la recorre y añade a otra lista tipo String
     private ArrayList<String> obtenerLista(ArrayList<TipotransModelo> tiposLista ){
         listaTipos = new ArrayList<String>();
         //listaTipos.add("Seleccione");
@@ -387,9 +398,9 @@ public class Escaner extends AppCompatActivity implements AdapterView.OnItemClic
         for(int i = 0; i < tiposLista.size(); i++){
             listaTipos.add(tiposLista.get(i).getTipo().toString());
         }
-
         return listaTipos;
     }
+
 
     private void codigoIngresado(){
         consecutivo = etCodigo.getText().toString();
@@ -413,6 +424,8 @@ public class Escaner extends AppCompatActivity implements AdapterView.OnItemClic
                         String sql_descripcion = "SELECT descripcion FROM referencias WHERE  codigo = '" + codigo + "'";
                         lblDescripcion.setText(conexion.obtenerDescripcionCodigo(Escaner.this,sql_descripcion));
                         txtKilosRollo.setText(peso);
+                        yaentre=true;
+                        //etCodigo.setText("");
                     }else{
                         //nit_proveedor= "999999999";
                         if (nit_proveedor.equals("999999999")){
@@ -431,7 +444,6 @@ public class Escaner extends AppCompatActivity implements AdapterView.OnItemClic
                                             }else{
                                                 Toast.makeText(Escaner.this, "!Error al desactivar el rollo", Toast.LENGTH_SHORT).show();
                                             }
-
                                         }
                                     }).
                                     setNegativeButton("Cancelar", new DialogInterface.OnClickListener() {
@@ -442,17 +454,22 @@ public class Escaner extends AppCompatActivity implements AdapterView.OnItemClic
                                     });
                             AlertDialog alertDialog = builder.create();
                             alertDialog.show();
+                        }else{
+                            toastError("Ya se le hizo una salida al rollo");
+                            leer_nuevo();
+                            //Toast.makeText(this,"Ya se le hizo una salida al rollo, Rollo con salida" , Toast.LENGTH_SHORT).show();
                         }
-                        toastError("Ya se le hizo una salida al rollo");
-                        //Toast.makeText(this,"Ya se le hizo una salida al rollo, Rollo con salida" , Toast.LENGTH_SHORT).show();
                     }
                 }else{
                     toastError("El código de alambrón no pertenece al pedido");
                     //Toast.makeText(this, "El código de alambrón no pertenece al pedido", Toast.LENGTH_SHORT).show();
+                    etCodigo.setText("");
                     leer_nuevo();
                 }
             }else{
                 toastError("El codigo de barras no se encuentra asignado");
+                etCodigo.setText("");
+                leer_nuevo();
                 //Toast.makeText(this,"El codigo de barras no se encuentra asignado", Toast.LENGTH_SHORT).show();
             }
         }
@@ -481,60 +498,6 @@ public class Escaner extends AppCompatActivity implements AdapterView.OnItemClic
         options.setBarcodeImageEnabled(false);
 
         barcodeLauncher.launch(options);
-    }
-
-    private boolean validarCodigoBarras(String consecutivo){
-        boolean resp = false;
-
-        String nit_proveedor = obj_gestion_alambronLn.extraerDatoCodigoBarras("proveedor", consecutivo);
-        String num_importacion = obj_gestion_alambronLn.extraerDatoCodigoBarras("num_importacion", consecutivo);
-        String id_detalle = obj_gestion_alambronLn.extraerDatoCodigoBarras("detalle", consecutivo);
-        String numero_rollo = obj_gestion_alambronLn.extraerDatoCodigoBarras("num_rollo", consecutivo);
-
-        if (!num_importacion.isEmpty() && !numero_rollo.isEmpty() && !id_detalle.isEmpty() && !nit_proveedor.isEmpty()) {
-            String sql = "SELECT id FROM J_alambron_importacion_det_rollos WHERE num_importacion =" + num_importacion + " AND numero_rollo = " + numero_rollo + " AND nit_proveedor = " + nit_proveedor + " AND id_solicitud_det = " + id_detalle;
-            String id = conexion.obtenerIdAlamImport(Escaner.this, sql);
-            if (id.isEmpty()){
-                //Toast.makeText(this, "Intente leerlo nuevamente,Problemas con el tiquete", Toast.LENGTH_SHORT).show();
-                toastError("Intente leerlo nuevamente,Problemas con el tiquete");
-                leer_nuevo();
-
-            }else{
-                resp = true;
-            }
-        }else{
-            toastError("Intente leerlo nuevamente,Problemas con el tiquete");
-        }
-        return resp;
-    }
-
-    //METODO DE TOAST PERSONALIZADO : ERROR
-    public void toastError(String msg){
-        LayoutInflater layoutInflater = getLayoutInflater();
-        View view = layoutInflater.inflate(R.layout.custom_toast_per_no_encon, (ViewGroup) findViewById(R.id.ll_custom_toast_per_no_encon));
-        TextView txtMensaje = view.findViewById(R.id.txtMensajeToast1);
-        txtMensaje.setText(msg);
-
-        Toast toast = new Toast(getApplicationContext());
-        toast.setGravity(Gravity.CENTER_VERTICAL | Gravity.BOTTOM,0,200);
-        toast.setDuration(Toast.LENGTH_SHORT);
-        toast.setView(view);
-        toast.show();
-    }
-
-    //METODO DE TOAST PERSONALIZADO : ACIERTO
-    public void toastAcierto(String msg){
-        LayoutInflater layoutInflater = getLayoutInflater();
-        View view = layoutInflater.inflate(R.layout.custom_toast_acierto, (ViewGroup) findViewById(R.id.ll_custom_toast_acierto));
-        @SuppressLint({"MissingInflatedId", "LocalSuppress"})
-        TextView txtMens = view.findViewById(R.id.txtMensa);
-        txtMens.setText(msg);
-
-        Toast toast = new Toast(getApplicationContext());
-        toast.setGravity(Gravity.CENTER_VERTICAL | Gravity.BOTTOM,0,200);
-        toast.setDuration(Toast.LENGTH_SHORT);
-        toast.setView(view);
-        toast.show();
     }
 
     private boolean validarRolloRegistrado(String num_importacion, String num_rollo, String nit_proveedor, String id_detalle){
@@ -572,12 +535,29 @@ public class Escaner extends AppCompatActivity implements AdapterView.OnItemClic
         return respuesta;
     }
 
-    @SuppressLint("SetTextI18n")
-    private void leer_nuevo(){
-        lblCodigo.setText("LEA CODIGO");
-        lblDescripcion.setText("LEA CODIGO");
-        etCodigo.setText("");
+    private boolean validarCodigoBarras(String consecutivo){
+        boolean resp = false;
 
+        String nit_proveedor = obj_gestion_alambronLn.extraerDatoCodigoBarras("proveedor", consecutivo);
+        String num_importacion = obj_gestion_alambronLn.extraerDatoCodigoBarras("num_importacion", consecutivo);
+        String id_detalle = obj_gestion_alambronLn.extraerDatoCodigoBarras("detalle", consecutivo);
+        String numero_rollo = obj_gestion_alambronLn.extraerDatoCodigoBarras("num_rollo", consecutivo);
+
+        if (!num_importacion.isEmpty() && !numero_rollo.isEmpty() && !id_detalle.isEmpty() && !nit_proveedor.isEmpty()) {
+            String sql = "SELECT id FROM J_alambron_importacion_det_rollos WHERE num_importacion =" + num_importacion + " AND numero_rollo = " + numero_rollo + " AND nit_proveedor = " + nit_proveedor + " AND id_solicitud_det = " + id_detalle;
+            String id = conexion.obtenerIdAlamImport(Escaner.this, sql);
+            if (id.isEmpty()){
+                //Toast.makeText(this, "Intente leerlo nuevamente,Problemas con el tiquete", Toast.LENGTH_SHORT).show();
+                toastError("Intente leerlo nuevamente,Problemas con el tiquete");
+                leer_nuevo();
+
+            }else{
+                resp = true;
+            }
+        }else{
+            toastError("Intente leerlo nuevamente,Problemas con el tiquete");
+        }
+        return resp;
     }
 
     //Solo para 'TRB1' modelo 08 traslado de la 1 a la 2
@@ -596,6 +576,44 @@ public class Escaner extends AppCompatActivity implements AdapterView.OnItemClic
         listSql = objTraslado_bodLn.listaTransaccionDatable_traslado_bodega(numero_transaccion, codigo, bod_origen, bod_destino, calendar, notas, usuario, cantidad, tipo, modelo, costo_unit,Escaner.this);
         return listSql;
     }
+
+    //Metodo que cuenta la cantidad de elemento que hay en la lista y cuenta cada uno como un movimiento
+    private void contar_movimientos() {
+        int size = ListaEscaner.size();
+        String sizeString = Integer.toString(size);
+        txtIngMovimientos.setText(sizeString);
+
+    }
+
+    //METODO DE TOAST PERSONALIZADO : ERROR
+    public void toastError(String msg){
+        LayoutInflater layoutInflater = getLayoutInflater();
+        View view = layoutInflater.inflate(R.layout.custom_toast_per_no_encon, (ViewGroup) findViewById(R.id.ll_custom_toast_per_no_encon));
+        TextView txtMensaje = view.findViewById(R.id.txtMensajeToast1);
+        txtMensaje.setText(msg);
+
+        Toast toast = new Toast(getApplicationContext());
+        toast.setGravity(Gravity.CENTER_VERTICAL | Gravity.BOTTOM,0,200);
+        toast.setDuration(Toast.LENGTH_SHORT);
+        toast.setView(view);
+        toast.show();
+    }
+
+    //METODO DE TOAST PERSONALIZADO : ACIERTO
+    public void toastAcierto(String msg){
+        LayoutInflater layoutInflater = getLayoutInflater();
+        View view = layoutInflater.inflate(R.layout.custom_toast_acierto, (ViewGroup) findViewById(R.id.ll_custom_toast_acierto));
+        @SuppressLint({"MissingInflatedId", "LocalSuppress"})
+        TextView txtMens = view.findViewById(R.id.txtMensa);
+        txtMens.setText(msg);
+
+        Toast toast = new Toast(getApplicationContext());
+        toast.setGravity(Gravity.CENTER_VERTICAL | Gravity.BOTTOM,0,200);
+        toast.setDuration(Toast.LENGTH_SHORT);
+        toast.setView(view);
+        toast.show();
+    }
+
 
     @Override
     public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
