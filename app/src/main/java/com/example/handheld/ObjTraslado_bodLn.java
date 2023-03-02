@@ -7,7 +7,6 @@ import android.widget.Toast;
 
 import com.example.handheld.conexionDB.Conexion;
 
-import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -19,7 +18,7 @@ public class ObjTraslado_bodLn {
     Conexion conexion = new Conexion();
 
     public List<Object> listaTransaccionDatable_traslado_bodega(Integer num, String cod, Integer bod_orig, Integer bod_dest, Calendar dFec, String notas, String usuario, Double cantidad, String tipo, String modelo, Double costo_kilo, Context context){
-        String sql = "";
+        String sql;
         String sql_lin_salida = "";
         String sql_lin_entrada = "";
         int seq = 0;
@@ -176,8 +175,6 @@ public class ObjTraslado_bodLn {
     private String actualizarRefSto(Double kilos , Double costUnit, String codigo, Calendar dFec, Integer bodega, Integer swTipo){
         String sql = "";
         //DecimalFormat df = new DecimalFormat("#0.0");
-        Double pes = kilos;
-        kilos = pes;
 
         //Capturamos el mes en un String
         @SuppressLint("SimpleDateFormat")
@@ -241,8 +238,6 @@ public class ObjTraslado_bodLn {
         SimpleDateFormat dateFormatYear = new SimpleDateFormat("yyyy");
         String ano = dateFormatYear.format(fec.getTime());
 
-        String sql = "INSERT INTO referencias_sto (bodega, codigo, ano, mes, can_ini, can_ent, can_sal, cos_ini, cos_ent, cos_sal, can_vta, cos_vta, val_vta, can_dev_vta, cos_dev_vta, val_dev, can_com, cos_com, can_dev_com, cos_dev_com, can_otr_ent, cos_otr_ent, can_otr_sal, cos_otr_sal, can_tra, cos_tra, sub_cos, baj_cos, nro_vta, nro_dev_vta, nro_com, nro_dev_com, nro_ped, can_ped, cos_ini_aju, cos_ent_aju, cos_sal_aju) VALUES (" + bodega + ", '" + codigo + "', " + ano + ", " + mes + ", 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)";
-
-        return sql;
+        return "INSERT INTO referencias_sto (bodega, codigo, ano, mes, can_ini, can_ent, can_sal, cos_ini, cos_ent, cos_sal, can_vta, cos_vta, val_vta, can_dev_vta, cos_dev_vta, val_dev, can_com, cos_com, can_dev_com, cos_dev_com, can_otr_ent, cos_otr_ent, can_otr_sal, cos_otr_sal, can_tra, cos_tra, sub_cos, baj_cos, nro_vta, nro_dev_vta, nro_com, nro_dev_com, nro_ped, can_ped, cos_ini_aju, cos_ent_aju, cos_sal_aju) VALUES (" + bodega + ", '" + codigo + "', " + ano + ", " + mes + ", 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)";
     }
 }

@@ -8,9 +8,10 @@
         android:id="@+id/imageView2"
         android:layout_width="wrap_content"
         android:layout_height="98dp"
-        android:layout_marginLeft="10dp"
+        android:layout_marginStart="10dp"
         android:layout_weight="1"
-        app:srcCompat="@drawable/alambre_de_acero__1_" />
+        app:srcCompat="@drawable/alambre_de_acero__1_"
+        android:contentDescription="@string/contDescripRollo" />
 
     <LinearLayout
         android:layout_width="match_parent"

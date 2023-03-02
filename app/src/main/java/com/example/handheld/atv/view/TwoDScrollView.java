@@ -638,7 +638,6 @@ public class TwoDScrollView extends FrameLayout {
             doScroll(deltaX, deltaY);
         }
         if (newFocused != findFocus() && newFocused.requestFocus(directionY)) {
-            mTwoDScrollViewMovedFocus = true;
             mTwoDScrollViewMovedFocus = false;
         }
         return handled;
@@ -1051,7 +1050,6 @@ public class TwoDScrollView extends FrameLayout {
             }
 
             if (newFocused != findFocus() && newFocused.requestFocus(movingDown ? View.FOCUS_DOWN : View.FOCUS_UP)) {
-                mTwoDScrollViewMovedFocus = true;
                 mTwoDScrollViewMovedFocus = false;
             }
 

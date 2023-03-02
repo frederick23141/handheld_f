@@ -11,7 +11,7 @@ import java.sql.SQLException;
 
 public class objOperacionesDb {
     public Integer ejecutarUpdate(String Sql, Context context) throws SQLException {
-        Integer resp = 0;
+        int resp = 0;
         Connection cnn = new Conexion().conexionBD("JJVDMSCIERREAGOSTO",context);
         try {
             if (cnn != null){
@@ -24,11 +24,12 @@ public class objOperacionesDb {
         }catch (Exception e){
             Toast.makeText(context, e.getMessage(), Toast.LENGTH_SHORT).show();
         }
+        assert cnn != null;
         cnn.close();
         return resp;
     }
     public Integer ejecutarUpdateProduccion(String Sql, Context context) throws SQLException {
-        Integer resp = 0;
+        int resp = 0;
         Connection cnn = new Conexion().conexionBD("JJVDMSCIERREAGOSTO",context);
         try {
             if (cnn != null){
@@ -41,6 +42,7 @@ public class objOperacionesDb {
         }catch (Exception e){
             Toast.makeText(context, e.getMessage(), Toast.LENGTH_SHORT).show();
         }
+        assert cnn != null;
         cnn.close();
         return resp;
     }

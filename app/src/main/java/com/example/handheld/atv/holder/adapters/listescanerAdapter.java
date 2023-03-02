@@ -1,4 +1,4 @@
-package com.example.handheld.adapters;
+package com.example.handheld.atv.holder.adapters;
 
 import android.content.Context;
 import android.view.LayoutInflater;
@@ -12,7 +12,6 @@ import androidx.annotation.Nullable;
 
 import com.example.handheld.R;
 import com.example.handheld.modelos.DetalleTranModelo;
-import com.example.handheld.modelos.PedidoModelo;
 
 import java.util.List;
 

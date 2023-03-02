@@ -3,7 +3,6 @@ package com.example.handheld.conexionDB;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.os.StrictMode;
-import android.util.Log;
 import android.widget.Toast;
 
 import com.example.handheld.modelos.PedidoModelo;
@@ -14,10 +13,8 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.List;
 
 public class Conexion {
@@ -26,12 +23,11 @@ public class Conexion {
     public Connection conexionBD(String dbname, Context Context){
         Connection cnn = null;
         String ip="10.10.10.246", port="1433", username = "Practicante.sistemas", password = "+Psis.*";
-        String databasename = dbname;
         StrictMode.ThreadPolicy politica = new StrictMode.ThreadPolicy.Builder().permitAll().build();
         StrictMode.setThreadPolicy(politica);
         try {
             Class.forName("net.sourceforge.jtds.jdbc.Driver").newInstance();
-            String connectionUrl= "jdbc:jtds:sqlserver://"+ip+":"+port+";databasename="+databasename+";User="+username+";password="+password+";";
+            String connectionUrl= "jdbc:jtds:sqlserver://"+ip+":"+port+";databasename="+ dbname +";User="+username+";password="+password+";";
             cnn = DriverManager.getConnection(connectionUrl);
         }catch (Exception e){
             Toast.makeText(Context, e.getMessage(), Toast.LENGTH_SHORT).show();
@@ -59,7 +55,7 @@ public class Conexion {
     }
 
     public String obtenerIdAlamImport(Context context, String sql){
-        String id = null;
+        String id = "";
 
         try {
             Statement st = conexionBD("JJVPRGPRODUCCION", context).createStatement();
@@ -241,7 +237,7 @@ public class Conexion {
     }
 
     public boolean existeCodigo(Context context, String codigo){
-        String Pcodigo = null;
+        String Pcodigo;
         boolean resp = false;
 
         try {
@@ -260,7 +256,7 @@ public class Conexion {
     }
 
     public boolean existeTipoTransaccion(Context context, String tipoSpinner){
-        String tipo = null;
+        String tipo;
         boolean resp = false;
 
         try {

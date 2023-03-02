@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -26,7 +26,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="PEDIDO"
+                android:text="@string/txtMovimientosPedido"
                 android:textAlignment="center"
                 android:textSize="20sp"
                 android:textStyle="bold" />
@@ -75,25 +75,26 @@
 
             <Button
                 android:id="@+id/btnActualizar"
-                android:layout_width="212dp"
+                android:layout_width="185dp"
                 android:layout_height="wrap_content"
-                android:layout_marginRight="10dp"
+                android:layout_marginEnd="10dp"
                 android:layout_weight="1"
                 android:backgroundTint="#192985"
-                android:drawableRight="@drawable/recargar__1_"
-                android:text="Actualizar Consulta"
-                android:textSize="12sp" />
+                android:drawableEnd="@drawable/recargar__1_"
+                android:text="@string/btnActualizar"
+                android:textSize="10sp" />
 
             <Button
                 android:id="@+id/btnSalir"
-                android:layout_width="91dp"
+                android:layout_width="92dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:backgroundTint="#979797"
-                android:drawableRight="@drawable/salida"
+                android:drawableEnd="@drawable/salida"
                 android:onClick="salir"
-                android:text="Salir"
-                android:textSize="12sp" />
+                android:text="@string/btnSalir"
+                android:textSize="12sp"
+                tools:ignore="UsingOnClickInXml" />
 
             <Space
                 android:layout_width="wrap_content"

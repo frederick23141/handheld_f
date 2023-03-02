@@ -28,7 +28,7 @@ public class AndroidTreeView {
     private static final String NODES_PATH_SEPARATOR = ";";
 
     protected TreeNode mRoot;
-    private Context mContext;
+    private final Context mContext;
     private boolean applyForRoot;
     private int containerStyle = 0;
     private Class<? extends TreeNode.BaseNodeViewHolder> defaultViewHolderClass = SimpleViewHolder.class;
@@ -379,7 +379,7 @@ public class AndroidTreeView {
     private void selectNode(TreeNode parent, boolean selected, boolean skipCollapsed) {
         parent.setSelected(selected);
         toogleSelectionForNode(parent, true);
-        boolean toContinue = skipCollapsed ? parent.isExpanded() : true;
+        boolean toContinue = !skipCollapsed || parent.isExpanded();
         if (toContinue) {
             for (TreeNode node : parent.getChildren()) {
                 selectNode(node, selected, skipCollapsed);

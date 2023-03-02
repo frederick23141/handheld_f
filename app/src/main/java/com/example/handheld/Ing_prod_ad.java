@@ -3,8 +3,6 @@ package com.example.handheld;
 import android.content.Context;
 import android.widget.Toast;
 
-import com.example.handheld.conexionDB.Conexion;
-
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
@@ -12,7 +10,7 @@ import java.sql.Statement;
 import java.util.List;
 
 public class Ing_prod_ad {
-    public Boolean ExecuteSqlTransaction(List<Object> listSql , String db, Context context) throws SQLException {
+    public Boolean ExecuteSqlTransaction(List<Object> listSql , String db, Context context) {
         boolean resp = false;
         String ip="10.10.10.246", port="1433", username = "Practicante.sistemas", password = "+Psis.*";
         String connectionUrl= "jdbc:jtds:sqlserver://"+ip+":"+port+";databasename="+ db +";User="+username+";password="+password+";";

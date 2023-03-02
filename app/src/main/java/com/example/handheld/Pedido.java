@@ -8,7 +8,6 @@ import android.os.Bundle;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.ListAdapter;
@@ -16,7 +15,7 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.example.handheld.adapters.listpedidoAdapter;
+import com.example.handheld.atv.holder.adapters.listpedidoAdapter;
 import com.example.handheld.conexionDB.Conexion;
 import com.example.handheld.modelos.PedidoModelo;
 
@@ -25,14 +24,20 @@ import java.util.List;
 
 public class Pedido extends AppCompatActivity implements AdapterView.OnItemClickListener {
 
-    private ListView listviewPedido;
-    private List<PedidoModelo> ListaPedidos = new ArrayList<>();
+    //Se declaran los elementos del layout
+    Button btnSalir, btnActualizar;
+    TextView movimiento;
+
+    //Se declaran los elementos necesarios para el list view
+    ListView listviewPedido;
+    List<PedidoModelo> ListaPedidos = new ArrayList<>();
     ListAdapter PedidoAdapter;
     PedidoModelo pedidoModelo;
+
+    //Se declara un objeto conexion
     Conexion conexion;
-    Button btnSalir;
-    Button btnActualizar;
-    TextView movimiento;
+
+    //Se declaran variables necesarias en la clase
     String nit_usuario;
     Integer bod_origen;
     Integer bod_destino;
@@ -44,29 +49,32 @@ public class Pedido extends AppCompatActivity implements AdapterView.OnItemClick
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_pedido);
 
-        listviewPedido = findViewById(R.id.listviewPedido);
+        //Definimos los elemetos del layout en la clase
         btnSalir = findViewById(R.id.btnSalir);
         btnActualizar = findViewById(R.id.btnActualizar);
         movimiento = findViewById(R.id.movimiento);
-        listviewPedido.setOnItemClickListener(this); //Determinamos a que elemento va dirigido el OnItemClick
 
+        //Definimos los elementos necesarios para el list view
+        listviewPedido = findViewById(R.id.listviewPedido);
+        listviewPedido.setOnItemClickListener(this); //Determinamos a que elemento va dirigido el OnItemClick
+        pedidoModelo = new PedidoModelo();
+
+        //Definimos la variables necesarias recibiendo los datos enviados por la anterior clase
         nit_usuario = getIntent().getStringExtra("nit_usuario");
         bod_origen = getIntent().getIntExtra("bod_origen", 0);
         bod_destino = getIntent().getIntExtra("bod_destino", 0);
         modelo = getIntent().getStringExtra("modelo");
 
+        //Le enviamos al Textview "movimiento" un texto
         movimiento.setText("Movimiento: Bodega " + bod_origen.toString() + " - " + bod_destino.toString());
 
-        pedidoModelo = new PedidoModelo();
+       //Llamamos al metodo para consultar los pedidos
         consultarPedidos();
 
-
-        btnActualizar.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                consultarPedidos();
-                toastActualizado("Actualizado");
-            }
+        //Programos el boton "Actualizar" para que al presionarlo actualice y muestre un mensaje
+        btnActualizar.setOnClickListener(view -> {
+            consultarPedidos();
+            toastActualizado("Actualizado");
         });
     }
 
@@ -83,12 +91,12 @@ public class Pedido extends AppCompatActivity implements AdapterView.OnItemClick
     //METODO PARA CERRAR LA APLICACION
     @SuppressLint("")
     public void salir(View view){
-        finishAffinity();;
+        finishAffinity();
     }
 
+    //Metodo "Al presionar algun elemento del listview"
     @Override
     public void onItemClick(AdapterView<?> adapterView, View view, int position, long l) {
-        //Toast.makeText(this, "Elemento clicado: " + position, Toast.LENGTH_SHORT).show();
         int intPendiente = Integer.parseInt(ListaPedidos.get(position).getPendiente());
 
         if (intPendiente > 0){
@@ -115,7 +123,7 @@ public class Pedido extends AppCompatActivity implements AdapterView.OnItemClick
     //METODO DE TOAST PERSONALIZADO : PERSONA NO ENCONTRADA
     public void toastError(String msg){
         LayoutInflater layoutInflater = getLayoutInflater();
-        View view = layoutInflater.inflate(R.layout.custom_toast_per_no_encon, (ViewGroup) findViewById(R.id.ll_custom_toast_per_no_encon));
+        View view = layoutInflater.inflate(R.layout.custom_toast_per_no_encon, findViewById(R.id.ll_custom_toast_per_no_encon));
         TextView txtMensaje = view.findViewById(R.id.txtMensajeToast1);
         txtMensaje.setText(msg);
 
@@ -129,7 +137,7 @@ public class Pedido extends AppCompatActivity implements AdapterView.OnItemClick
     //METODO DE TOAST PERSONALIZADO : ACTUALIZADO
     public void toastActualizado(String msg){
         LayoutInflater layoutInflater = getLayoutInflater();
-        View view = layoutInflater.inflate(R.layout.custom_toast_actualizado, (ViewGroup) findViewById(R.id.ll_custom_toast_actualizado));
+        View view = layoutInflater.inflate(R.layout.custom_toast_actualizado, findViewById(R.id.ll_custom_toast_actualizado));
         @SuppressLint({"MissingInflatedId", "LocalSuppress"}) TextView txtMensaje = view.findViewById(R.id.txtMsgToast);
         txtMensaje.setText(msg);
 

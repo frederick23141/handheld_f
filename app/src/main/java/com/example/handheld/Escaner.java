@@ -2,15 +2,11 @@ package com.example.handheld;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.os.Bundle;
-import android.text.InputType;
 import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
-import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -26,7 +22,7 @@ import androidx.activity.result.ActivityResultLauncher;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.example.handheld.adapters.listescanerAdapter;
+import com.example.handheld.atv.holder.adapters.listescanerAdapter;
 import com.example.handheld.conexionDB.Conexion;
 import com.example.handheld.databinding.ActivityEscanerBinding;
 import com.example.handheld.modelos.DetalleTranModelo;
@@ -38,42 +34,48 @@ import java.sql.SQLException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 
 public class Escaner extends AppCompatActivity implements AdapterView.OnItemClickListener {
 
     ActivityEscanerBinding binding;
-    ArrayList<String> listaTipos;
-    ArrayList<String> listaTp;
-    ArrayList<TipotransModelo> tiposLista = new ArrayList<TipotransModelo>();
-    Spinner spinner;
-    Conexion conexion;
 
-    //Herramientas para el listview
+    //Se declaran los elementos del layout
+    EditText etCodigo;
+    TextView txtTransaccion, txtKilosRollo, txtIngMovimientos, lblCodigo, lblDescripcion;
+    Button btnLeerCodigo, btnSalida, btnCancelar, btnTransaccion;
+    Spinner spinner;
+
+    //Se declaran las Herramientas para el listview
     ListView listviewEscaner;
     ListAdapter EscanerAdapter;
     List<DetalleTranModelo> ListaEscaner = new ArrayList<>();
 
+    //Se inicializan las listas para el comboBox
+    ArrayList<String> listaTipos;
+    ArrayList<String> listaTp;
+    ArrayList<TipotransModelo> tiposLista = new ArrayList<>();
 
+    //Se inicializa un objeto conexion
+    Conexion conexion;
+
+    //Se declaran los objetos de otras clases necesarias
     Gestion_alambronLn obj_gestion_alambronLn = new Gestion_alambronLn();
     ObjTraslado_bodLn objTraslado_bodLn = new ObjTraslado_bodLn();
     objOperacionesDb objOperacionesDb = new objOperacionesDb();
     Ing_prod_ad ing_prod_ad = new Ing_prod_ad();
-    EditText etCodigo;
-    TextView txtKilosRollo;
-    TextView lblCodigo, txtIngMovimientos;
-    TextView lblDescripcion, txtTransaccion;
-    Button btnTransaccion, btnSalida;
-    String pfecha, pcodigo, pPendiente, pDescripcion;
-    Integer pNumero, pIdDetalle;
-    Integer numero_transaccion;
-    String nit_usuario, modelo;
-    Integer bod_origen, bod_destino;
-    String consecutivo;
-    String nit_proveedor,num_importacion,id_detalle,numero_rollo;
-    boolean yaentre=false;
 
+    //se declaran las variables donde estaran los datos que vienen de la anterior clase
+    Integer pNumero, pIdDetalle, bod_origen, bod_destino;
+    String pfecha, pcodigo, pPendiente, pDescripcion, nit_usuario, modelo;
+
+    //Se inicializa variables necesarias en la clase
+    boolean yaentre = false;
+    String consecutivo, nit_proveedor,num_importacion,id_detalle,numero_rollo;
+    Integer numero_transaccion;
+
+    //Metodo que activa el escaner por medio de la camara del movil
     private final ActivityResultLauncher<ScanOptions> barcodeLauncher = registerForActivityResult(new ScanContract(), result -> {
         if (result.getContents() == null){
             toastError("CANCELADO");
@@ -91,17 +93,20 @@ public class Escaner extends AppCompatActivity implements AdapterView.OnItemClic
         binding = ActivityEscanerBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
-        spinner = findViewById(R.id.spinner);
+        //Se Definen los elementos de layout
         etCodigo = findViewById(R.id.etCodigo);
-        lblCodigo = findViewById(R.id.lblCodigo);
-        txtIngMovimientos = findViewById(R.id.txtIngMovimientos);
-        lblDescripcion = findViewById(R.id.lblDescripcion);
-        txtKilosRollo = findViewById(R.id.txtKilosRollo);
-        btnTransaccion = findViewById(R.id.btnTransaccion);
         txtTransaccion = findViewById(R.id.txtTransaccion);
+        txtKilosRollo = findViewById(R.id.txtKilosRollo);
+        txtIngMovimientos = findViewById(R.id.txtIngMovimientos);
+        lblCodigo = findViewById(R.id.lblCodigo);
+        lblDescripcion = findViewById(R.id.lblDescripcion);
+        btnLeerCodigo = findViewById(R.id.btnLeerCodigo);
         btnSalida = findViewById(R.id.btnSalida);
+        btnCancelar = findViewById(R.id.btnCancelar);
+        btnTransaccion = findViewById(R.id.btnTransaccion);
+        spinner = findViewById(R.id.spinner);
 
-        //Herramientas para el listView
+        //Se definen las herramientas para el listView
         listviewEscaner = findViewById(R.id.listviewEscaner);
         listviewEscaner.setOnItemClickListener(this);
 
@@ -121,70 +126,110 @@ public class Escaner extends AppCompatActivity implements AdapterView.OnItemClic
         //Colocamos el titulo con la informacion
         txtTransaccion.setText(pcodigo + " - movimiento: bodega " + bod_origen + " - " + bod_destino);
 
-
+        //Activamos el metodo para consultar los tipos
         consultarTipos();
-
-        //Se programa el boton de salida de la apicación
-        btnSalida.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                salir(v);
-            }
-        });
-
-        //Se programa el boton de lectura de codigo
-        binding.btnLeerCodigo.setOnClickListener(new View.OnClickListener() {
-
-            @Override
-            public void onClick(View view) {
-                String barras = etCodigo.getText().toString();
-                if (barras.equals("")){
-                    escanear();
-                }else{
-                    closeTecladoMovil();
-                    codigoIngresado();
-                }
-            }
-        });
 
         //Se establece el foco en el edit text
         etCodigo.requestFocus();
 
-        //Se programa el boton de transacción
-        btnTransaccion.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if (validarFrm()){
-                    try {
-                        guardar();
-                    } catch (SQLException e) {
-                        e.printStackTrace();
-                    }
+        //Se programa el boton de salida de la apicación
+        btnSalida.setOnClickListener(this::salir);
+
+        //Se programa el boton de lectura de codigo
+        btnLeerCodigo.setOnClickListener(view -> {
+            String barras = etCodigo.getText().toString();
+            if (yaentre) {
+                toastError("Rollo en proceso, Terminar la transferencia");
+            }else{
+                if (barras.equals("")){
+                    escanear();
+                }else{
+                    toastError("Borrar el texto escrito para abrir el escaner de la camara");
+                    //closeTecladoMovil();
+                    //codigoIngresado();
                 }
             }
+        });
+
+        //Se programa el boton de transacción
+        btnTransaccion.setOnClickListener(view -> {
+            if (validarFrm()){
+                try {
+                    guardar();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+
+        //Se programa el boton cancelar
+        btnCancelar.setOnClickListener(v -> {
+            String proceso = (String) lblCodigo.getText();
+            if(proceso.equals("LEA CODIGO")){
+                toastError("No hay ningun rollo en proceso");
+            }else{
+                if(proceso.equals("")){
+                    toastError("No hay ningun rollo en proceso");
+                }else{
+                    etCodigo.setEnabled(true);
+                    leer_nuevo();
+                    toastError("Proceso cancelado, Lea codigo de nuevo!");
+                }
+            }
+
         });
 
         //Se programa para que al presionar enter en el edit text haga el proceso
-        etCodigo.setOnKeyListener(new View.OnKeyListener() {
-            @Override
-            public boolean onKey(View v, int keyCode, KeyEvent event) {
+        etCodigo.setOnKeyListener((v, keyCode, event) -> {
 
-
-                if (yaentre==false && keyCode == KeyEvent.KEYCODE_ENTER) {
-                    if(etCodigo.getText().equals("")){
-                        toastError("Por favor escribir o escanear el codigo de barras");
-                    }else{
-                        closeTecladoMovil();
-                        codigoIngresado();
-                    }
-                    return true;
+            if (!yaentre && keyCode == KeyEvent.KEYCODE_ENTER) {
+                if(etCodigo.getText().equals("")){
+                    toastError("Por favor escribir o escanear el codigo de barras");
+                }else{
+                    closeTecladoMovil();
+                    codigoIngresado();
                 }
-                return false;
+                return true;
             }
+            return false;
         });
-
-
     }
+
+    public void consultarTipos(){
+        conexion = new Conexion();
+
+        tiposLista = conexion.obtenerTipos(getApplication());
+        listaTp = obtenerLista(tiposLista);
+        ArrayAdapter<CharSequence> adapter = new ArrayAdapter(Escaner.this, android.R.layout.simple_spinner_item, listaTp);
+        spinner.setEnabled(false);
+        spinner.setClickable(false);
+        spinner.setAdapter(adapter);
+    }
+
+    //Metodoque recibe una lista tipo transmodelo, la recorre y añade a otra lista tipo String
+    private ArrayList<String> obtenerLista(ArrayList<TipotransModelo> tiposLista ){
+        listaTipos = new ArrayList<>();
+        //listaTipos.add("Seleccione");
+
+        for(int i = 0; i < tiposLista.size(); i++){
+            listaTipos.add(tiposLista.get(i).getTipo());
+        }
+        return listaTipos;
+    }
+
+    public void escanear() {
+        ScanOptions options = new ScanOptions();
+        options.setDesiredBarcodeFormats(ScanOptions.ALL_CODE_TYPES);
+        options.setPrompt("ESCANEAR CODIGO");
+        options.setCameraId(0);
+        options.setOrientationLocked(false);
+        options.setBeepEnabled(true);
+        options.setCaptureActivity(CaptureActivityPortraint.class);
+        options.setBarcodeImageEnabled(false);
+
+        barcodeLauncher.launch(options);
+    }
+
 
     //Metodo para ocultar el teclado virtual
     private void closeTecladoMovil() {
@@ -198,28 +243,188 @@ public class Escaner extends AppCompatActivity implements AdapterView.OnItemClic
     //METODO PARA CERRAR LA APLICACION
     @SuppressLint("")
     public void salir(View view){
-        finishAffinity();;
+        finishAffinity();
     }
 
-    //Se envia la lista de rollos al EscanerAdapter y despues a la listview
-    public void addrollotrans(){
+    ///////////////////////////////////////////////////////////////////////////////////////////////
+    ///////////////INICIAN LOS METODOS Y FUNCIONES DE LOS PROCESOS DE TRANSACCION//////////////////
+    ///////////////////////////////////////////////////////////////////////////////////////////////
 
-        EscanerAdapter = new listescanerAdapter(Escaner.this,R.layout.item_row_escaner,ListaEscaner);
-        listviewEscaner.setAdapter(EscanerAdapter);
+    private void codigoIngresado(){
+        consecutivo = etCodigo.getText().toString();
+        //consecutivo = "444444218-4-3-168";
+        if (validarCodigoBarras(consecutivo)){
+            nit_proveedor = obj_gestion_alambronLn.extraerDatoCodigoBarras("proveedor", consecutivo);
+            num_importacion = obj_gestion_alambronLn.extraerDatoCodigoBarras("num_importacion", consecutivo);
+            id_detalle = obj_gestion_alambronLn.extraerDatoCodigoBarras("detalle", consecutivo);
+            numero_rollo = obj_gestion_alambronLn.extraerDatoCodigoBarras("num_rollo", consecutivo);
+            if(validarRolloRegistrado(num_importacion,numero_rollo,nit_proveedor,id_detalle)) {
+                String sql_codigo = "SELECT d.codigo FROM J_alambron_solicitud_det d WHERE d.num_importacion =" + num_importacion + " AND d.nit_proveedor =" + nit_proveedor + "  AND d.id_det =" + id_detalle;
+                String sql_peso = "SELECT peso FROM J_alambron_importacion_det_rollos WHERE peso IS NOT NULL AND num_importacion =" + num_importacion + " AND numero_rollo = " + numero_rollo + " AND nit_proveedor=" + nit_proveedor + " AND id_solicitud_det =" + id_detalle;
+                String peso = conexion.obtenerPesoAlamImport(getApplicationContext(), sql_peso);
+                String codigo = conexion.obtenerCodigoAlamImport(getApplicationContext(), sql_codigo);
+                if(codigo.equals(pcodigo)){
+                    Boolean valid;
+                    valid = validarRolloConTransaccion(num_importacion,numero_rollo,nit_proveedor,id_detalle);
+                    if(valid.equals(true)){
+                        //Toast.makeText(Escaner.this,"Rollovalidado", Toast.LENGTH_SHORT).show();
+                        lblCodigo.setText(codigo);
+                        String sql_descripcion = "SELECT descripcion FROM referencias WHERE  codigo = '" + codigo + "'";
+                        lblDescripcion.setText(conexion.obtenerDescripcionCodigo(Escaner.this,sql_descripcion));
+                        txtKilosRollo.setText(peso);
+                        yaentre=true;
+                        //Se bloquea el EditText ya que el tiquete fue leido correctamente
+                        etCodigo.setEnabled(false);
+                    }else{
+                        //nit_proveedor= "999999999";
+                        if (nit_proveedor.equals("999999999")){
+                            //Creamos el mensaje que se mostrara con la pregunta
+                            AlertDialog.Builder builder = new AlertDialog.Builder(this);
+                            builder.setIcon(R.mipmap.ic_error_mimap).
+                                    setTitle("¿Desactivar?").
+                                    setMessage("¿Desea desactivar este tiquete único?").
+                                    setPositiveButton("Aceptar", (dialogInterface, i) -> {
+                                        boolean resp;
+                                        resp = conexion.eliminarTiqueteUnico(Escaner.this, num_importacion, numero_rollo, nit_proveedor, id_detalle);
+                                        if (resp){
+                                            Toast.makeText(Escaner.this, "El rollo se desactivo en forma correcta!", Toast.LENGTH_SHORT).show();
+                                        }else{
+                                            Toast.makeText(Escaner.this, "!Error al desactivar el rollo", Toast.LENGTH_SHORT).show();
+                                        }
+                                    }).
+                                    setNegativeButton("Cancelar", (dialogInterface, i) -> Toast.makeText(Escaner.this, "SE cancelo la eliminacion", Toast.LENGTH_SHORT).show());
+                            AlertDialog alertDialog = builder.create();
+                            alertDialog.show();
+                        }else{
+                            toastError("Ya se le hizo una salida al rollo");
+                            leer_nuevo();
+                        }
+                    }
+                }else{
+                    toastError("El código de alambrón no pertenece al pedido");
+                    leer_nuevo();
+                }
+            }else{
+                toastError("El codigo de barras no se encuentra asignado");
+                leer_nuevo();
+            }
+        }
+    }
+
+    //Metodo que valida que el codigo de barras exista y este bien
+    private boolean validarCodigoBarras(String consecutivo){
+        boolean resp = false;
+
+        String nit_proveedor = obj_gestion_alambronLn.extraerDatoCodigoBarras("proveedor", consecutivo);
+        String num_importacion = obj_gestion_alambronLn.extraerDatoCodigoBarras("num_importacion", consecutivo);
+        String id_detalle = obj_gestion_alambronLn.extraerDatoCodigoBarras("detalle", consecutivo);
+        String numero_rollo = obj_gestion_alambronLn.extraerDatoCodigoBarras("num_rollo", consecutivo);
+
+        if (!num_importacion.isEmpty() && !numero_rollo.isEmpty() && !id_detalle.isEmpty() && !nit_proveedor.isEmpty()) {
+            String sql = "SELECT id FROM J_alambron_importacion_det_rollos WHERE num_importacion =" + num_importacion + " AND numero_rollo = " + numero_rollo + " AND nit_proveedor = " + nit_proveedor + " AND id_solicitud_det = " + id_detalle;
+            String id = conexion.obtenerIdAlamImport(Escaner.this, sql);
+            if (id.isEmpty()){
+                //Toast.makeText(this, "Intente leerlo nuevamente,Problemas con el tiquete", Toast.LENGTH_SHORT).show();
+                toastError("Intente leerlo nuevamente,Problemas con el tiquete");
+                leer_nuevo();
+
+            }else{
+                resp = true;
+            }
+        }else{
+            toastError("Intente leerlo nuevamente,Problemas con el tiquete");
+            leer_nuevo();
+        }
+        return resp;
+    }
+
+    //Metodo que consulta y obtiene el peso del rollo registrado
+    private boolean validarRolloRegistrado(String num_importacion, String num_rollo, String nit_proveedor, String id_detalle){
+        boolean resp = false;
+        String sql = "SELECT peso FROM J_alambron_importacion_det_rollos WHERE peso IS NOT NULL AND num_importacion =" + num_importacion + " AND numero_rollo = " + num_rollo + " AND nit_proveedor=" + nit_proveedor + " AND id_solicitud_det =" + id_detalle;
+        String peso = conexion.obtenerPesoAlamImport(getApplicationContext(), sql);
+        if (!peso.isEmpty()){
+            resp = true;
+        }
+        return resp;
+    }
+
+    //Metodo que valida que el rollo no tenga ya una salida
+    private boolean validarRolloConTransaccion(String num_importacion, String num_rollo, String nit_proveedor, String id_detalle){
+        boolean respuesta = false;
+        try {
+            String sql = "SELECT num_importacion FROM J_alambron_importacion_det_rollos WHERE num_transaccion_salida IS NOT NULL AND num_importacion =" + num_importacion + " AND numero_rollo = " + num_rollo + " AND nit_proveedor=" + nit_proveedor + " AND id_solicitud_det =" + id_detalle;
+            String id = conexion.obtenerNumTranAlamImport(getApplicationContext(), sql);
+            if (id.isEmpty()){
+                respuesta = true;
+            }
+        }catch (Exception e){
+            Toast.makeText(Escaner.this,e.getMessage(),Toast.LENGTH_SHORT).show();
+        }
+
+        //Trabajo para el translator de bodega 2 a 1
+        /*if (bod_origen.equals("2") && bod_destino.equals("1")){
+            if (resp == true){
+                resp == false;
+            }else{
+                resp == true;
+            }
+        }*/
+        return respuesta;
+    }
+
+    //Se verifica que todos los datos del codigo de barras
+    private boolean validarFrm(){
+        String sql_cantidad = "SELECT (D.cantidad - (SELECT COUNT(numero) FROM J_salida_alambron_transaccion  WHERE numero = D.numero AND id_detalle = D.id_detalle))As pendiente FROM J_salida_alambron_enc E ,J_salida_alambron_det D, CORSAN.dbo.referencias R WHERE E.anulado is null AND  R.codigo = D.codigo AND D.numero = E.numero  and e.numero=" + pNumero + "";
+        String cantidad = conexion.obtenerCantidadPedido(Escaner.this, sql_cantidad);
+        if (!lblCodigo.getText().toString().isEmpty() && !lblCodigo.getText().toString().equals("LEA CODIGO")){
+            if (!txtKilosRollo.getText().toString().isEmpty()){
+                if (!spinner.getSelectedItem().equals("Seleccione")){
+                    if (conexion.existeCodigo(Escaner.this, lblCodigo.getText().toString())){
+                        if (Double.parseDouble(txtKilosRollo.getText().toString()) > 0) {
+                            if (!cantidad.equals("0")){
+                                if (conexion.existeTipoTransaccion(Escaner.this,spinner.getSelectedItem().toString())){
+                                    if (!etCodigo.getText().equals("")){
+                                        if (validarCodigoBarras(consecutivo)){
+                                            return true;
+                                        }else{
+                                            toastError("Verifique, El código de barras no se encuentra asignado!");
+                                        }
+                                    }else{
+                                        toastError("Verifique, No se leyo ningun código de barras!");
+                                    }
+                                }else{
+                                    toastError("Verifique, No existe el tipo de transacción!");
+                                }
+                            }else{
+                                toastError("Verifique, No se puede leer más alambron en este pedido!");
+                            }
+                        }else{
+                            toastError("Verifique, Los kilos no pueden ser negativos ó iguales a (0)");
+                        }
+                    }else{
+                        toastError("Verifique, falta el CODIGO no existe");
+                    }
+                }else{
+                    toastError("Verifique, falta el TIPO de transacción");
+                }
+            }else{
+                toastError("Verifique, faltan los KILOS");
+            }
+        }else{
+            toastError("Verifique, falta el CÓDIGO");
+        }
+        return false;
     }
 
     //Metodo donde se obtienen todos los datos del rollo obtenidos por su codigo de barras
     //Y se envian al metodo realizar_transacción
     private void guardar() throws SQLException {
         String gTipo = spinner.getSelectedItem().toString();
-        String gNotas = "SPIC traslado(HandHeld) usuario: " + nit_usuario;
         Double gPeso = Double.parseDouble(txtKilosRollo.getText().toString());
         String gCodigo = lblCodigo.getText().toString().trim();
         String gBodega = objTraslado_bodLn.obtenerBodegaXcodigo(gCodigo);
-        Date gDFec = Calendar.getInstance().getTime();
-        String gUsuario = nit_usuario;
         String gStock = conexion.consultarStock(Escaner.this,gCodigo,gBodega);
-        String gConsecutivo = etCodigo.getText().toString();
         Double gNit_prov = Double.parseDouble(obj_gestion_alambronLn.extraerDatoCodigoBarras("proveedor", consecutivo));
         Double gNum_importa = Double.parseDouble(obj_gestion_alambronLn.extraerDatoCodigoBarras("num_importacion", consecutivo));
         Double gDeta = Double.parseDouble(obj_gestion_alambronLn.extraerDatoCodigoBarras("detalle", consecutivo));
@@ -232,8 +437,6 @@ public class Escaner extends AppCompatActivity implements AdapterView.OnItemClic
             etCodigo.requestFocus();
         }catch (Exception e){
             leer_nuevo();
-            txtKilosRollo.setText("");
-            etCodigo.setText("");
             toastError(e.getMessage());
         }
     }
@@ -241,12 +444,12 @@ public class Escaner extends AppCompatActivity implements AdapterView.OnItemClic
     //Metodo donde se agregan las consultas sql a una lista y se envian a otro metodo para ejecutarlas
     public Boolean realizar_transaccion(String gCodigo, Double gPeso, Double gNit_prov, Double gNum_importa, String gTipo, Double gDeta, Double gNum_rollo, Double gCosto_unit) throws SQLException {
         boolean resp = true;
-        List<Object> listTransaccion_prod = new ArrayList<Object>();
-        List<Object> listTransaccion_corsan = new ArrayList<Object>();
-        String sql_rollo = "";
+        List<Object> listTransaccion_prod = new ArrayList<>();
+        List<Object> listTransaccion_corsan;
+        String sql_rollo;
         String consecutivo = etCodigo.getText().toString();
-        String sql_solicitud = "";
-        String sql_devuelto = "";
+        String sql_solicitud;
+        String sql_devuelto;
         listTransaccion_corsan = traslado_bodega(gCodigo, gPeso, gTipo, gCosto_unit);
         sql_solicitud = "INSERT INTO J_salida_alambron_transaccion (numero,id_detalle,tipo,num_transaccion) " +
                 "VALUES (" + pNumero + "," + pIdDetalle + ",'" + gTipo + "'," + numero_transaccion + ") ";
@@ -285,18 +488,17 @@ public class Escaner extends AppCompatActivity implements AdapterView.OnItemClic
         }
 
         if (ing_prod_ad.ExecuteSqlTransaction(listTransaccion_corsan, "JJVDMSCIERREAGOSTO", Escaner.this)){
-            //Toast.makeText(Escaner.this,"Transaccion Realizada con Exito! "+ gTipo +":" + numero_transaccion, Toast.LENGTH_SHORT).show();
             if (ing_prod_ad.ExecuteSqlTransaction(listTransaccion_prod, "JJVPRGPRODUCCION", Escaner.this)){
                 //Toast.makeText(Escaner.this,"Solucion, Se realizo correctamente lo de produccion ", Toast.LENGTH_SHORT).show();
                 //toastAcierto("Solucion, Se realizo correctamente lo de produccion ");
                 addRollo(num_importacion, consecutivo, gPeso, gNum_rollo, gDeta, gNit_prov, gTipo);
+                etCodigo.setEnabled(true);
                 leer_nuevo();
                 contar_movimientos();
 
                 toastAcierto("Transaccion Realizada con Exito! - "+ gTipo +": " + numero_transaccion);
             }else{
                 toastError("Problemas, No se realizó correctamente la transacción!");
-                txtKilosRollo.setText("");
                 leer_nuevo();
                 resp = false;
             }
@@ -308,256 +510,6 @@ public class Escaner extends AppCompatActivity implements AdapterView.OnItemClic
             resp = false;
         }
         return  resp;
-    }
-
-    //Se añaden los datos del rollo en la lista "ListaEscaner"
-    public void addRollo(String num_importacion, String consecutivo, Double peso, Double num_rollo, Double id_detalle, Double nit_prov, String tipo){
-        DetalleTranModelo escanerModelo;
-
-        String sql_codigo = "SELECT codigo FROM  J_alambron_solicitud_det WHERE num_importacion = " + num_importacion + " AND nit_proveedor =" + nit_prov + " AND id_det =" + id_detalle;
-        String codigo = conexion.obtenerCodigo(Escaner.this, sql_codigo);
-        String sql_descripcion = "SELECT descripcion  FROM  referencias WHERE codigo = '" + codigo + "'";
-        String descripcion = conexion.obtenerDescripcionCodigo(Escaner.this, sql_descripcion);
-
-        escanerModelo = new DetalleTranModelo();
-        escanerModelo.setNumero(consecutivo);
-        escanerModelo.setTipo(tipo);
-        escanerModelo.setNum_trans(numero_transaccion.toString());
-        escanerModelo.setCodigo(codigo);
-        escanerModelo.setPeso(peso.toString());
-        escanerModelo.setNum_imp(num_importacion);
-        escanerModelo.setDetalle(id_detalle.toString());
-        escanerModelo.setNum_rollo(num_rollo.toString());
-        escanerModelo.setEstado_muestra("0");
-        escanerModelo.setNit_prov(nit_prov.toString());
-        escanerModelo.setCosto_unit("0");
-        ListaEscaner.add(escanerModelo);
-
-        addrollotrans();
-    }
-
-    @SuppressLint("SetTextI18n")
-    private void leer_nuevo(){
-        lblCodigo.setText("LEA CODIGO");
-        lblDescripcion.setText("LEA CODIGO");
-        etCodigo.setText("");
-        txtKilosRollo.setText("");
-        yaentre = false;
-    }
-
-    //Se verifica que todos los datos del codigo de barras
-    private boolean validarFrm(){
-        String sql_cantidad = "SELECT (D.cantidad - (SELECT COUNT(numero) FROM J_salida_alambron_transaccion  WHERE numero = D.numero AND id_detalle = D.id_detalle))As pendiente FROM J_salida_alambron_enc E ,J_salida_alambron_det D, CORSAN.dbo.referencias R WHERE E.anulado is null AND  R.codigo = D.codigo AND D.numero = E.numero  and e.numero=" + pNumero + "";
-        String cantidad = conexion.obtenerCantidadPedido(Escaner.this, sql_cantidad);
-        if (!lblCodigo.getText().toString().isEmpty() && !lblCodigo.getText().toString().equals("LEA CODIGO")){
-            if (!txtKilosRollo.getText().toString().isEmpty()){
-                if (!spinner.getSelectedItem().equals("Seleccione")){
-                    if (conexion.existeCodigo(Escaner.this, lblCodigo.getText().toString())){
-                        if (Double.parseDouble(txtKilosRollo.getText().toString()) > 0) {
-                            if (!cantidad.equals("0")){
-                                if (conexion.existeTipoTransaccion(Escaner.this,spinner.getSelectedItem().toString())){
-                                    if (!etCodigo.getText().equals("")){
-                                        if (validarCodigoBarras(etCodigo.getText().toString())){
-                                            return true;
-                                        }else{
-                                            toastError("Verifique, El código de barras no se encuentra asignado!");
-                                        }
-                                    }else{
-                                        toastError("Verifique, No se leyo ningun código de barras!");
-                                    }
-                                }else{
-                                    toastError("Verifique, No existe el tipo de transacción!");
-                                }
-                            }else{
-                                toastError("Verifique, No se puede leer más alambron en este pedido!");
-                            }
-                        }else{
-                            toastError("Verifique, Los kilos no pueden ser negativos ó iguales a (0)");
-                        }
-                    }else{
-                        toastError("Verifique, falta el CODIGO no existe");
-                    }
-                }else{
-                    toastError("Verifique, falta el TIPO de transacción");
-                }
-            }else{
-                toastError("Verifique, faltan los KILOS");
-            }
-        }else{
-            toastError("Verifique, falta el CÓDIGO");
-        }
-        return false;
-    }
-
-
-    //Metodoque recibe una lista tipo transmodelo, la recorre y añade a otra lista tipo String
-    private ArrayList<String> obtenerLista(ArrayList<TipotransModelo> tiposLista ){
-        listaTipos = new ArrayList<String>();
-        //listaTipos.add("Seleccione");
-
-        for(int i = 0; i < tiposLista.size(); i++){
-            listaTipos.add(tiposLista.get(i).getTipo().toString());
-        }
-        return listaTipos;
-    }
-
-
-    private void codigoIngresado(){
-        consecutivo = etCodigo.getText().toString();
-        //consecutivo = "444444218-4-3-168";
-        if (validarCodigoBarras(consecutivo)){
-            nit_proveedor = obj_gestion_alambronLn.extraerDatoCodigoBarras("proveedor", consecutivo);
-            num_importacion = obj_gestion_alambronLn.extraerDatoCodigoBarras("num_importacion", consecutivo);
-            id_detalle = obj_gestion_alambronLn.extraerDatoCodigoBarras("detalle", consecutivo);
-            numero_rollo = obj_gestion_alambronLn.extraerDatoCodigoBarras("num_rollo", consecutivo);
-            if(validarRolloRegistrado(num_importacion,numero_rollo,nit_proveedor,id_detalle)) {
-                String sql_codigo = "SELECT d.codigo FROM J_alambron_solicitud_det d WHERE d.num_importacion =" + num_importacion + " AND d.nit_proveedor =" + nit_proveedor + "  AND d.id_det =" + id_detalle;
-                String sql_peso = "SELECT peso FROM J_alambron_importacion_det_rollos WHERE peso IS NOT NULL AND num_importacion =" + num_importacion + " AND numero_rollo = " + numero_rollo + " AND nit_proveedor=" + nit_proveedor + " AND id_solicitud_det =" + id_detalle;
-                String peso = conexion.obtenerPesoAlamImport(getApplicationContext(), sql_peso);
-                String codigo = conexion.obtenerCodigoAlamImport(getApplicationContext(), sql_codigo);
-                if(codigo.equals(pcodigo)){
-                    Boolean valid;
-                    valid = validarRolloConTransaccion(num_importacion,numero_rollo,nit_proveedor,id_detalle);
-                    if(valid.equals(true)){
-                        //Toast.makeText(Escaner.this,"Rollovalidado", Toast.LENGTH_SHORT).show();
-                        lblCodigo.setText(codigo);
-                        String sql_descripcion = "SELECT descripcion FROM referencias WHERE  codigo = '" + codigo + "'";
-                        lblDescripcion.setText(conexion.obtenerDescripcionCodigo(Escaner.this,sql_descripcion));
-                        txtKilosRollo.setText(peso);
-                        yaentre=true;
-                        //etCodigo.setText("");
-                    }else{
-                        //nit_proveedor= "999999999";
-                        if (nit_proveedor.equals("999999999")){
-                            //Creamos el mensaje que se mostrara con la pregunta
-                            AlertDialog.Builder builder = new AlertDialog.Builder(this);
-                            builder.setIcon(R.mipmap.ic_error_mimap).
-                                    setTitle("¿Desactivar?").
-                                    setMessage("¿Desea desactivar este tiquete único?").
-                                    setPositiveButton("Aceptar", new DialogInterface.OnClickListener() {
-                                        @Override
-                                        public void onClick(DialogInterface dialogInterface, int i) {
-                                            boolean resp = false;
-                                            resp = conexion.eliminarTiqueteUnico(Escaner.this, num_importacion, numero_rollo, nit_proveedor, id_detalle);
-                                            if (resp){
-                                                Toast.makeText(Escaner.this, "El rollo se desactivo en forma correcta!", Toast.LENGTH_SHORT).show();
-                                            }else{
-                                                Toast.makeText(Escaner.this, "!Error al desactivar el rollo", Toast.LENGTH_SHORT).show();
-                                            }
-                                        }
-                                    }).
-                                    setNegativeButton("Cancelar", new DialogInterface.OnClickListener() {
-                                        @Override
-                                        public void onClick(DialogInterface dialogInterface, int i) {
-                                            Toast.makeText(Escaner.this, "SE cancelo la eliminacion", Toast.LENGTH_SHORT).show();
-                                        }
-                                    });
-                            AlertDialog alertDialog = builder.create();
-                            alertDialog.show();
-                        }else{
-                            toastError("Ya se le hizo una salida al rollo");
-                            leer_nuevo();
-                            //Toast.makeText(this,"Ya se le hizo una salida al rollo, Rollo con salida" , Toast.LENGTH_SHORT).show();
-                        }
-                    }
-                }else{
-                    toastError("El código de alambrón no pertenece al pedido");
-                    //Toast.makeText(this, "El código de alambrón no pertenece al pedido", Toast.LENGTH_SHORT).show();
-                    etCodigo.setText("");
-                    leer_nuevo();
-                }
-            }else{
-                toastError("El codigo de barras no se encuentra asignado");
-                etCodigo.setText("");
-                leer_nuevo();
-                //Toast.makeText(this,"El codigo de barras no se encuentra asignado", Toast.LENGTH_SHORT).show();
-            }
-        }
-    }
-
-
-    public void consultarTipos(){
-        conexion = new Conexion();
-
-        tiposLista = conexion.obtenerTipos(getApplication());
-        listaTp = obtenerLista(tiposLista);
-        ArrayAdapter<CharSequence> adapter = new ArrayAdapter(Escaner.this, android.R.layout.simple_spinner_item, listaTp);
-        spinner.setEnabled(false);
-        spinner.setClickable(false);
-        spinner.setAdapter(adapter);
-    }
-
-    public void escanear() {
-        ScanOptions options = new ScanOptions();
-        options.setDesiredBarcodeFormats(ScanOptions.ALL_CODE_TYPES);
-        options.setPrompt("ESCANEAR CODIGO");
-        options.setCameraId(0);
-        options.setOrientationLocked(false);
-        options.setBeepEnabled(true);
-        options.setCaptureActivity(CaptureActivityPortraint.class);
-        options.setBarcodeImageEnabled(false);
-
-        barcodeLauncher.launch(options);
-    }
-
-    private boolean validarRolloRegistrado(String num_importacion, String num_rollo, String nit_proveedor, String id_detalle){
-        boolean resp = false;
-        String sql = "SELECT peso FROM J_alambron_importacion_det_rollos WHERE peso IS NOT NULL AND num_importacion =" + num_importacion + " AND numero_rollo = " + num_rollo + " AND nit_proveedor=" + nit_proveedor + " AND id_solicitud_det =" + id_detalle;
-        String peso = conexion.obtenerPesoAlamImport(getApplicationContext(), sql);
-        if (!peso.isEmpty()){
-            resp = true;
-        }
-        return resp;
-    }
-
-    private boolean validarRolloConTransaccion(String num_importacion, String num_rollo, String nit_proveedor, String id_detalle){
-        boolean respuesta = false;
-        try {
-            String sql = "SELECT num_importacion FROM J_alambron_importacion_det_rollos WHERE num_transaccion_salida IS NOT NULL AND num_importacion =" + num_importacion + " AND numero_rollo = " + num_rollo + " AND nit_proveedor=" + nit_proveedor + " AND id_solicitud_det =" + id_detalle;
-            String id = conexion.obtenerNumTranAlamImport(getApplicationContext(), sql);
-            if (id.isEmpty()){
-                respuesta = true;
-            }
-        }catch (Exception e){
-            Toast.makeText(Escaner.this,e.getMessage(),Toast.LENGTH_SHORT).show();
-        }
-
-
-        //Trabajo para el translator de bodega 2 a 1
-        /*if (bod_origen.equals("2") && bod_destino.equals("1")){
-            if (resp == true){
-                resp == false;
-            }else{
-                resp == true;
-            }
-        }*/
-
-        return respuesta;
-    }
-
-    private boolean validarCodigoBarras(String consecutivo){
-        boolean resp = false;
-
-        String nit_proveedor = obj_gestion_alambronLn.extraerDatoCodigoBarras("proveedor", consecutivo);
-        String num_importacion = obj_gestion_alambronLn.extraerDatoCodigoBarras("num_importacion", consecutivo);
-        String id_detalle = obj_gestion_alambronLn.extraerDatoCodigoBarras("detalle", consecutivo);
-        String numero_rollo = obj_gestion_alambronLn.extraerDatoCodigoBarras("num_rollo", consecutivo);
-
-        if (!num_importacion.isEmpty() && !numero_rollo.isEmpty() && !id_detalle.isEmpty() && !nit_proveedor.isEmpty()) {
-            String sql = "SELECT id FROM J_alambron_importacion_det_rollos WHERE num_importacion =" + num_importacion + " AND numero_rollo = " + numero_rollo + " AND nit_proveedor = " + nit_proveedor + " AND id_solicitud_det = " + id_detalle;
-            String id = conexion.obtenerIdAlamImport(Escaner.this, sql);
-            if (id.isEmpty()){
-                //Toast.makeText(this, "Intente leerlo nuevamente,Problemas con el tiquete", Toast.LENGTH_SHORT).show();
-                toastError("Intente leerlo nuevamente,Problemas con el tiquete");
-                leer_nuevo();
-
-            }else{
-                resp = true;
-            }
-        }else{
-            toastError("Intente leerlo nuevamente,Problemas con el tiquete");
-        }
-        return resp;
     }
 
     //Solo para 'TRB1' modelo 08 traslado de la 1 a la 2
@@ -577,18 +529,62 @@ public class Escaner extends AppCompatActivity implements AdapterView.OnItemClic
         return listSql;
     }
 
+    //Se añaden los datos del rollo en la lista "ListaEscaner"
+    public void addRollo(String num_importacion, String consecutivo, Double peso, Double num_rollo, Double id_detalle, Double nit_prov, String tipo){
+        DetalleTranModelo escanerModelo;
+
+        String sql_codigo = "SELECT codigo FROM  J_alambron_solicitud_det WHERE num_importacion = " + num_importacion + " AND nit_proveedor =" + nit_prov + " AND id_det =" + id_detalle;
+        String codigo = conexion.obtenerCodigo(Escaner.this, sql_codigo);
+        //No se usa en ningun momento
+        //String sql_descripcion = "SELECT descripcion  FROM  referencias WHERE codigo = '" + codigo + "'";
+        //String descripcion = conexion.obtenerDescripcionCodigo(Escaner.this, sql_descripcion);
+
+        escanerModelo = new DetalleTranModelo();
+        escanerModelo.setNumero(consecutivo);
+        escanerModelo.setTipo(tipo);
+        escanerModelo.setNum_trans(numero_transaccion.toString());
+        escanerModelo.setCodigo(codigo);
+        escanerModelo.setPeso(peso.toString());
+        escanerModelo.setNum_imp(num_importacion);
+        escanerModelo.setDetalle(id_detalle.toString());
+        escanerModelo.setNum_rollo(num_rollo.toString());
+        escanerModelo.setEstado_muestra("0");
+        escanerModelo.setNit_prov(nit_prov.toString());
+        escanerModelo.setCosto_unit("0");
+        ListaEscaner.add(escanerModelo);
+
+        addrollotrans();
+    }
+
+    //Se envia la lista de transaccion de rollos al EscanerAdapter y despues a la listview
+    public void addrollotrans(){
+
+        EscanerAdapter = new listescanerAdapter(Escaner.this,R.layout.item_row_escaner,ListaEscaner);
+        listviewEscaner.setAdapter(EscanerAdapter);
+    }
+
+    @SuppressLint("SetTextI18n")
+    private void leer_nuevo(){
+        etCodigo.setText("");
+        lblCodigo.setText("LEA CODIGO");
+        lblDescripcion.setText("LEA CODIGO");
+        txtKilosRollo.setText("");
+        etCodigo.requestFocus();
+        yaentre = false;
+    }
+
     //Metodo que cuenta la cantidad de elemento que hay en la lista y cuenta cada uno como un movimiento
     private void contar_movimientos() {
         int size = ListaEscaner.size();
         String sizeString = Integer.toString(size);
         txtIngMovimientos.setText(sizeString);
-
     }
+
 
     //METODO DE TOAST PERSONALIZADO : ERROR
     public void toastError(String msg){
         LayoutInflater layoutInflater = getLayoutInflater();
-        View view = layoutInflater.inflate(R.layout.custom_toast_per_no_encon, (ViewGroup) findViewById(R.id.ll_custom_toast_per_no_encon));
+        View view = layoutInflater.inflate(R.layout.custom_toast_per_no_encon, findViewById(R.id.ll_custom_toast_per_no_encon));
         TextView txtMensaje = view.findViewById(R.id.txtMensajeToast1);
         txtMensaje.setText(msg);
 
@@ -602,7 +598,7 @@ public class Escaner extends AppCompatActivity implements AdapterView.OnItemClic
     //METODO DE TOAST PERSONALIZADO : ACIERTO
     public void toastAcierto(String msg){
         LayoutInflater layoutInflater = getLayoutInflater();
-        View view = layoutInflater.inflate(R.layout.custom_toast_acierto, (ViewGroup) findViewById(R.id.ll_custom_toast_acierto));
+        View view = layoutInflater.inflate(R.layout.custom_toast_acierto, findViewById(R.id.ll_custom_toast_acierto));
         @SuppressLint({"MissingInflatedId", "LocalSuppress"})
         TextView txtMens = view.findViewById(R.id.txtMensa);
         txtMens.setText(msg);

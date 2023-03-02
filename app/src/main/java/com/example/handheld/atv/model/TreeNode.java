@@ -29,7 +29,7 @@ public class TreeNode {
     private BaseNodeViewHolder mViewHolder;
     private TreeNodeClickListener mClickListener;
     private TreeNodeLongClickListener mLongClickListener;
-    private Object mValue;
+    private final Object mValue;
     private boolean mExpanded;
 
     public static TreeNode root() {
@@ -47,11 +47,10 @@ public class TreeNode {
         mValue = value;
     }
 
-    public TreeNode addChild(TreeNode childNode) {
+    public void addChild(TreeNode childNode) {
         childNode.mParent = this;
         childNode.mId = generateId();
         children.add(childNode);
-        return this;
     }
 
     public TreeNode addChildren(TreeNode... nodes) {
@@ -170,9 +169,8 @@ public class TreeNode {
         return this;
     }
 
-    public TreeNode setClickListener(TreeNodeClickListener listener) {
+    public void setClickListener(TreeNodeClickListener listener) {
         mClickListener = listener;
-        return this;
     }
 
     public TreeNodeClickListener getClickListener() {
@@ -260,7 +258,7 @@ public class TreeNode {
         }
 
         public ViewGroup getNodeItemsView() {
-            return (ViewGroup) getView().findViewById(R.id.node_items);
+            return getView().findViewById(R.id.node_items);
         }
 
         public boolean isInitialized() {

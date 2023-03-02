@@ -26,7 +26,7 @@
             android:layout_weight="1"
             android:background="#5B81F3"
             android:paddingTop="8dp"
-            android:text="TRASLADOS DE BODEGA"
+            android:text="@string/txtMovimientosMain"
             android:textAlignment="center"
             android:textSize="20sp"
             android:textStyle="bold" />
@@ -49,11 +49,12 @@
             android:layout_weight="1" />
 
         <TextView
+            android:id="@+id/tTxtcedula"
             android:layout_width="wrap_content"
             android:layout_height="41dp"
             android:background="#E1E1E1"
             android:gravity="center_vertical"
-            android:text="Cedula: "
+            android:text="@string/tTxtcedula"
             android:textColor="#FF0000"
             android:textSize="20sp"
             android:textStyle="bold"
@@ -67,10 +68,11 @@
             android:layout_width="197dp"
             android:layout_height="match_parent"
             android:layout_weight="1"
+            android:autofillHints="identity"
             android:background="#DFDEDE"
             android:ems="10"
             android:gravity="center_vertical"
-            android:hint="Ingresar Cedula"
+            android:hint="@string/txtcedula"
             android:inputType="number"
             android:textSize="20sp"
             android:textStyle="bold" />
@@ -83,7 +85,8 @@
             android:background="#DFDFDF"
             android:paddingTop="5dp"
             android:textAlignment="center"
-            app:srcCompat="@android:drawable/ic_search_category_default" />
+            app:srcCompat="@android:drawable/ic_search_category_default"
+            android:contentDescription="@string/contentDescripcionImg" />
 
         <Space
             android:layout_width="wrap_content"

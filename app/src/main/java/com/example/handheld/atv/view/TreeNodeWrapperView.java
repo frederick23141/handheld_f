@@ -14,7 +14,6 @@ import com.example.handheld.R;
  * Created by Bogdan Melnychuk on 2/10/15.
  */
 public class TreeNodeWrapperView extends LinearLayout {
-    private LinearLayout nodeItemsContainer;
     private ViewGroup nodeContainer;
     private final int containerStyle;
 
@@ -32,7 +31,7 @@ public class TreeNodeWrapperView extends LinearLayout {
         nodeContainer.setId(R.id.node_header);
 
         ContextThemeWrapper newContext = new ContextThemeWrapper(getContext(), containerStyle);
-        nodeItemsContainer = new LinearLayout(newContext, null, containerStyle);
+        LinearLayout nodeItemsContainer = new LinearLayout(newContext, null, containerStyle);
         nodeItemsContainer.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT));
         nodeItemsContainer.setId(R.id.node_items);
         nodeItemsContainer.setOrientation(LinearLayout.VERTICAL);

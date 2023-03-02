@@ -9,9 +9,10 @@
         android:id="@+id/imageView2"
         android:layout_width="wrap_content"
         android:layout_height="98dp"
-        android:layout_marginLeft="10dp"
+        android:layout_marginStart="10dp"
         android:layout_weight="1"
-        app:srcCompat="@drawable/alambre_de_acero__1_" />
+        app:srcCompat="@drawable/alambre_de_acero__1_"
+        android:contentDescription="@string/contDescripRollo" />
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -22,7 +23,9 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal">
+            android:orientation="horizontal"
+            android:baselineAligned="false"
+            tools:ignore="UselessParent">
 
             <LinearLayout
                 android:layout_width="wrap_content"
@@ -46,10 +49,10 @@
                     android:textSize="12sp" />
 
                 <TextView
-                    android:id="@+id/txt_tcodigo"
+                    android:id="@+id/txt_tPeso"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="Peso:"
+                    android:text="@string/txt_tPeso"
                     android:textAlignment="center"
                     android:textSize="12sp"
                     android:textStyle="bold" />
@@ -62,10 +65,10 @@
                     android:textSize="12sp" />
 
                 <TextView
-                    android:id="@+id/txt_tTipo"
+                    android:id="@+id/txt_tEstado"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Est_Mue:"
+                    android:text="@string/txt_tEstado"
                     android:textAlignment="center"
                     android:textSize="12sp"
                     android:textStyle="bold" />
@@ -85,10 +88,10 @@
                 android:orientation="vertical">
 
                 <TextView
-                    android:id="@+id/textView8"
+                    android:id="@+id/txt_tTipo"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="Tipo:"
+                    android:text="@string/txt_tTipo"
                     android:textAlignment="center"
                     android:textSize="12sp"
                     android:textStyle="bold" />
@@ -101,10 +104,10 @@
                     android:textSize="12sp" />
 
                 <TextView
-                    android:id="@+id/textView10"
+                    android:id="@+id/txt_tDetalle"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="detalle:"
+                    android:text="@string/txt_tDetalle"
                     android:textAlignment="center"
                     android:textSize="12sp"
                     android:textStyle="bold" />
@@ -117,10 +120,10 @@
                     android:textSize="12sp" />
 
                 <TextView
-                    android:id="@+id/textView12"
+                    android:id="@+id/txt_tNit"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="Nit_prov:"
+                    android:text="@string/txt_tNit"
                     android:textAlignment="center"
                     android:textSize="12sp"
                     android:textStyle="bold" />
@@ -143,7 +146,7 @@
                     android:id="@+id/txt_tnum_trans"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Num transa:"
+                    android:text="@string/txt_tnum_trans"
                     android:textAlignment="center"
                     android:textSize="12sp"
                     android:textStyle="bold" />
@@ -156,10 +159,10 @@
                     android:textSize="12sp" />
 
                 <TextView
-                    android:id="@+id/txt_tpeso"
+                    android:id="@+id/txt_tNumImport"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Num Import:"
+                    android:text="@string/txt_tNumImport"
                     android:textAlignment="center"
                     android:textSize="12sp"
                     android:textStyle="bold" />
@@ -172,10 +175,10 @@
                     android:textSize="12sp" />
 
                 <TextView
-                    android:id="@+id/textView6"
+                    android:id="@+id/txt_tCost"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="Cost_unit:"
+                    android:text="@string/txt_tCost"
                     android:textAlignment="center"
                     android:textSize="12sp"
                     android:textStyle="bold" />
@@ -195,10 +198,10 @@
                 android:orientation="vertical">
 
                 <TextView
-                    android:id="@+id/textView14"
+                    android:id="@+id/txt_tCodigo"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="Código:"
+                    android:text="@string/txt_tcodigo"
                     android:textAlignment="center"
                     android:textSize="12sp"
                     android:textStyle="bold" />
@@ -211,10 +214,10 @@
                     android:textSize="12sp" />
 
                 <TextView
-                    android:id="@+id/textView18"
+                    android:id="@+id/txt_tNumRollo"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="Num_rollo:"
+                    android:text="@string/txt_tNumRollo"
                     android:textAlignment="center"
                     android:textSize="12sp"
                     android:textStyle="bold" />

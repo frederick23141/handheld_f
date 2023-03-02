@@ -1,14 +1,13 @@
 package com.example.handheld;
 
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.ImageView;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 
-import com.example.handheld.R;
 import com.example.handheld.atv.model.TreeNode;
 
 
@@ -31,6 +30,7 @@ public class MyHolder extends TreeNode.BaseNodeViewHolder<MyHolder.IconTreeItem>
         this.leftMargin = leftMargin;
     }
 
+    @SuppressLint("InflateParams")
     @Override
     public View createNodeView(TreeNode node, IconTreeItem value) {
         final LayoutInflater inflater = LayoutInflater.from(context);
@@ -46,8 +46,8 @@ public class MyHolder extends TreeNode.BaseNodeViewHolder<MyHolder.IconTreeItem>
         }
         view.setPadding(leftMargin, getDimens(R.dimen.treeview_top_padding), getDimens(R.dimen.treeview_right_padding), getDimens(R.dimen.treeview_bottom_padding));
 
-        img = (ImageView) view.findViewById(R.id.image);
-        tvValue = (TextView) view.findViewById(R.id.text);
+        img = view.findViewById(R.id.image);
+        tvValue = view.findViewById(R.id.text);
         img.setImageResource(value.icon);
         tvValue.setText(value.text);
         return view;

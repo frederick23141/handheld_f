@@ -5,11 +5,9 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.Bundle;
-import android.os.StrictMode;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
@@ -19,61 +17,59 @@ import android.widget.Toast;
 import com.example.handheld.atv.model.TreeNode;
 import com.example.handheld.atv.view.AndroidTreeView;
 import com.example.handheld.conexionDB.Conexion;
-import com.example.handheld.modelos.PedidoModelo;
-import com.example.handheld.modelos.PersonaModelo;
 
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.ResultSet;
-import java.sql.Statement;
-import java.util.ArrayList;
-import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
+
+    //Se declaran los elementos del layout
     EditText cedula;
     ImageButton consultar;
-    String nombre_usuario;
     TextView mensaje;
+
+    //Se declara un objeto conexion
     Conexion conexion;
+
+    //Se declaran variables necesarias
+    String nombre_usuario;
     String cd;
 
-    @SuppressLint("MissingInflatedId")
+    @SuppressLint({"MissingInflatedId", "SetTextI18n"})
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        cedula = (EditText)findViewById(R.id.txtcedula);
-        consultar = (ImageButton)findViewById(R.id.btnBuscarPersona);
-        mensaje = (TextView)findViewById(R.id.txtMensaje);
+        //Se inicializan los elementos del layout
+        cedula = findViewById(R.id.txtcedula);
+        consultar = findViewById(R.id.btnBuscarPersona);
+        mensaje = findViewById(R.id.txtMensaje);
+
+        //Se inicializa el objeto conexión
         conexion = new Conexion();
 
-        consultar.setOnClickListener(new View.OnClickListener() {
-            @SuppressLint("SetTextI18n")
-            @Override
-            public void onClick(View view) {
-                if(validar()){
-                    cd = cedula.getText().toString();
-                    nombre_usuario = conexion.obtenerPersona(MainActivity.this,cd );
+        //Se programa el boton consultar
+        consultar.setOnClickListener(view -> {
+            if(validar()){
+                cd = cedula.getText().toString();
+                nombre_usuario = conexion.obtenerPersona(MainActivity.this,cd );
 
-                    if(nombre_usuario == null){
-                        //Toast.makeText(this, "Persona no encontrada", Toast.LENGTH_SHORT).show();
-                        toastError("Persona no encontrada");
-                    }else{
-                        mensaje.setText("Bienvenido " + nombre_usuario);
-                        agregarTreeview();
-                        consultar.setEnabled(false);
-                        cedula.setEnabled(false);
-                    }
-
+                if(nombre_usuario == null){
+                    //Toast.makeText(this, "Persona no encontrada", Toast.LENGTH_SHORT).show();
+                    toastError("Persona no encontrada");
                 }else{
-                    toastEscribir("Por favor escribir tu cedula");
+                    mensaje.setText("Bienvenido " + nombre_usuario);
+                    agregarTreeview();
+                    consultar.setEnabled(false);
+                    cedula.setEnabled(false);
                 }
+
+            }else{
+                toastEscribir("Por favor escribir tu cedula");
             }
         });
-
     }
 
+    //Metodo que valida que el campo EditText "cedula" no este vacia
     public boolean validar(){
         boolean retorno = true;
 
@@ -87,7 +83,7 @@ public class MainActivity extends AppCompatActivity {
     //METODO DE TOAST PERSONALIZADO : PERSONA NO ENCONTRADA
     public void toastError(String msg){
         LayoutInflater layoutInflater = getLayoutInflater();
-        View view = layoutInflater.inflate(R.layout.custom_toast_per_no_encon, (ViewGroup) findViewById(R.id.ll_custom_toast_per_no_encon));
+        View view = layoutInflater.inflate(R.layout.custom_toast_per_no_encon,  findViewById(R.id.ll_custom_toast_per_no_encon));
         TextView txtMensaje = view.findViewById(R.id.txtMensajeToast1);
         txtMensaje.setText(msg);
 
@@ -101,7 +97,7 @@ public class MainActivity extends AppCompatActivity {
     //METODO DE TOAST PERSONALIZADO : ESCRIBIR CEDULA
     public void toastEscribir(String msg) {
         LayoutInflater layoutInflater = getLayoutInflater();
-        View view = layoutInflater.inflate(R.layout.custom_toast_escribir_cedula, (ViewGroup) findViewById(R.id.ll_custom_toast_escribir_cedula));
+        View view = layoutInflater.inflate(R.layout.custom_toast_escribir_cedula, findViewById(R.id.ll_custom_toast_escribir_cedula));
         TextView txtMensaje = view.findViewById(R.id.txtMensajeToast);
         txtMensaje.setText(msg);
 
@@ -130,17 +126,14 @@ public class MainActivity extends AppCompatActivity {
         TreeNode subChild1_1 = new TreeNode(subChildItem1_1).setViewHolder(new MyHolder(getApplicationContext(), false, R.layout.child, 100));
 
         //Al darle clic a este elemento en el treeview se abrira una nueva pantalla y se enviaran unos datos
-        subChild1_1.setClickListener(new TreeNode.TreeNodeClickListener() {
-            @Override
-            public void onClick(TreeNode node, Object value) {
-                Intent i = new Intent(MainActivity.this,Pedido.class);
-                i.putExtra("nit_usuario",cd);
-                i.putExtra("bod_origen",1);
-                i.putExtra("bod_destino",2);
-                i.putExtra("modelo","08");
+        subChild1_1.setClickListener((node, value) -> {
+            Intent i = new Intent(MainActivity.this,Pedido.class);
+            i.putExtra("nit_usuario",cd);
+            i.putExtra("bod_origen",1);
+            i.putExtra("bod_destino",2);
+            i.putExtra("modelo","08");
 
-                startActivity(i);
-            }
+            startActivity(i);
         });
 
         //Subgrupo2"Gestion de Alambron"

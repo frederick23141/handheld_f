@@ -12,7 +12,8 @@
     <ImageView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        app:srcCompat="@drawable/ic_error"/>
+        app:srcCompat="@drawable/ic_error"
+        android:contentDescription="@string/contDescripError" />
 
     <TextView
         android:id="@+id/txtMensajeToast1"
@@ -21,10 +22,10 @@
         android:fontFamily="sans-serif-condensed"
         android:paddingStart="10dp"
         android:paddingEnd="10dp"
-        android:text="Persona no encontrada"
+        android:text="@string/txtMensaPer"
         android:textAlignment="center"
         android:textColor="#fff"
-        android:textSize="20dp"
+        android:textSize="20sp"
         android:textStyle="bold" />
 
 </LinearLayout>

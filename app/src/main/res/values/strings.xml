@@ -1,9 +1,56 @@
 <resources>
     <string name="app_name">handheld</string>
-    <!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
+
+    //Strings Utilizados en el layout "activity_escaner"
+    <string name="txtLector">LECTOR HANDHELD</string>
+    <string name="txtTtipo">Tipo:</string>
+    <string name="txtKilos">Kilos:</string>
+    <string name="btnSalida">Salir</string>
+    <string name="txtMovimientos">Movimientos: </string>
+    <string name="txtIngMovimientos">0</string>
+    <string name="tLblCodigo">lblCodigo:</string>
+    <string name="lblCodigo">lblCodigo</string>
+    <string name="tLblDescripcion">lblDescripcion:</string>
+    <string name="lblDescripcion">lblDescripción</string>
+    <string name="btnTransaccion">TRANSACCION</string>
+
+    //Strings Utilizados en el layout "activity_main"
+    <string name="txtMovimientosMain">TRASLADOS DE BODEGA</string>
+    <string name="tTxtcedula">Cedula: </string>
+    <string name="txtcedula">Ingresar Cedula</string>
+    <string name="contentDescripcionImg">Boton buscar cedula</string>
+
+    //Strings Utilizados en el layout "activity_pedido"
+    <string name="txtMovimientosPedido">PEDIDO</string>
+    <string name="btnActualizar">Actualizar Consulta</string>
+    <string name="btnSalir">Salir</string>
+
+    //Strings Utilizados en el layout "child"
+    <string name="contentDescripcionChild">Item lista</string>
+    <string name="text">List Item</string>
+
+    //Strings Utilizados en los layouts "toast"
+    <string name="contDescripCheck">Icono check</string>
+    <string name="contDescripError">Icono error</string>
+    <string name="txtMensaCheck">Se realizo correctamente!</string>
+    <string name="txtMensaAct">Actualizado</string>
+    <string name="txtMensaCedula">Por favor escribir tu cedula</string>
+    <string name="txtMensaPer">Persona no encontrada</string>
+
+    //Strings Utilizados en los layouts "items_row"
+    <string name="contDescripRollo">Icono rollo</string>
     <string name="txt_tnumero">Número:</string>
+    <string name="txt_tPeso">Peso:</string>
+    <string name="txt_tEstado">Est_Mue:</string>
+    <string name="txt_tTipo">Tipo:</string>
+    <string name="txt_tDetalle">Detalle:</string>
+    <string name="txt_tNit">Nit_prov:</string>
+    <string name="txt_tnum_trans">Num transa:</string>
+    <string name="txt_tNumImport">Num Import:</string>
+    <string name="txt_tCost">Cost_unit:</string>
     <string name="txt_tcodigo">Código:</string>
+    <string name="txt_tNumRollo">Num_rollo:</string>
+
     <string name="txt_tfecha">Fecha:</string>
     <string name="txt_tpendiente">Pendiente:</string>
     <string name="txt_tdescripcion">Descripción:</string>
