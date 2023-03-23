@@ -5,8 +5,11 @@ import android.content.Context;
 import android.os.StrictMode;
 import android.widget.Toast;
 
+import com.example.handheld.modelos.CentrosModelo;
+import com.example.handheld.modelos.InventarioModelo;
 import com.example.handheld.modelos.PedidoModelo;
 import com.example.handheld.modelos.PersonaModelo;
+import com.example.handheld.modelos.RolloterminadoModelo;
 import com.example.handheld.modelos.TipotransModelo;
 
 import java.sql.Connection;
@@ -36,12 +39,13 @@ public class Conexion {
         return cnn;
     }
 
+    //Obtiene datos de una persona en la BD
     public String obtenerPersona(Context context, String cedula){
         PersonaModelo persona;
         String nombre = null;
 
         try {
-            Statement st = conexionBD("JJVDMSCIERREAGOSTO", context).createStatement();
+            Statement st = conexionBD("CORSAN", context).createStatement();
             ResultSet rs = st.executeQuery("SELECT nombres, nit FROM V_nom_personal_Activo_con_maquila " +
                     "WHERE nit = '" + cedula + "'");
             if (rs.next()){
@@ -54,11 +58,12 @@ public class Conexion {
         return nombre;
     }
 
+    //Obtiene un dato
     public String obtenerIdAlamImport(Context context, String sql){
         String id = "";
 
         try {
-            Statement st = conexionBD("JJVPRGPRODUCCION", context).createStatement();
+            Statement st = conexionBD("PRGPRODUCCION", context).createStatement();
             ResultSet rs = st.executeQuery(sql);
             if (rs.next()){
                 id = rs.getString("id");
@@ -70,11 +75,28 @@ public class Conexion {
         return id;
     }
 
+    public Integer obtenerIdInv(Context context, String sql){
+        int id = 0;
+
+        try {
+            Statement st = conexionBD("JJVPRGPRODUCCION", context).createStatement();
+            ResultSet rs = st.executeQuery(sql);
+            if (rs.next()){
+                id = Integer.parseInt(rs.getString("id"));
+            }
+
+        }catch (Exception e){
+            Toast.makeText(context, e.getMessage(), Toast.LENGTH_SHORT).show();
+        }
+        return id;
+    }
+
+    //Obtiene un dato
     public String obtenerPesoAlamImport(Context context, String sql){
         String peso = "";
 
         try {
-            Statement st = conexionBD("JJVPRGPRODUCCION", context).createStatement();
+            Statement st = conexionBD("PRGPRODUCCION", context).createStatement();
             ResultSet rs = st.executeQuery(sql);
             if (rs.next()){
                 peso = rs.getString("peso");
@@ -85,11 +107,12 @@ public class Conexion {
         return peso;
     }
 
+    //Obtiene un dato
     public String obtenerCodigoAlamImport(Context context, String sql){
         String codigo = null;
 
         try {
-            Statement st = conexionBD("JJVPRGPRODUCCION", context).createStatement();
+            Statement st = conexionBD("PRGPRODUCCION", context).createStatement();
             ResultSet rs = st.executeQuery(sql);
             if (rs.next()){
                 codigo = rs.getString("codigo");
@@ -100,11 +123,12 @@ public class Conexion {
         return codigo;
     }
 
+    //Obtiene un dato
     public String obtenerCodigo(Context context, String sql){
         String codigo = null;
 
         try {
-            Statement st = conexionBD("JJVPRGPRODUCCION", context).createStatement();
+            Statement st = conexionBD("PRGPRODUCCION", context).createStatement();
             ResultSet rs = st.executeQuery(sql);
             if (rs.next()){
                 codigo = rs.getString("codigo");
@@ -115,11 +139,12 @@ public class Conexion {
         return codigo;
     }
 
+    //Obtiene un dato
     public String consultarStock(Context context,String codigo, String bodega){
         String Stock = null;
 
         try {
-            Statement st = conexionBD("JJVDMSCIERREAGOSTO", context).createStatement();
+            Statement st = conexionBD("CORSAN", context).createStatement();
             ResultSet rs = st.executeQuery("SELECT stock,bodega FROM v_referencias_sto_hoy WHERE codigo = '" + codigo + "' and bodega = " + bodega + " ");
             if (rs.next()){
                 Stock = rs.getString("stock");
@@ -130,11 +155,12 @@ public class Conexion {
         return Stock;
     }
 
+    //Obtiene un dato
     public String obtenerConsecutivo(Context context, String sql){
         String numero = "";
 
         try {
-            Statement st = conexionBD("JJVDMSCIERREAGOSTO", context).createStatement();
+            Statement st = conexionBD("CORSAN", context).createStatement();
             ResultSet rs = st.executeQuery(sql);
             if (rs.next()){
                 numero = rs.getString("numero");
@@ -145,12 +171,12 @@ public class Conexion {
         return numero;
     }
 
-
+    //Obtiene un dato
     public String obtenerDescripcionCodigo(Context context, String sql){
         String descripcion = "";
 
         try {
-            Statement st = conexionBD("JJVDMSCIERREAGOSTO", context).createStatement();
+            Statement st = conexionBD("CORSAN", context).createStatement();
             ResultSet rs = st.executeQuery(sql);
             if (rs.next()){
                 descripcion = rs.getString("descripcion");
@@ -161,11 +187,12 @@ public class Conexion {
         return descripcion;
     }
 
+    //Obtiene un dato
     public String obtenerCodigoReferencias(Context context, String sql){
         String codigo = "";
 
         try {
-            Statement st = conexionBD("JJVDMSCIERREAGOSTO", context).createStatement();
+            Statement st = conexionBD("CORSAN", context).createStatement();
             ResultSet rs = st.executeQuery(sql);
             if (rs.next()){
                 codigo = rs.getString("codigo");
@@ -176,11 +203,12 @@ public class Conexion {
         return codigo;
     }
 
+    //Obtiene un dato
     public String obtenerMes(Context context, String sql){
         String mes = "";
 
         try {
-            Statement st = conexionBD("JJVDMSCIERREAGOSTO", context).createStatement();
+            Statement st = conexionBD("CORSAN", context).createStatement();
             ResultSet rs = st.executeQuery(sql);
             if (rs.next()){
                 mes = rs.getString("mes");
@@ -191,11 +219,12 @@ public class Conexion {
         return mes;
     }
 
+    //Obtiene un dato
     public String obtenerCostoUnit(Context context, String sql){
         String costo_kilo = null;
 
         try {
-            Statement st = conexionBD("JJVPRGPRODUCCION", context).createStatement();
+            Statement st = conexionBD("PRGPRODUCCION", context).createStatement();
             ResultSet rs = st.executeQuery(sql);
             if (rs.next()){
                 costo_kilo = rs.getString("costo_kilo");
@@ -206,11 +235,12 @@ public class Conexion {
         return costo_kilo;
     }
 
+    //Obtiene un dato
     public String obtenerCantidadPedido(Context context, String sql){
         String cantidad = null;
 
         try {
-            Statement st = conexionBD("JJVPRGPRODUCCION", context).createStatement();
+            Statement st = conexionBD("PRGPRODUCCION", context).createStatement();
             ResultSet rs = st.executeQuery(sql);
             if (rs.next()){
                 cantidad = rs.getString("pendiente");
@@ -221,11 +251,12 @@ public class Conexion {
         return cantidad;
     }
 
+    //Obtiene un dato
     public String obtenerNumTranAlamImport(Context context, String sql){
         String numImport = "";
 
         try {
-            Statement st = conexionBD("JJVPRGPRODUCCION", context).createStatement();
+            Statement st = conexionBD("PRGPRODUCCION", context).createStatement();
             ResultSet rs = st.executeQuery(sql);
             if (rs.next()){
                 numImport = rs.getString("num_importacion");
@@ -236,12 +267,13 @@ public class Conexion {
         return numImport;
     }
 
+    //Obtiene un dato
     public boolean existeCodigo(Context context, String codigo){
         String Pcodigo;
         boolean resp = false;
 
         try {
-            Statement st = conexionBD("JJVDMSCIERREAGOSTO", context).createStatement();
+            Statement st = conexionBD("CORSAN", context).createStatement();
             ResultSet rs = st.executeQuery("SELECT codigo FROM referencias WHERE codigo = '" + codigo + "'");
             if (rs.next()){
                 Pcodigo = rs.getString("codigo");
@@ -255,12 +287,13 @@ public class Conexion {
         return resp;
     }
 
+    //Obtiene un dato
     public boolean existeTipoTransaccion(Context context, String tipoSpinner){
         String tipo;
         boolean resp = false;
 
         try {
-            Statement st = conexionBD("JJVDMSCIERREAGOSTO", context).createStatement();
+            Statement st = conexionBD("CORSAN", context).createStatement();
             ResultSet rs = st.executeQuery("SELECT tipo FROM tipo_transacciones WHERE tipo = '" + tipoSpinner + "'");
             if (rs.next()){
                 tipo = rs.getString("tipo");
@@ -279,7 +312,7 @@ public class Conexion {
         TipotransModelo Tipo;
 
         try {
-            Statement st = conexionBD("JJVDMSCIERREAGOSTO", context).createStatement();
+            Statement st = conexionBD("CORSAN", context).createStatement();
             ResultSet rs = st.executeQuery("SELECT T.tipo,T.sw FROM  tipo_transacciones T WHERE T.tipo = 'TRB1' ");
             while (rs.next()){
                 Tipo = new TipotransModelo();
@@ -293,12 +326,71 @@ public class Conexion {
         return tipos;
     }
 
+    public ArrayList<InventarioModelo> obtenerInven(Context context, String sql){
+        ArrayList<InventarioModelo> inventarios = new ArrayList<>();
+        InventarioModelo Inventario;
+
+        try {
+            Statement st = conexionBD("JJVPRGPRODUCCION", context).createStatement();
+            ResultSet rs = st.executeQuery(sql);
+            while (rs.next()){
+                Inventario = new InventarioModelo();
+                Inventario.setId(rs.getString("id"));
+                Inventario.setCodigo(rs.getString("codigo"));
+                Inventario.setBodega(rs.getString("bodega"));
+                inventarios.add(Inventario);
+            }
+        }catch (Exception e){
+            Toast.makeText(context, e.getMessage(), Toast.LENGTH_SHORT).show();
+        }
+        return inventarios;
+    }
+
+    public ArrayList<RolloterminadoModelo> obtenerRollosTerm(Context context, String sql){
+        ArrayList<RolloterminadoModelo> terminados = new ArrayList<>();
+        RolloterminadoModelo Terminado;
+
+        try {
+            Statement st = conexionBD("JJVPRGPRODUCCION", context).createStatement();
+            ResultSet rs = st.executeQuery(sql);
+            while (rs.next()){
+                Terminado = new RolloterminadoModelo();
+                Terminado.setCod_orden(rs.getString("cod_orden"));
+                Terminado.setId_detalle(rs.getString("id_detalle"));
+                Terminado.setId_rollo(rs.getString("id_rollo"));
+                terminados.add(Terminado);
+            }
+        }catch (Exception e){
+            Toast.makeText(context, e.getMessage(), Toast.LENGTH_SHORT).show();
+        }
+        return terminados;
+    }
+
+    public ArrayList<CentrosModelo> obtenerCentros(Context context){
+        ArrayList<CentrosModelo> centros = new ArrayList<>();
+        CentrosModelo Centro;
+
+        try {
+            Statement st = conexionBD("CORSAN", context).createStatement();
+            ResultSet rs = st.executeQuery("SELECT centro,(CONVERT(varchar, centro) + '--' + descripcion) AS descripcion FROM centros WHERE centro IN (2100,2200,2300,5200,6400)");
+            while (rs.next()){
+                Centro = new CentrosModelo();
+                Centro.setCentro(rs.getString("centro"));
+                Centro.setDescripcion(rs.getString("descripcion"));
+                centros.add(Centro);
+            }
+        }catch (Exception e){
+            Toast.makeText(context, e.getMessage(), Toast.LENGTH_SHORT).show();
+        }
+        return centros;
+    }
+
     public boolean eliminarTiqueteUnico(Context context, String num_importacion, String num_rollo, String nit_proveedor, String detalle){
         boolean resp = false;
-        Connection connection = conexionBD("JJVPRGPRODUCCION", context);
+        Connection connection = conexionBD("PRGPRODUCCION", context);
         try {
             if (connection != null){
-                PreparedStatement stm = conexionBD("JJVPRGPRODUCCION", context).prepareStatement("DELETE FROM  J_alambron_importacion_det_rollos WHERE num_importacion =" + num_importacion + " AND numero_rollo = " + num_rollo + " AND nit_proveedor=" + nit_proveedor + " AND id_solicitud_det =" + detalle);
+                PreparedStatement stm = conexionBD("PRGPRODUCCION", context).prepareStatement("DELETE FROM  J_alambron_importacion_det_rollos WHERE num_importacion =" + num_importacion + " AND numero_rollo = " + num_rollo + " AND nit_proveedor=" + nit_proveedor + " AND id_solicitud_det =" + detalle);
                 stm.executeQuery();
                 resp = true;
                 Toast.makeText(context, "Tiquete borrado", Toast.LENGTH_SHORT).show();
@@ -314,7 +406,7 @@ public class Conexion {
         PedidoModelo modelo;
 
         try {
-            Statement st = conexionBD("JJVPRGPRODUCCION", context).createStatement();
+            Statement st = conexionBD("PRGPRODUCCION", context).createStatement();
             ResultSet rs = st.executeQuery("SELECT E.numero,D.id_detalle,E.fecha,D.codigo,(D.cantidad - (SELECT COUNT(numero) FROM J_salida_alambron_transaccion  WHERE numero = D.numero AND id_detalle = D.id_detalle))As pendiente,R.descripcion \n" +
                     "                               FROM J_salida_alambron_enc E ,J_salida_alambron_det D, CORSAN.dbo.referencias R \n" +
                     "                                  WHERE E.anulado is null AND  R.codigo = D.codigo AND D.numero = E.numero AND (D.cantidad - (SELECT COUNT(numero) FROM J_salida_alambron_transaccion  WHERE numero = D.numero AND id_detalle = D.id_detalle)) > 0 AND (e.devolver = 'N' OR e.devolver IS NULL ) \n" +

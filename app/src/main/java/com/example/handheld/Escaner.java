@@ -35,7 +35,6 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
-import java.util.Objects;
 
 public class Escaner extends AppCompatActivity implements AdapterView.OnItemClickListener {
 
@@ -267,7 +266,6 @@ public class Escaner extends AppCompatActivity implements AdapterView.OnItemClic
                     Boolean valid;
                     valid = validarRolloConTransaccion(num_importacion,numero_rollo,nit_proveedor,id_detalle);
                     if(valid.equals(true)){
-                        //Toast.makeText(Escaner.this,"Rollovalidado", Toast.LENGTH_SHORT).show();
                         lblCodigo.setText(codigo);
                         String sql_descripcion = "SELECT descripcion FROM referencias WHERE  codigo = '" + codigo + "'";
                         lblDescripcion.setText(conexion.obtenerDescripcionCodigo(Escaner.this,sql_descripcion));
@@ -275,6 +273,7 @@ public class Escaner extends AppCompatActivity implements AdapterView.OnItemClic
                         yaentre=true;
                         //Se bloquea el EditText ya que el tiquete fue leido correctamente
                         etCodigo.setEnabled(false);
+                        toastAcierto("Rollo validado");
                     }else{
                         //nit_proveedor= "999999999";
                         if (nit_proveedor.equals("999999999")){
@@ -287,12 +286,12 @@ public class Escaner extends AppCompatActivity implements AdapterView.OnItemClic
                                         boolean resp;
                                         resp = conexion.eliminarTiqueteUnico(Escaner.this, num_importacion, numero_rollo, nit_proveedor, id_detalle);
                                         if (resp){
-                                            Toast.makeText(Escaner.this, "El rollo se desactivo en forma correcta!", Toast.LENGTH_SHORT).show();
+                                            toastAcierto("El rollo se desactivo en forma correcta!");
                                         }else{
-                                            Toast.makeText(Escaner.this, "!Error al desactivar el rollo", Toast.LENGTH_SHORT).show();
+                                            toastError("!Error al desactivar el rollo");
                                         }
                                     }).
-                                    setNegativeButton("Cancelar", (dialogInterface, i) -> Toast.makeText(Escaner.this, "SE cancelo la eliminacion", Toast.LENGTH_SHORT).show());
+                                    setNegativeButton("Cancelar", (dialogInterface, i) -> toastError("Se cancelo la eliminacion"));
                             AlertDialog alertDialog = builder.create();
                             alertDialog.show();
                         }else{
@@ -324,7 +323,6 @@ public class Escaner extends AppCompatActivity implements AdapterView.OnItemClic
             String sql = "SELECT id FROM J_alambron_importacion_det_rollos WHERE num_importacion =" + num_importacion + " AND numero_rollo = " + numero_rollo + " AND nit_proveedor = " + nit_proveedor + " AND id_solicitud_det = " + id_detalle;
             String id = conexion.obtenerIdAlamImport(Escaner.this, sql);
             if (id.isEmpty()){
-                //Toast.makeText(this, "Intente leerlo nuevamente,Problemas con el tiquete", Toast.LENGTH_SHORT).show();
                 toastError("Intente leerlo nuevamente,Problemas con el tiquete");
                 leer_nuevo();
 
@@ -487,10 +485,8 @@ public class Escaner extends AppCompatActivity implements AdapterView.OnItemClic
             Toast.makeText(Escaner.this, e.getMessage(), Toast.LENGTH_SHORT).show();
         }
 
-        if (ing_prod_ad.ExecuteSqlTransaction(listTransaccion_corsan, "JJVDMSCIERREAGOSTO", Escaner.this)){
-            if (ing_prod_ad.ExecuteSqlTransaction(listTransaccion_prod, "JJVPRGPRODUCCION", Escaner.this)){
-                //Toast.makeText(Escaner.this,"Solucion, Se realizo correctamente lo de produccion ", Toast.LENGTH_SHORT).show();
-                //toastAcierto("Solucion, Se realizo correctamente lo de produccion ");
+        if (ing_prod_ad.ExecuteSqlTransaction(listTransaccion_corsan, "CORSAN", Escaner.this)){
+            if (ing_prod_ad.ExecuteSqlTransaction(listTransaccion_prod, "PRGPRODUCCION", Escaner.this)){
                 addRollo(num_importacion, consecutivo, gPeso, gNum_rollo, gDeta, gNit_prov, gTipo);
                 etCodigo.setEnabled(true);
                 leer_nuevo();
@@ -504,7 +500,6 @@ public class Escaner extends AppCompatActivity implements AdapterView.OnItemClic
             }
 
         }else{
-            //Toast.makeText(Escaner.this,"Error al realizar la transacción!", Toast.LENGTH_SHORT).show();
             toastError("Error al realizar la transacción!");
             leer_nuevo();
             resp = false;

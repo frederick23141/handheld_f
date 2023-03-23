@@ -54,7 +54,6 @@ public class MainActivity extends AppCompatActivity {
                 nombre_usuario = conexion.obtenerPersona(MainActivity.this,cd );
 
                 if(nombre_usuario == null){
-                    //Toast.makeText(this, "Persona no encontrada", Toast.LENGTH_SHORT).show();
                     toastError("Persona no encontrada");
                 }else{
                     mensaje.setText("Bienvenido " + nombre_usuario);
@@ -145,7 +144,7 @@ public class MainActivity extends AppCompatActivity {
         child1.addChild(subChild1_1);
 
         //Agregamos subgrupo2"Gestion de Alambron".
-        child1.addChild(subChild1_2);
+        //child1.addChild(subChild1_2);
 
         //Agregamos Grupo"Gestion de Alambron".
         //parent.addChildren(child1);
@@ -168,10 +167,10 @@ public class MainActivity extends AppCompatActivity {
         TreeNode subChild2_2 = new TreeNode(subChildItem2_2).setViewHolder(new MyHolder(getApplicationContext(), false, R.layout.child, 100));
 
         //Agregamos subgrupo1"Gestion Galvanizado".
-        child2.addChild(subChild2_1);
+        //child2.addChild(subChild2_1);
 
         //Agregamos subgrupo2"Gestion Galvanizado".
-        child2.addChild(subChild2_2);
+        //child2.addChild(subChild2_2);
 
         //Agregamos Grupo"Gestion Galvanizado".
         //parent.addChildren(child1);
@@ -194,10 +193,10 @@ public class MainActivity extends AppCompatActivity {
         TreeNode subChild3_2 = new TreeNode(subChildItem3_2).setViewHolder(new MyHolder(getApplicationContext(), false, R.layout.child, 100));
 
         //Agregamos subgrupo1"Gestion Puas".
-        child3.addChild(subChild3_1);
+        //child3.addChild(subChild3_1);
 
         //Agregamos subgrupo2"Gestion Puas".
-        child3.addChild(subChild3_2);
+        //child3.addChild(subChild3_2);
 
         //Agregamos Grupo"Gestion Puas".
         //parent.addChildren(child1);
@@ -220,10 +219,10 @@ public class MainActivity extends AppCompatActivity {
         TreeNode subChild4_2 = new TreeNode(subChildItem4_2).setViewHolder(new MyHolder(getApplicationContext(), false, R.layout.child, 100));
 
         //Agregamos subgrupo1"Gestion Puntilleria".
-        child4.addChild(subChild4_1);
+        //child4.addChild(subChild4_1);
 
         //Agregamos subgrupo2"Gestion Puntilleria".
-        child4.addChild(subChild4_2);
+        //child4.addChild(subChild4_2);
 
         //Agregamos Grupo"Gestion Puntilleria".
         //parent.addChildren(child1);
@@ -234,6 +233,24 @@ public class MainActivity extends AppCompatActivity {
         //Grupo"Otros"
         MyHolder.IconTreeItem childItem5 = new MyHolder.IconTreeItem(R.drawable.ic_folder, "Otros");
         TreeNode child5 = new TreeNode(childItem5).setViewHolder(new MyHolder(getApplicationContext(), false, R.layout.child, 25));
+
+        //SubGrupo1"Otros "
+        //Enviamos el icono y el texto para el SubGrupo
+        MyHolder.IconTreeItem subChildItem5_1 = new MyHolder.IconTreeItem(R.drawable.ic_folder, "Inventarios");
+        TreeNode subChild5_1 = new TreeNode(subChildItem5_1).setViewHolder(new MyHolder(getApplicationContext(), false, R.layout.child, 100));
+
+        //Al darle clic a este elemento en el treeview se abrira una nueva pantalla y se enviaran unos datos
+        subChild5_1.setClickListener(new TreeNode.TreeNodeClickListener() {
+            @Override
+            public void onClick(TreeNode node, Object value) {
+                Intent intent = new Intent(MainActivity.this, PedidoInventario.class);
+                intent.putExtra("nit_usuario", cd);
+                startActivity(intent);
+            }
+        });
+
+        //Agregamos subgrupo1"Otros".
+        child5.addChild(subChild5_1);
 
         //Agregamos Grupo"Otros".
         //parent.addChildren(child1);
