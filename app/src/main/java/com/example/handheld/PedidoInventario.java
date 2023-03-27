@@ -5,7 +5,10 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.constraintlayout.widget.ConstraintLayout;
 
 import android.annotation.SuppressLint;
+import android.app.DatePickerDialog;
+import android.app.TimePickerDialog;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.view.Gravity;
@@ -13,32 +16,42 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.DatePicker;
 import android.widget.EditText;
+import android.widget.ListAdapter;
+import android.widget.ListView;
 import android.widget.Spinner;
 import android.widget.TextView;
+import android.widget.TimePicker;
 import android.widget.Toast;
 
 import com.example.handheld.conexionDB.Conexion;
 import com.example.handheld.modelos.CentrosModelo;
+import com.example.handheld.modelos.GalvRecepcionModelo;
 import com.example.handheld.modelos.InventarioModelo;
+import com.example.handheld.modelos.PedidoModelo;
 import com.example.handheld.modelos.RolloterminadoModelo;
 import com.example.handheld.modelos.TipotransModelo;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 
-public class PedidoInventario extends AppCompatActivity {
+public class PedidoInventario extends AppCompatActivity implements View.OnClickListener {
 
+    //se declaran las variables donde estaran los datos que vienen de la anterior clase
     String nit_usuario;
 
     //Se declaran los elementos del layout
-    EditText txtReferencia, txtBodega;
+    TextView txtTfechaInicio, txtTFechaFin, txtTHoraInicio, txtTHoraFin;
+    EditText txtFechaInicio, txtFechaFin, txtHoraInicio, txtHoraFin;
     Button btn_comenzar;
     Spinner spinner2;
 
     //Se inicializa un objeto conexion
     Conexion conexion;
 
+    private int dia,mes,ano,hora,minutos;
     Integer id = 0;
     Integer tipos = 0;
     String tp = "";
@@ -57,10 +70,29 @@ public class PedidoInventario extends AppCompatActivity {
         setContentView(R.layout.activity_pedido_inventario);
 
         //Se Definen los elementos de layout
-        txtBodega = findViewById(R.id.txtBodega);
-        txtReferencia = findViewById(R.id.txtReferencia);
+        txtTfechaInicio = findViewById(R.id.txtTfechaInicio);
+        txtTFechaFin = findViewById(R.id.txtTFechaFin);
+        txtTHoraInicio = findViewById(R.id.txtTHoraInicio);
+        txtTHoraFin = findViewById(R.id.txtTHoraFin);
+
+        txtFechaInicio = findViewById(R.id.txtFechaInicio);
+        txtFechaFin = findViewById(R.id.txtFechaFin);
+        txtHoraInicio = findViewById(R.id.txtHoraInicio);
+        txtHoraFin = findViewById(R.id.txtHoraFin);
         btn_comenzar = findViewById(R.id.btn_comenzar);
         spinner2 = findViewById(R.id.spinner2);
+
+        //Se agregamos el metodo setOnClickListener a los campos
+        txtTfechaInicio.setOnClickListener(this);
+        txtTFechaFin.setOnClickListener(this);
+        txtTHoraInicio.setOnClickListener(this);
+        txtTHoraFin.setOnClickListener(this);
+
+        //Se inhablitan los edittext para que no se pueda ingresar la fecha por teclado
+        txtFechaInicio.setEnabled(false);
+        txtFechaFin.setEnabled(false);
+        txtHoraInicio.setEnabled(false);
+        txtHoraFin.setEnabled(false);
 
         //Recibimos el documento desde la class Main Activity
         nit_usuario = getIntent().getStringExtra("nit_usuario");
@@ -68,22 +100,160 @@ public class PedidoInventario extends AppCompatActivity {
         //Activamos el metodo para consultar los centros
         consultarCentros();
 
-        verificarInventariosPendientes();
-
+        //////////////////////////////////////////////////////////////////////////////////////////////
         btn_comenzar.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (!spinner2.getSelectedItem().equals("Seleccione")){
-                    cargar_centros();
+                if (!spinner2.getSelectedItem().equals("Seleccione") && !txtFechaInicio.getText().toString().trim().equals("")
+                        && !txtFechaFin.getText().toString().trim().equals("")&& !txtHoraInicio.getText().toString().trim().equals("")
+                        && !txtHoraFin.getText().toString().trim().equals("")){
+                    iniciarProceso();
                 }else{
-
+                    toastError("Faltan campos por llenar");
                 }
             }
         });
-
     }
 
+    //////////////////////////////////////////////////////////////////////////////////////////////
+    private void iniciarProceso() {
+        String fecha_inicio = txtFechaInicio.getText().toString() + " " + txtHoraInicio.getText().toString()+":00";
+        String fecha_final = txtFechaFin.getText().toString() + " " + txtHoraFin.getText().toString()+":00";
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setIcon(R.mipmap.ic_alert).
+                setTitle("Atención").
+                setMessage("Se iniciara el proceso desde la fecha_hora: " + fecha_inicio + " hasta fecha_hora: " + fecha_final).
+                setPositiveButton("Aceptar", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        Intent intent  = new Intent(PedidoInventario.this,EscanerInventario.class);
+                        intent.putExtra("nit_usuario", nit_usuario);
+                        intent.putExtra("fecha_inicio",fecha_inicio);
+                        intent.putExtra("fecha_final",fecha_final);
+                        startActivity(intent);
+                    }
+                }).setNegativeButton("Cancelar", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
 
+                    }
+                });
+        AlertDialog alertDialog = builder.create();
+        alertDialog.show();
+    }
+
+    //////////////////////////////////////////////////////////////////////////////////////////////
+    @Override
+    public void onClick(View v) {
+        if (v==txtTfechaInicio){
+            Calendar c = Calendar.getInstance();
+            dia = c.get(Calendar.DAY_OF_MONTH);
+            mes = c.get(Calendar.MONTH);
+            ano = c.get(Calendar.YEAR);
+
+            DatePickerDialog datePickerDialog = new DatePickerDialog(this, new DatePickerDialog.OnDateSetListener() {
+                @SuppressLint("SetTextI18n")
+                @Override
+                public void onDateSet(DatePicker view, int year, int month, int dayOfMonth) {
+                    String m;
+                    String d;
+                    if ((month+1)<10){
+                        m = "0" + String.valueOf(month+1);
+                    }else{
+                        m = String.valueOf(month+1);
+                    }
+                    if (dayOfMonth<10){
+                        d = "0" + String.valueOf(dayOfMonth);
+                    }else{
+                        d = String.valueOf(dayOfMonth);
+                    }
+                    txtFechaInicio.setText(year+"-"+m+"-"+d);
+                }
+            },ano,mes,dia);
+            datePickerDialog.show();
+        }
+        if (v==txtTFechaFin){
+            Calendar c = Calendar.getInstance();
+            dia = c.get(Calendar.DAY_OF_MONTH);
+            mes = c.get(Calendar.MONTH);
+            ano = c.get(Calendar.YEAR);
+
+            DatePickerDialog datePickerDialog = new DatePickerDialog(this, new DatePickerDialog.OnDateSetListener() {
+                @SuppressLint("SetTextI18n")
+                @Override
+                public void onDateSet(DatePicker view, int year, int month, int dayOfMonth) {
+                    String m;
+                    String d;
+                    if ((month+1)<10){
+                        m = "0" + String.valueOf(month+1);
+                    }else{
+                        m = String.valueOf(month+1);
+                    }
+                    if (dayOfMonth<10){
+                        d = "0" + String.valueOf(dayOfMonth);
+                    }else{
+                        d = String.valueOf(dayOfMonth);
+                    }
+                    txtFechaFin.setText(year+"-"+m+"-"+d);
+                }
+            },ano,mes,dia);
+            datePickerDialog.show();
+        }
+        if (v==txtTHoraInicio){
+            Calendar c = Calendar.getInstance();
+            hora = c.get(Calendar.HOUR_OF_DAY);
+            minutos = c.get(Calendar.MINUTE);
+
+            TimePickerDialog timePickerDialog =  new TimePickerDialog(this, new TimePickerDialog.OnTimeSetListener() {
+                @SuppressLint("SetTextI18n")
+                @Override
+                public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
+                    String h;
+                    String m;
+                    if (hourOfDay<10){
+                        h = "0" + hourOfDay;
+                    }else{
+                        h = String.valueOf(hourOfDay);
+                    }
+                    if (minute<10){
+                        m = "0" + minute;
+                    }else{
+                        m = String.valueOf(minute);
+                    }
+                    txtHoraInicio.setText(h+":"+m);
+                }
+            },hora,minutos,true);
+            timePickerDialog.show();
+        }
+        if (v==txtTHoraFin){
+            Calendar c = Calendar.getInstance();
+            hora = c.get(Calendar.HOUR_OF_DAY);
+            minutos = c.get(Calendar.MINUTE);
+
+            TimePickerDialog timePickerDialog =  new TimePickerDialog(this, new TimePickerDialog.OnTimeSetListener() {
+                @SuppressLint("SetTextI18n")
+                @Override
+                public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
+                    String h;
+                    String m;
+                    if (hourOfDay<10){
+                        h = "0" + hourOfDay;
+                    }else{
+                        h = String.valueOf(hourOfDay);
+                    }
+                    if (minute<10){
+                        m = "0" + minute;
+                    }else{
+                        m = String.valueOf(minute);
+                    }
+                    txtHoraFin.setText(h+":"+m);
+                }
+            },hora,minutos,true);
+            timePickerDialog.show();
+        }
+    }
+
+    //////////////////////////////////////////////////////////////////////////////////////////////
     private void consultarCentros() {
         conexion = new Conexion();
 
@@ -93,6 +263,7 @@ public class PedidoInventario extends AppCompatActivity {
         spinner2.setAdapter(adapter);
     }
 
+    //////////////////////////////////////////////////////////////////////////////////////////////
     //Metodoque recibe una lista tipo transmodelo, la recorre y añade a otra lista tipo String
     private ArrayList<String> obtenerLista(ArrayList<CentrosModelo> tiposLista ){
         listaCentros = new ArrayList<>();
@@ -102,9 +273,9 @@ public class PedidoInventario extends AppCompatActivity {
             listaCentros.add(tiposLista.get(i).getDescripcion());
         }
 
-
         return listaCentros;
     }
+
 
     private Boolean verificarInventariosPendientes() {
         Boolean resp = false;
@@ -134,8 +305,6 @@ public class PedidoInventario extends AppCompatActivity {
                 //cargarRollos(id) - Organizar para ir a la otra activity
             }else{
                 tipos = 1;
-                txtReferencia.setText(dt.get(x).getCodigo());
-                txtBodega.setText(dt.get(x).getBodega());
                 toastError("Tiene un inventario pendiente por cerrar");
                 //cargarInventario(id)
             }

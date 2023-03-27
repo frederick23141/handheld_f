@@ -73,6 +73,7 @@
             android:orientation="horizontal">
 
             <ListView
+                android:id="@+id/listviewGalvTerminado"
                 android:layout_width="match_parent"
                 android:layout_height="415dp" />
         </LinearLayout>
@@ -94,7 +95,7 @@
                 android:layout_weight="1"
                 android:backgroundTint="#3CBF41"
                 android:drawableEnd="@drawable/cheque"
-                android:text="Terminar" />
+                android:text="Terminar Proceso" />
 
             <Space
                 android:layout_width="wrap_content"

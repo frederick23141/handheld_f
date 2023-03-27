@@ -23,7 +23,7 @@
                 android:layout_weight="1"
                 android:background="#5B81F3"
                 android:paddingTop="8dp"
-                android:text="PEDIDO INVENTARIO"
+                android:text="RECEPCION PRODUCTO TERMINADO"
                 android:textAlignment="center"
                 android:textSize="20sp"
                 android:textStyle="bold" />
@@ -46,8 +46,8 @@
                 android:layout_width="306dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:background="#939393"
-                android:text="Proceso:"
+                android:background="#C1C0C0"
+                android:text="Area a hacer la recepción:"
                 android:textAlignment="center"
                 android:textSize="20sp"
                 android:textStyle="bold" />
@@ -92,12 +92,28 @@
                 android:layout_weight="1" />
 
             <TextView
-                android:id="@+id/textView4"
-                android:layout_width="207dp"
+                android:id="@+id/txtTfechaInicio"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:background="#939393"
-                android:text="Código's"
+                android:background="#C1C0C0"
+                android:text="Fecha_Inicio"
+                android:textAlignment="center"
+                android:textSize="20sp"
+                android:textStyle="bold" />
+
+            <Space
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1" />
+
+            <TextView
+                android:id="@+id/txtTFechaFin"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:background="#C1C0C0"
+                android:text="Fecha_Final"
                 android:textAlignment="center"
                 android:textSize="20sp"
                 android:textStyle="bold" />
@@ -119,7 +135,23 @@
                 android:layout_weight="1" />
 
             <EditText
-                android:id="@+id/txtReferencia"
+                android:id="@+id/txtFechaInicio"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:ems="10"
+                android:enabled="true"
+                android:inputType="textPersonName"
+                android:textAlignment="center"
+                android:textStyle="bold" />
+
+            <Space
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1" />
+
+            <EditText
+                android:id="@+id/txtFechaFin"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
@@ -134,29 +166,6 @@
                 android:layout_weight="1" />
         </LinearLayout>
 
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal">
-
-            <Space
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_weight="1" />
-
-            <TextView
-                android:id="@+id/textView5"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="Ejemplo: 3CC, 33B, 33R, 33P, 22X, 11"
-                android:textAlignment="center" />
-
-            <Space
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_weight="1" />
-        </LinearLayout>
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -170,12 +179,28 @@
                 android:layout_weight="1" />
 
             <TextView
-                android:id="@+id/textView6"
-                android:layout_width="214dp"
+                android:id="@+id/txtTHoraInicio"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:background="#939393"
-                android:text="Bodega: "
+                android:background="#C1C0C0"
+                android:text="Hora_Inicio"
+                android:textAlignment="center"
+                android:textSize="20sp"
+                android:textStyle="bold" />
+
+            <Space
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1" />
+
+            <TextView
+                android:id="@+id/txtTHoraFin"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:background="#C1C0C0"
+                android:text="Hora_Final"
                 android:textAlignment="center"
                 android:textSize="20sp"
                 android:textStyle="bold" />
@@ -197,12 +222,27 @@
                 android:layout_weight="1" />
 
             <EditText
-                android:id="@+id/txtBodega"
+                android:id="@+id/txtHoraInicio"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:ems="10"
-                android:inputType="number"
+                android:inputType="textPersonName"
+                android:textAlignment="center"
+                android:textStyle="bold" />
+
+            <Space
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1" />
+
+            <EditText
+                android:id="@+id/txtHoraFin"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:ems="10"
+                android:inputType="textPersonName"
                 android:textAlignment="center"
                 android:textStyle="bold" />
 
@@ -228,9 +268,8 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:backgroundTint="#05A3E3"
-                android:drawableLeft="@drawable/add"
-                android:text="Comenzar inventario" />
+                android:backgroundTint="#3CBF41"
+                android:text="Iniciar proceso" />
 
             <Space
                 android:layout_width="wrap_content"

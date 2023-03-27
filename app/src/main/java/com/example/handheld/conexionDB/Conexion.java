@@ -6,6 +6,7 @@ import android.os.StrictMode;
 import android.widget.Toast;
 
 import com.example.handheld.modelos.CentrosModelo;
+import com.example.handheld.modelos.GalvRecepcionModelo;
 import com.example.handheld.modelos.InventarioModelo;
 import com.example.handheld.modelos.PedidoModelo;
 import com.example.handheld.modelos.PersonaModelo;
@@ -425,6 +426,31 @@ public class Conexion {
             Toast.makeText(context, e.getMessage(), Toast.LENGTH_SHORT).show();
         }
         return pedidos;
+    }
+
+    public List<GalvRecepcionModelo> obtenerGalvTerminado(Context context, String fecha_inicio, String fecha_final){
+        List<GalvRecepcionModelo> galvTerminado = new ArrayList<>();
+        GalvRecepcionModelo modelo;
+
+        try {
+            Statement st = conexionBD("PRGPRODUCCION", context).createStatement();
+            ResultSet rs = st.executeQuery("SELECT R.nro_orden,R.consecutivo_rollo as nro_rollo,S.final_galv,ref.descripcion,R.peso  \n" +
+                                                "FROM D_rollo_galvanizado_f R, D_orden_pro_galv_enc S,CORSAN.dbo.referencias ref,CORSAN.dbo.V_nom_personal_Activo_con_maquila ter \n" +
+                                                "where R.nro_orden = S.consecutivo_orden_G And ref.codigo = S.final_galv and ter.nit=R.nit_operario AND R.fecha_hora >= '"+ fecha_inicio +"' AND  R.fecha_hora  <= '"+ fecha_final +"' and R.no_conforme is null and R.anular is null and R.recepcionado is null and S.final_galv LIKE '33G%'\n" +
+                                                "order by ref.descripcion");
+            while (rs.next()){
+                modelo = new GalvRecepcionModelo();
+                modelo.setNro_orden(rs.getString("nro_orden"));
+                modelo.setNro_rollo(rs.getString("nro_rollo"));
+                modelo.setReferencia(rs.getString("final_galv"));
+                modelo.setDescripcion(rs.getString("descripcion"));
+                modelo.setPeso(String.valueOf(rs.getInt("peso")));
+                galvTerminado.add(modelo);
+            }
+        }catch (Exception e){
+            Toast.makeText(context, e.getMessage(), Toast.LENGTH_SHORT).show();
+        }
+        return galvTerminado;
     }
 
 

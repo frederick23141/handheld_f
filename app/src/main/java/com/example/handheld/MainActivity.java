@@ -236,7 +236,7 @@ public class MainActivity extends AppCompatActivity {
 
         //SubGrupo1"Otros "
         //Enviamos el icono y el texto para el SubGrupo
-        MyHolder.IconTreeItem subChildItem5_1 = new MyHolder.IconTreeItem(R.drawable.ic_folder, "Inventarios");
+        MyHolder.IconTreeItem subChildItem5_1 = new MyHolder.IconTreeItem(R.drawable.ic_folder, "Recepción Producto Terminado");
         TreeNode subChild5_1 = new TreeNode(subChildItem5_1).setViewHolder(new MyHolder(getApplicationContext(), false, R.layout.child, 100));
 
         //Al darle clic a este elemento en el treeview se abrira una nueva pantalla y se enviaran unos datos
