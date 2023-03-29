@@ -2,11 +2,16 @@ package com.example.handheld.atv.holder.adapters;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.content.res.ColorStateList;
+import android.graphics.Color;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -39,6 +44,15 @@ public class listGalvTerminadoAdapter extends ArrayAdapter<GalvRecepcionModelo> 
             view = LayoutInflater.from(mContext).inflate(resourceLayout, null);
 
         GalvRecepcionModelo modelo = mlist.get(position);
+
+        LinearLayout linearLayout = view.findViewById(R.id.ll_galva);
+
+        String color = modelo.getColor();
+        if (color.equals("RED")){
+            linearLayout.setBackgroundTintList(ColorStateList.valueOf(Color.RED));
+        }else{
+            linearLayout.setBackgroundTintList(ColorStateList.valueOf(Color.GREEN));
+        }
 
         TextView textonro_orden = view.findViewById(R.id.txtnro_orden);
         textonro_orden.setText(modelo.getNro_orden());

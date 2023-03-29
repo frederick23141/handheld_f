@@ -7,6 +7,7 @@ import android.widget.Toast;
 
 import com.example.handheld.modelos.CentrosModelo;
 import com.example.handheld.modelos.GalvRecepcionModelo;
+import com.example.handheld.modelos.GalvRecepcionadoRollosModelo;
 import com.example.handheld.modelos.InventarioModelo;
 import com.example.handheld.modelos.PedidoModelo;
 import com.example.handheld.modelos.PersonaModelo;
@@ -237,6 +238,22 @@ public class Conexion {
     }
 
     //Obtiene un dato
+    public Double obtenerIvaReferencia(Context context, String cod){
+        Double iva = null;
+
+        try {
+            Statement st = conexionBD("JJVDMSCIERREAGOSTO", context).createStatement();
+            ResultSet rs = st.executeQuery("select porcentaje_iva from referencias where codigo = '"+ cod +"'");
+            if (rs.next()){
+                iva = rs.getDouble("porcentaje_iva");
+            }
+        }catch (Exception e){
+            Toast.makeText(context, e.getMessage(), Toast.LENGTH_SHORT).show();
+        }
+        return iva;
+    }
+
+    //Obtiene un dato
     public String obtenerCantidadPedido(Context context, String sql){
         String cantidad = null;
 
@@ -433,7 +450,7 @@ public class Conexion {
         GalvRecepcionModelo modelo;
 
         try {
-            Statement st = conexionBD("PRGPRODUCCION", context).createStatement();
+            Statement st = conexionBD("JJVPRGPRODUCCION", context).createStatement();
             ResultSet rs = st.executeQuery("SELECT R.nro_orden,R.consecutivo_rollo as nro_rollo,S.final_galv,ref.descripcion,R.peso  \n" +
                                                 "FROM D_rollo_galvanizado_f R, D_orden_pro_galv_enc S,CORSAN.dbo.referencias ref,CORSAN.dbo.V_nom_personal_Activo_con_maquila ter \n" +
                                                 "where R.nro_orden = S.consecutivo_orden_G And ref.codigo = S.final_galv and ter.nit=R.nit_operario AND R.fecha_hora >= '"+ fecha_inicio +"' AND  R.fecha_hora  <= '"+ fecha_final +"' and R.no_conforme is null and R.anular is null and R.recepcionado is null and S.final_galv LIKE '33G%'\n" +
@@ -445,12 +462,37 @@ public class Conexion {
                 modelo.setReferencia(rs.getString("final_galv"));
                 modelo.setDescripcion(rs.getString("descripcion"));
                 modelo.setPeso(String.valueOf(rs.getInt("peso")));
+                modelo.setColor("RED");
                 galvTerminado.add(modelo);
             }
         }catch (Exception e){
             Toast.makeText(context, e.getMessage(), Toast.LENGTH_SHORT).show();
         }
         return galvTerminado;
+    }
+
+    public List<GalvRecepcionadoRollosModelo> galvRefeRecepcionados(Context context, String fecha_recepcion, String month, String year){
+        List<GalvRecepcionadoRollosModelo> refeRecepcionados = new ArrayList<>();
+        GalvRecepcionadoRollosModelo modelo;
+
+        try {
+            Statement st = conexionBD("JJVPRGPRODUCCION", context).createStatement();
+            ResultSet rs = st.executeQuery("select sum(R.peso) as peso, (SELECT p.promedio from corsan.dbo.v_promedio p where codigo = O.final_galv and P.ano = "+ year +" and P.mes = "+ month +")  as promedio, (select costo_unitario from CORSAN.dbo.referencias R where codigo = O.final_galv) as costo_unitario , O.final_galv " +
+                    "from D_rollo_galvanizado_f R inner join D_orden_pro_galv_enc O on O.consecutivo_orden_G = R.nro_orden " +
+                    "where R.recepcionado is not null and R.fecha_recepcion = '"+ fecha_recepcion +"' and R.no_conforme is null and O.final_galv like '33%' " +
+                    "group by O.final_galv");
+            while (rs.next()){
+                modelo = new GalvRecepcionadoRollosModelo();
+                modelo.setPeso(rs.getDouble("peso"));
+                modelo.setPromedio(rs.getDouble("promedio"));
+                modelo.setCosto_unitario(rs.getDouble("costo_unitario"));
+                modelo.setReferencia(rs.getString("final_galv"));
+                refeRecepcionados.add(modelo);
+            }
+        }catch (Exception e){
+            Toast.makeText(context, e.getMessage(), Toast.LENGTH_SHORT).show();
+        }
+        return refeRecepcionados;
     }
 
 

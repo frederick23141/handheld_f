@@ -100,6 +100,9 @@ public class PedidoInventario extends AppCompatActivity implements View.OnClickL
         //Activamos el metodo para consultar los centros
         consultarCentros();
 
+        //Bloqueamos el spinner para que solo se vea galvanizado
+        spinner2.setEnabled(false);
+
         //////////////////////////////////////////////////////////////////////////////////////////////
         btn_comenzar.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -268,7 +271,7 @@ public class PedidoInventario extends AppCompatActivity implements View.OnClickL
     private ArrayList<String> obtenerLista(ArrayList<CentrosModelo> tiposLista ){
         listaCentros = new ArrayList<>();
 
-        listaCentros.add("Seleccione");
+        listaCentros.add("5200--PLANTA ALAMB. GALV");
         for(int i = 0; i < tiposLista.size(); i++){
             listaCentros.add(tiposLista.get(i).getDescripcion());
         }

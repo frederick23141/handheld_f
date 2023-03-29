@@ -6,13 +6,15 @@ public class GalvRecepcionModelo {
     String referencia;
     String descripcion;
     String peso;
+    String color;
 
-    public GalvRecepcionModelo(String nro_orden, String nro_rollo, String referencia, String descripcion, String peso) {
+    public GalvRecepcionModelo(String nro_orden, String nro_rollo, String referencia, String descripcion, String peso, String color) {
         this.nro_orden = nro_orden;
         this.nro_rollo = nro_rollo;
         this.referencia = referencia;
         this.descripcion = descripcion;
         this.peso = peso;
+        this.color = color;
     }
 
     public GalvRecepcionModelo(){
@@ -57,5 +59,13 @@ public class GalvRecepcionModelo {
 
     public void setPeso(String peso) {
         this.peso = peso;
+    }
+
+    public String getColor() {
+        return color;
+    }
+
+    public void setColor(String color) {
+        this.color = color;
     }
 }
