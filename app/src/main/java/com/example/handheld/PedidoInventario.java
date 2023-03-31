@@ -30,6 +30,7 @@ import com.example.handheld.modelos.CentrosModelo;
 import com.example.handheld.modelos.GalvRecepcionModelo;
 import com.example.handheld.modelos.InventarioModelo;
 import com.example.handheld.modelos.PedidoModelo;
+import com.example.handheld.modelos.PersonaModelo;
 import com.example.handheld.modelos.RolloterminadoModelo;
 import com.example.handheld.modelos.TipotransModelo;
 
@@ -50,6 +51,8 @@ public class PedidoInventario extends AppCompatActivity implements View.OnClickL
 
     //Se inicializa un objeto conexion
     Conexion conexion;
+
+    PersonaModelo persona;
 
     private int dia,mes,ano,hora,minutos;
     Integer id = 0;

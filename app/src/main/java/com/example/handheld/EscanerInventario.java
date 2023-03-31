@@ -7,7 +7,11 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.media.AudioManager;
+import android.media.MediaPlayer;
+import android.media.SoundPool;
 import android.os.Bundle;
+import android.os.Vibrator;
 import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
@@ -61,6 +65,13 @@ public class EscanerInventario extends AppCompatActivity implements AdapterView.
     Ing_prod_ad ing_prod_ad = new Ing_prod_ad();
     List<GalvRecepcionadoRollosModelo> ListarefeRecepcionados= new ArrayList<>();
 
+    //Se inicializa los varibles para el sonido de error
+    SoundPool sp;
+    int sonido_de_Reproduccion;
+
+    //Se inicializa una instancia para hacer vibrar el celular
+    Vibrator vibrator;
+
 
     Integer id = 0;
 
@@ -85,6 +96,12 @@ public class EscanerInventario extends AppCompatActivity implements AdapterView.
         listviewGalvTerminado = findViewById(R.id.listviewGalvTerminado);
         listviewGalvTerminado.setOnItemClickListener(this); //Determinamos a que elemento va dirigido el OnItemClick
         galvRecepcionModelo = new GalvRecepcionModelo();
+
+        //Se Define los varibles para el sonido de error
+        sp = new SoundPool(2, AudioManager.STREAM_MUSIC,1);
+        sonido_de_Reproduccion = sp.load(this, R.raw.sonido_error_2,1);
+
+        vibrator = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
 
         /////////////////////////////////////////////////////////////////////////////////////////////
         //Llamamos al metodo para consultar los rollos de galvanizados listos para recoger
@@ -121,39 +138,47 @@ public class EscanerInventario extends AppCompatActivity implements AdapterView.
             @Override
             public void onClick(View v) {
                 int sleer = Integer.parseInt(txtTotalSinLeer.getText().toString());
-                int leido = Integer.parseInt(txtTotal.getText().toString());
-                if(sleer==0){
+                int total = Integer.parseInt(txtTotal.getText().toString());
+                int leidos = (total - sleer);
+                if(sleer==0 && total>0){
                     try {
                         realizarTransaccion();
                     }catch (Exception e){
                         toastError(e.getMessage());
                     }
                 }else{
-                    if (leido == sleer){
-                        toastError("No se ha leido ningun rollo");
-                    }
-                    else{
-                        AlertDialog.Builder builder = new AlertDialog.Builder(EscanerInventario.this);
-                        builder.setIcon(R.mipmap.ic_alert).
-                                setTitle("Atención").
-                                setMessage("Se iniciara el translado con rollos sin leer!").
-                                setPositiveButton("Aceptar", new DialogInterface.OnClickListener() {
-                                    @Override
-                                    public void onClick(DialogInterface dialog, int which) {
-                                        try {
-                                            realizarTransaccion();
-                                        }catch (Exception e){
-                                            toastError(e.getMessage());
+                    if(sleer==0 && total==0){
+                        toastError("No hay rollos por leer");
+                        AudioError();
+                    }else{
+                        if (total == sleer){
+                            toastError("No se ha leido ningun rollo");
+                            AudioError();
+                        }
+                        else{
+                            AlertDialog.Builder builder = new AlertDialog.Builder(EscanerInventario.this);
+                            builder.setIcon(R.mipmap.ic_alert).
+                                    setTitle("Atención").
+                                    setMessage("Se han leido: "+ leidos +" Rollos \n" +
+                                            "Se iniciara el translado solo con los rollos leidos!").
+                                    setPositiveButton("Aceptar", new DialogInterface.OnClickListener() {
+                                        @Override
+                                        public void onClick(DialogInterface dialog, int which) {
+                                            try {
+                                                realizarTransaccion();
+                                            }catch (Exception e){
+                                                toastError(e.getMessage());
+                                            }
                                         }
-                                    }
-                                }).setNegativeButton("Cancelar", new DialogInterface.OnClickListener() {
-                                    @Override
-                                    public void onClick(DialogInterface dialog, int which) {
+                                    }).setNegativeButton("Cancelar", new DialogInterface.OnClickListener() {
+                                        @Override
+                                        public void onClick(DialogInterface dialog, int which) {
 
-                                    }
-                                });
-                        AlertDialog alertDialog = builder.create();
-                        alertDialog.show();
+                                        }
+                                    });
+                            AlertDialog alertDialog = builder.create();
+                            alertDialog.show();
+                        }
                     }
                 }
             }
@@ -206,6 +231,7 @@ public class EscanerInventario extends AppCompatActivity implements AdapterView.
                 if (ing_prod_ad.ExecuteSqlTransaction(listTransaccionBodega, "JJVDMSCIERREAGOSTO", EscanerInventario.this)){
                     toastAcierto("Transaccion Realizada con Exito! --" + numero_transaccion);
                     Intent intent = new Intent(EscanerInventario.this,PedidoInventario.class);
+                    intent.putExtra("nit_usuario", nit_usuario);
                     startActivity(intent);
                 }else{
                     toastError("Problemas, No se realizó correctamente la transacción!");
@@ -268,6 +294,7 @@ public class EscanerInventario extends AppCompatActivity implements AdapterView.
         if (encontrado){
             if(ListaGalvTerminado.get(position).getColor().equals("GREEN")){
                 toastError("Rollo ya leido");
+                AudioError();
                 cargarNuevo();
             }else{
                 pintarRollo(position);
@@ -278,6 +305,7 @@ public class EscanerInventario extends AppCompatActivity implements AdapterView.
             }
         }else{
             toastError("Rollo no encontrado");
+            AudioError();
             cargarNuevo();
         }
     }
@@ -361,8 +389,13 @@ public class EscanerInventario extends AppCompatActivity implements AdapterView.
 
         Toast toast = new Toast(getApplicationContext());
         toast.setGravity(Gravity.CENTER_VERTICAL | Gravity.BOTTOM,0,200);
-        toast.setDuration(Toast.LENGTH_SHORT);
+        toast.setDuration(Toast.LENGTH_LONG);
         toast.setView(view);
         toast.show();
+    }
+
+    public void AudioError(){
+        sp.play(sonido_de_Reproduccion,100,100,1,0,0);
+        vibrator.vibrate(1000);
     }
 }

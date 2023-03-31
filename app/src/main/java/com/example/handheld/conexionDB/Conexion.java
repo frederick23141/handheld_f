@@ -42,9 +42,8 @@ public class Conexion {
     }
 
     //Obtiene datos de una persona en la BD
-    public String obtenerPersona(Context context, String cedula){
-        PersonaModelo persona;
-        String nombre = null;
+    public PersonaModelo obtenerPersona(Context context, String cedula){
+        PersonaModelo persona = null;
 
         try {
             Statement st = conexionBD("CORSAN", context).createStatement();
@@ -52,12 +51,11 @@ public class Conexion {
                     "WHERE nit = '" + cedula + "'");
             if (rs.next()){
                 persona = new PersonaModelo(rs.getString("nombres"), rs.getString("nit"));
-                nombre = persona.getNombres();
             }
         }catch (Exception e){
             Toast.makeText(context, e.getMessage(), Toast.LENGTH_SHORT).show();
         }
-        return nombre;
+        return persona;
     }
 
     //Obtiene un dato

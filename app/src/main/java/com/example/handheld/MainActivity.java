@@ -17,6 +17,7 @@ import android.widget.Toast;
 import com.example.handheld.atv.model.TreeNode;
 import com.example.handheld.atv.view.AndroidTreeView;
 import com.example.handheld.conexionDB.Conexion;
+import com.example.handheld.modelos.PersonaModelo;
 
 
 public class MainActivity extends AppCompatActivity {
@@ -30,6 +31,7 @@ public class MainActivity extends AppCompatActivity {
     Conexion conexion;
 
     //Se declaran variables necesarias
+    PersonaModelo persona;
     String nombre_usuario;
     String cd;
 
@@ -51,7 +53,8 @@ public class MainActivity extends AppCompatActivity {
         consultar.setOnClickListener(view -> {
             if(validar()){
                 cd = cedula.getText().toString();
-                nombre_usuario = conexion.obtenerPersona(MainActivity.this,cd );
+                persona = conexion.obtenerPersona(MainActivity.this,cd );
+                nombre_usuario = persona.getNombres();
 
                 if(nombre_usuario == null){
                     toastError("Persona no encontrada");
