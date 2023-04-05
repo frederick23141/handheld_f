@@ -37,7 +37,7 @@
                     android:textStyle="bold" />
 
                 <TextView
-                    android:id="@+id/txtnro_orden"
+                    android:id="@+id/txtReferencias"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content" />
             </LinearLayout>
@@ -141,14 +141,14 @@
                 android:textAlignment="center">
 
                 <TextView
-                    android:id="@+id/txt_tdescripcion"
+                    android:id="@+id/txt_tncajas"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/txt_tdescripcion"
                     android:textStyle="bold" />
 
                 <TextView
-                    android:id="@+id/txt_descripcion"
+                    android:id="@+id/txtNCajas"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content" />
 

@@ -5,6 +5,7 @@ import android.content.Context;
 import android.os.StrictMode;
 import android.widget.Toast;
 
+import com.example.handheld.modelos.CajasReceModelo;
 import com.example.handheld.modelos.CentrosModelo;
 import com.example.handheld.modelos.GalvRecepcionModelo;
 import com.example.handheld.modelos.GalvRecepcionadoRollosModelo;
@@ -51,6 +52,8 @@ public class Conexion {
                     "WHERE nit = '" + cedula + "'");
             if (rs.next()){
                 persona = new PersonaModelo(rs.getString("nombres"), rs.getString("nit"));
+            }else{
+                persona = new PersonaModelo("", "");
             }
         }catch (Exception e){
             Toast.makeText(context, e.getMessage(), Toast.LENGTH_SHORT).show();
@@ -201,6 +204,22 @@ public class Conexion {
             Toast.makeText(context, e.getMessage(), Toast.LENGTH_SHORT).show();
         }
         return codigo;
+    }
+
+    //Obtiene un dato
+    public String obtenerDescripciónReferencias(Context context, String referencia){
+        String descripcion = "";
+
+        try {
+            Statement st = conexionBD("JJVDMSCIERREAGOSTO", context).createStatement();
+            ResultSet rs = st.executeQuery("select descripcion from referencias where codigo='"+ referencia +"' and ref_anulada = 'N'");
+            if (rs.next()){
+                descripcion = rs.getString("descripcion");
+            }
+        }catch (Exception e){
+            Toast.makeText(context, e.getMessage(), Toast.LENGTH_SHORT).show();
+        }
+        return descripcion;
     }
 
     //Obtiene un dato
@@ -467,6 +486,25 @@ public class Conexion {
             Toast.makeText(context, e.getMessage(), Toast.LENGTH_SHORT).show();
         }
         return galvTerminado;
+    }
+
+    public List<CajasReceModelo> obtenerCajasRecepcionar(Context context, String sql){
+        List<CajasReceModelo> cajasRecep = new ArrayList<>();
+        CajasReceModelo modelo;
+
+        try {
+            Statement st = conexionBD("JJVPRGPRODUCCION", context).createStatement();
+            ResultSet rs = st.executeQuery(sql);
+            while (rs.next()){
+                modelo = new CajasReceModelo();
+                modelo.setReferencia(rs.getString("REFERENCIA"));
+                modelo.setCantidad(rs.getString("cantidad"));
+                cajasRecep.add(modelo);
+            }
+        }catch (Exception e){
+            Toast.makeText(context, e.getMessage(), Toast.LENGTH_SHORT).show();
+        }
+        return cajasRecep;
     }
 
     public List<GalvRecepcionadoRollosModelo> galvRefeRecepcionados(Context context, String fecha_recepcion, String month, String year){

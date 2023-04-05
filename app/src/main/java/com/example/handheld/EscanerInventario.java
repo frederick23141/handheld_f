@@ -5,10 +5,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
-import android.content.DialogInterface;
-import android.content.Intent;
 import android.media.AudioManager;
-import android.media.MediaPlayer;
 import android.media.SoundPool;
 import android.os.Bundle;
 import android.os.Vibrator;
@@ -41,8 +38,8 @@ public class EscanerInventario extends AppCompatActivity implements AdapterView.
 
     //se declaran las variables de los elementos del Layout
     EditText codigoGalva;
-    TextView txtTotal, txtTotalSinLeer;
-    Button btnTransaGalv;
+    TextView txtTotal, txtTotalSinLeer, txtRollosLeidos;
+    Button btnTransaGalv, btnCancelarTrans;
 
     //se declaran las variables donde estaran los datos que vienen de la anterior clase
     String nit_usuario,fecha_inicio,fecha_final;
@@ -61,7 +58,7 @@ public class EscanerInventario extends AppCompatActivity implements AdapterView.
     String consecutivo;
     Integer numero_transaccion;
     ObjTraslado_bodLn objTraslado_bodLn = new ObjTraslado_bodLn();
-    objOperacionesDb objOperacionesDb = new objOperacionesDb();
+    //objOperacionesDb objOperacionesDb = new objOperacionesDb();
     Ing_prod_ad ing_prod_ad = new Ing_prod_ad();
     List<GalvRecepcionadoRollosModelo> ListarefeRecepcionados= new ArrayList<>();
 
@@ -71,9 +68,6 @@ public class EscanerInventario extends AppCompatActivity implements AdapterView.
 
     //Se inicializa una instancia para hacer vibrar el celular
     Vibrator vibrator;
-
-
-    Integer id = 0;
 
     @SuppressLint("MissingInflatedId")
     @Override
@@ -85,7 +79,9 @@ public class EscanerInventario extends AppCompatActivity implements AdapterView.
         codigoGalva = findViewById(R.id.codigoGalva);
         txtTotal = findViewById(R.id.txtTotal);
         txtTotalSinLeer = findViewById(R.id.txtTotalSinLeer);
+        txtRollosLeidos = findViewById(R.id.txtRollosLeidos);
         btnTransaGalv = findViewById(R.id.btnTransaGalv);
+        btnCancelarTrans = findViewById(R.id.btnCancelarTrans);
 
         //Recibimos los datos desde la class PedidoInventraio
         nit_usuario = getIntent().getStringExtra("nit_usuario");
@@ -134,51 +130,44 @@ public class EscanerInventario extends AppCompatActivity implements AdapterView.
             return false;
         });
 
-        btnTransaGalv.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                int sleer = Integer.parseInt(txtTotalSinLeer.getText().toString());
-                int total = Integer.parseInt(txtTotal.getText().toString());
-                int leidos = (total - sleer);
-                if(sleer==0 && total>0){
-                    try {
-                        realizarTransaccion();
-                    }catch (Exception e){
-                        toastError(e.getMessage());
-                    }
-                }else{
-                    if(sleer==0 && total==0){
-                        toastError("No hay rollos por leer");
-                        AudioError();
-                    }else{
-                        if (total == sleer){
-                            toastError("No se ha leido ningun rollo");
-                            AudioError();
-                        }
-                        else{
-                            AlertDialog.Builder builder = new AlertDialog.Builder(EscanerInventario.this);
-                            builder.setIcon(R.mipmap.ic_alert).
-                                    setTitle("Atención").
-                                    setMessage("Se han leido: "+ leidos +" Rollos \n" +
-                                            "Se iniciara el translado solo con los rollos leidos!").
-                                    setPositiveButton("Aceptar", new DialogInterface.OnClickListener() {
-                                        @Override
-                                        public void onClick(DialogInterface dialog, int which) {
-                                            try {
-                                                realizarTransaccion();
-                                            }catch (Exception e){
-                                                toastError(e.getMessage());
-                                            }
-                                        }
-                                    }).setNegativeButton("Cancelar", new DialogInterface.OnClickListener() {
-                                        @Override
-                                        public void onClick(DialogInterface dialog, int which) {
+        btnCancelarTrans.setOnClickListener(this::salir);
 
-                                        }
-                                    });
-                            AlertDialog alertDialog = builder.create();
-                            alertDialog.show();
-                        }
+        btnTransaGalv.setOnClickListener(v -> {
+            int sleer = Integer.parseInt(txtTotalSinLeer.getText().toString());
+            int total = Integer.parseInt(txtTotal.getText().toString());
+            int leidos = (total - sleer);
+            if(sleer==0 && total>0){
+                try {
+                    realizarTransaccion();
+                }catch (Exception e){
+                    toastError(e.getMessage());
+                }
+            }else{
+                if(sleer==0 && total==0){
+                    toastError("No hay rollos por leer");
+                    AudioError();
+                }else{
+                    if (total == sleer){
+                        toastError("No se ha leido ningun rollo");
+                        AudioError();
+                    }
+                    else{
+                        AlertDialog.Builder builder = new AlertDialog.Builder(EscanerInventario.this);
+                        builder.setIcon(R.mipmap.ic_alert).
+                                setTitle("Atención").
+                                setMessage("Se han leido: "+ leidos +" Rollos \n" +
+                                        "Se iniciara el translado solo con los rollos leidos!").
+                                setPositiveButton("Aceptar", (dialog, which) -> {
+                                    try {
+                                        realizarTransaccion();
+                                    }catch (Exception e){
+                                        toastError(e.getMessage());
+                                    }
+                                }).setNegativeButton("Cancelar", (dialog, which) -> {
+
+                                });
+                        AlertDialog alertDialog = builder.create();
+                        alertDialog.show();
                     }
                 }
             }
@@ -230,9 +219,7 @@ public class EscanerInventario extends AppCompatActivity implements AdapterView.
                 listTransaccionBodega = traslado_bodega(ListarefeRecepcionados, calendar);
                 if (ing_prod_ad.ExecuteSqlTransaction(listTransaccionBodega, "JJVDMSCIERREAGOSTO", EscanerInventario.this)){
                     toastAcierto("Transaccion Realizada con Exito! --" + numero_transaccion);
-                    Intent intent = new Intent(EscanerInventario.this,PedidoInventario.class);
-                    intent.putExtra("nit_usuario", nit_usuario);
-                    startActivity(intent);
+                    consultarGalvTerminado();
                 }else{
                     toastError("Problemas, No se realizó correctamente la transacción!");
                 }
@@ -266,6 +253,7 @@ public class EscanerInventario extends AppCompatActivity implements AdapterView.
         txtTotal.setText(totalRollos);
 
         contarSinLeer();
+        contarLeidos();
     }
 
     /////////////////////////////////////////////////////////////////////////////////////////////
@@ -281,7 +269,6 @@ public class EscanerInventario extends AppCompatActivity implements AdapterView.
     /////////////////////////////////////////////////////////////////////////////////////////////
     private void codigoIngresado() throws SQLException {
         consecutivo = codigoGalva.getText().toString().trim();
-        //consecutivo = "444444218-4-3-168";
         boolean encontrado = false;
         int position = 0;
         for (int i=0;i<ListaGalvTerminado.size();i++){
@@ -300,6 +287,7 @@ public class EscanerInventario extends AppCompatActivity implements AdapterView.
                 pintarRollo(position);
                 //recepcionarBD(position);
                 contarSinLeer();
+                contarLeidos();
                 toastAcierto("Rollo encontrado");
                 cargarNuevo();
             }
@@ -311,6 +299,7 @@ public class EscanerInventario extends AppCompatActivity implements AdapterView.
     }
 
     //Se realiza para realizar transaccion rollo a rollo, pero despues se cambia de idea
+    /*
     private void recepcionarBD(int p) throws SQLException {
         // Obtén la fecha y hora actual
         Date fechaActual = new Date();
@@ -330,7 +319,7 @@ public class EscanerInventario extends AppCompatActivity implements AdapterView.
         objOperacionesDb.ejecutarUpdateDbProduccion(sql,EscanerInventario.this);
 
     }
-
+     */
     @SuppressLint("SetTextI18n")
     private void contarSinLeer() {
         int sinLeer = 0;
@@ -340,6 +329,17 @@ public class EscanerInventario extends AppCompatActivity implements AdapterView.
             }
         }
         txtTotalSinLeer.setText(Integer.toString(sinLeer));
+    }
+
+    @SuppressLint("SetTextI18n")
+    private void contarLeidos() {
+        int Leido = 0;
+        for(int x=0;x<ListaGalvTerminado.size();x++){
+            if(ListaGalvTerminado.get(x).getColor().equals("GREEN")){
+                Leido++;
+            }
+        }
+        txtRollosLeidos.setText(Integer.toString(Leido));
     }
 
     private void cargarNuevo() {
@@ -362,6 +362,12 @@ public class EscanerInventario extends AppCompatActivity implements AdapterView.
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 
+    }
+
+    //METODO PARA CERRAR LA APLICACION
+    @SuppressLint("")
+    public void salir(View view){
+        finishAffinity();
     }
 
     /////////////////////////////////////////////////////////////////////////////////////////////
@@ -396,6 +402,6 @@ public class EscanerInventario extends AppCompatActivity implements AdapterView.
 
     public void AudioError(){
         sp.play(sonido_de_Reproduccion,100,100,1,0,0);
-        vibrator.vibrate(1000);
+        vibrator.vibrate(2000);
     }
 }

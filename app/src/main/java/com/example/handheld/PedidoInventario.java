@@ -2,41 +2,27 @@ package com.example.handheld;
 
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.constraintlayout.widget.ConstraintLayout;
 
 import android.annotation.SuppressLint;
 import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
-import android.content.DialogInterface;
 import android.content.Intent;
-import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
-import android.widget.DatePicker;
 import android.widget.EditText;
-import android.widget.ListAdapter;
-import android.widget.ListView;
 import android.widget.Spinner;
 import android.widget.TextView;
-import android.widget.TimePicker;
 import android.widget.Toast;
 
 import com.example.handheld.conexionDB.Conexion;
 import com.example.handheld.modelos.CentrosModelo;
-import com.example.handheld.modelos.GalvRecepcionModelo;
-import com.example.handheld.modelos.InventarioModelo;
-import com.example.handheld.modelos.PedidoModelo;
-import com.example.handheld.modelos.PersonaModelo;
-import com.example.handheld.modelos.RolloterminadoModelo;
-import com.example.handheld.modelos.TipotransModelo;
 
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.List;
 
 public class PedidoInventario extends AppCompatActivity implements View.OnClickListener {
 
@@ -46,13 +32,12 @@ public class PedidoInventario extends AppCompatActivity implements View.OnClickL
     //Se declaran los elementos del layout
     TextView txtTfechaInicio, txtTFechaFin, txtTHoraInicio, txtTHoraFin;
     EditText txtFechaInicio, txtFechaFin, txtHoraInicio, txtHoraFin;
-    Button btn_comenzar;
+    Button btn_Iniciar_proceso;
     Spinner spinner2;
 
     //Se inicializa un objeto conexion
     Conexion conexion;
 
-    PersonaModelo persona;
 
     private int dia,mes,ano,hora,minutos;
     Integer id = 0;
@@ -82,7 +67,7 @@ public class PedidoInventario extends AppCompatActivity implements View.OnClickL
         txtFechaFin = findViewById(R.id.txtFechaFin);
         txtHoraInicio = findViewById(R.id.txtHoraInicio);
         txtHoraFin = findViewById(R.id.txtHoraFin);
-        btn_comenzar = findViewById(R.id.btn_comenzar);
+        btn_Iniciar_proceso = findViewById(R.id.btn_Iniciar_proceso);
         spinner2 = findViewById(R.id.spinner2);
 
         //Se agregamos el metodo setOnClickListener a los campos
@@ -107,16 +92,13 @@ public class PedidoInventario extends AppCompatActivity implements View.OnClickL
         spinner2.setEnabled(false);
 
         //////////////////////////////////////////////////////////////////////////////////////////////
-        btn_comenzar.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (!spinner2.getSelectedItem().equals("Seleccione") && !txtFechaInicio.getText().toString().trim().equals("")
-                        && !txtFechaFin.getText().toString().trim().equals("")&& !txtHoraInicio.getText().toString().trim().equals("")
-                        && !txtHoraFin.getText().toString().trim().equals("")){
-                    iniciarProceso();
-                }else{
-                    toastError("Faltan campos por llenar");
-                }
+        btn_Iniciar_proceso.setOnClickListener(v -> {
+            if (!spinner2.getSelectedItem().equals("Seleccione") && !txtFechaInicio.getText().toString().trim().equals("")
+                    && !txtFechaFin.getText().toString().trim().equals("")&& !txtHoraInicio.getText().toString().trim().equals("")
+                    && !txtHoraFin.getText().toString().trim().equals("")){
+                iniciarProceso();
+            }else{
+                toastError("Faltan campos por llenar");
             }
         });
     }
@@ -129,20 +111,14 @@ public class PedidoInventario extends AppCompatActivity implements View.OnClickL
         builder.setIcon(R.mipmap.ic_alert).
                 setTitle("Atención").
                 setMessage("Se iniciara el proceso desde la fecha_hora: " + fecha_inicio + " hasta fecha_hora: " + fecha_final).
-                setPositiveButton("Aceptar", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        Intent intent  = new Intent(PedidoInventario.this,EscanerInventario.class);
-                        intent.putExtra("nit_usuario", nit_usuario);
-                        intent.putExtra("fecha_inicio",fecha_inicio);
-                        intent.putExtra("fecha_final",fecha_final);
-                        startActivity(intent);
-                    }
-                }).setNegativeButton("Cancelar", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
+                setPositiveButton("Aceptar", (dialog, which) -> {
+                    Intent intent  = new Intent(PedidoInventario.this,EscanerInventario.class);
+                    intent.putExtra("nit_usuario", nit_usuario);
+                    intent.putExtra("fecha_inicio",fecha_inicio);
+                    intent.putExtra("fecha_final",fecha_final);
+                    startActivity(intent);
+                }).setNegativeButton("Cancelar", (dialog, which) -> {
 
-                    }
                 });
         AlertDialog alertDialog = builder.create();
         alertDialog.show();
@@ -157,24 +133,21 @@ public class PedidoInventario extends AppCompatActivity implements View.OnClickL
             mes = c.get(Calendar.MONTH);
             ano = c.get(Calendar.YEAR);
 
-            DatePickerDialog datePickerDialog = new DatePickerDialog(this, new DatePickerDialog.OnDateSetListener() {
-                @SuppressLint("SetTextI18n")
-                @Override
-                public void onDateSet(DatePicker view, int year, int month, int dayOfMonth) {
-                    String m;
-                    String d;
-                    if ((month+1)<10){
-                        m = "0" + String.valueOf(month+1);
-                    }else{
-                        m = String.valueOf(month+1);
-                    }
-                    if (dayOfMonth<10){
-                        d = "0" + String.valueOf(dayOfMonth);
-                    }else{
-                        d = String.valueOf(dayOfMonth);
-                    }
-                    txtFechaInicio.setText(year+"-"+m+"-"+d);
+            @SuppressLint("SetTextI18n")
+            DatePickerDialog datePickerDialog = new DatePickerDialog(this, (view, year, month, dayOfMonth) -> {
+                String m;
+                String d;
+                if ((month+1)<10){
+                    m = "0" + (month + 1);
+                }else{
+                    m = String.valueOf(month+1);
                 }
+                if (dayOfMonth<10){
+                    d = "0" + dayOfMonth;
+                }else{
+                    d = String.valueOf(dayOfMonth);
+                }
+                txtFechaInicio.setText(year+"-"+m+"-"+d);
             },ano,mes,dia);
             datePickerDialog.show();
         }
@@ -184,24 +157,21 @@ public class PedidoInventario extends AppCompatActivity implements View.OnClickL
             mes = c.get(Calendar.MONTH);
             ano = c.get(Calendar.YEAR);
 
-            DatePickerDialog datePickerDialog = new DatePickerDialog(this, new DatePickerDialog.OnDateSetListener() {
-                @SuppressLint("SetTextI18n")
-                @Override
-                public void onDateSet(DatePicker view, int year, int month, int dayOfMonth) {
-                    String m;
-                    String d;
-                    if ((month+1)<10){
-                        m = "0" + String.valueOf(month+1);
-                    }else{
-                        m = String.valueOf(month+1);
-                    }
-                    if (dayOfMonth<10){
-                        d = "0" + String.valueOf(dayOfMonth);
-                    }else{
-                        d = String.valueOf(dayOfMonth);
-                    }
-                    txtFechaFin.setText(year+"-"+m+"-"+d);
+            @SuppressLint("SetTextI18n")
+            DatePickerDialog datePickerDialog = new DatePickerDialog(this, (view, year, month, dayOfMonth) -> {
+                String m;
+                String d;
+                if ((month+1)<10){
+                    m = "0" + (month + 1);
+                }else{
+                    m = String.valueOf(month+1);
                 }
+                if (dayOfMonth<10){
+                    d = "0" + dayOfMonth;
+                }else{
+                    d = String.valueOf(dayOfMonth);
+                }
+                txtFechaFin.setText(year+"-"+m+"-"+d);
             },ano,mes,dia);
             datePickerDialog.show();
         }
@@ -210,24 +180,21 @@ public class PedidoInventario extends AppCompatActivity implements View.OnClickL
             hora = c.get(Calendar.HOUR_OF_DAY);
             minutos = c.get(Calendar.MINUTE);
 
-            TimePickerDialog timePickerDialog =  new TimePickerDialog(this, new TimePickerDialog.OnTimeSetListener() {
-                @SuppressLint("SetTextI18n")
-                @Override
-                public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
-                    String h;
-                    String m;
-                    if (hourOfDay<10){
-                        h = "0" + hourOfDay;
-                    }else{
-                        h = String.valueOf(hourOfDay);
-                    }
-                    if (minute<10){
-                        m = "0" + minute;
-                    }else{
-                        m = String.valueOf(minute);
-                    }
-                    txtHoraInicio.setText(h+":"+m);
+            @SuppressLint("SetTextI18n")
+            TimePickerDialog timePickerDialog =  new TimePickerDialog(this, (view, hourOfDay, minute) -> {
+                String h;
+                String m;
+                if (hourOfDay<10){
+                    h = "0" + hourOfDay;
+                }else{
+                    h = String.valueOf(hourOfDay);
                 }
+                if (minute<10){
+                    m = "0" + minute;
+                }else{
+                    m = String.valueOf(minute);
+                }
+                txtHoraInicio.setText(h+":"+m);
             },hora,minutos,true);
             timePickerDialog.show();
         }
@@ -236,24 +203,21 @@ public class PedidoInventario extends AppCompatActivity implements View.OnClickL
             hora = c.get(Calendar.HOUR_OF_DAY);
             minutos = c.get(Calendar.MINUTE);
 
-            TimePickerDialog timePickerDialog =  new TimePickerDialog(this, new TimePickerDialog.OnTimeSetListener() {
-                @SuppressLint("SetTextI18n")
-                @Override
-                public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
-                    String h;
-                    String m;
-                    if (hourOfDay<10){
-                        h = "0" + hourOfDay;
-                    }else{
-                        h = String.valueOf(hourOfDay);
-                    }
-                    if (minute<10){
-                        m = "0" + minute;
-                    }else{
-                        m = String.valueOf(minute);
-                    }
-                    txtHoraFin.setText(h+":"+m);
+            @SuppressLint("SetTextI18n")
+            TimePickerDialog timePickerDialog =  new TimePickerDialog(this, (view, hourOfDay, minute) -> {
+                String h;
+                String m;
+                if (hourOfDay<10){
+                    h = "0" + hourOfDay;
+                }else{
+                    h = String.valueOf(hourOfDay);
                 }
+                if (minute<10){
+                    m = "0" + minute;
+                }else{
+                    m = String.valueOf(minute);
+                }
+                txtHoraFin.setText(h+":"+m);
             },hora,minutos,true);
             timePickerDialog.show();
         }
@@ -282,7 +246,7 @@ public class PedidoInventario extends AppCompatActivity implements View.OnClickL
         return listaCentros;
     }
 
-
+    /*
     private Boolean verificarInventariosPendientes() {
         Boolean resp = false;
         String sql = "SELECT id,codigo,bodega FROM J_inventario_enc c WHERE fecha_terminado is null AND c.nit =" + nit_usuario;
@@ -388,20 +352,7 @@ public class PedidoInventario extends AppCompatActivity implements View.OnClickL
         return listSql;
     }
 
-    //METODO DE TOAST PERSONALIZADO : ACIERTO
-    public void toastAcierto(String msg){
-        LayoutInflater layoutInflater = getLayoutInflater();
-        View view = layoutInflater.inflate(R.layout.custom_toast_acierto, findViewById(R.id.ll_custom_toast_acierto));
-        @SuppressLint({"MissingInflatedId", "LocalSuppress"})
-        TextView txtMens = view.findViewById(R.id.txtMensa);
-        txtMens.setText(msg);
-
-        Toast toast = new Toast(getApplicationContext());
-        toast.setGravity(Gravity.CENTER_VERTICAL | Gravity.BOTTOM,0,200);
-        toast.setDuration(Toast.LENGTH_SHORT);
-        toast.setView(view);
-        toast.show();
-    }
+     */
 
     //METODO DE TOAST PERSONALIZADO : ERROR
     public void toastError(String msg){
@@ -415,29 +366,5 @@ public class PedidoInventario extends AppCompatActivity implements View.OnClickL
         toast.setDuration(Toast.LENGTH_SHORT);
         toast.setView(view);
         toast.show();
-    }
-
-    private void showSuccessDialog(){
-        ConstraintLayout successContraintLayout = findViewById(R.id.successConstraintLayout);
-        View view = LayoutInflater.from(PedidoInventario.this).inflate(R.layout.success_dialog, successContraintLayout);
-        Button successDone = view.findViewById(R.id.successDone);
-
-        AlertDialog.Builder builder = new AlertDialog.Builder(PedidoInventario.this);
-        builder.setView(view);
-        final AlertDialog alertDialog = builder.create();
-
-        successDone.findViewById(R.id.successDone).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                alertDialog.dismiss();
-                Toast.makeText(PedidoInventario.this, "Aceptar", Toast.LENGTH_SHORT).show();
-
-            }
-        });
-        if (alertDialog.getWindow() != null){
-            alertDialog.getWindow().setBackgroundDrawable(new ColorDrawable(0));
-        }
-        alertDialog.show();
-
     }
 }

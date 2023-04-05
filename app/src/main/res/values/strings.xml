@@ -25,6 +25,22 @@
     <string name="btnActualizar">Actualizar Consulta</string>
     <string name="btnSalir">Salir</string>
 
+    //Strings Utilizados en el layout "activity_pedido_inventario"
+    <string name="tProducTerminado">RECEPCION PRODUCTO TERMINADO</string>
+    <string name="txtArea">Area a hacer la recepción:</string>
+    <string name="txtTfechaInicio">Fecha_Inicio</string>
+    <string name="txtTFechaFin">Fecha_Final</string>
+    <string name="txtTHoraInicio">Hora_Inicio</string>
+    <string name="txtTHoraFin">Hora_Final</string>
+    <string name="btn_Iniciar_proceso">Iniciar proceso</string>
+
+    //Strings Utilizados en el layout "activity_escaner_inventario"
+    <string name="txtTNoleidos">Total No Leidos: </string>
+    <string name="inicia0">0</string>
+    <string name="txtTRollos">Total Rollos: </string>
+    <string name="txtTRollosLeidos">Total Leidos: </string>
+    <string name="btnTransaGalv">MOVER ROLLOS</string>
+
     //Strings Utilizados en el layout "child"
     <string name="contentDescripcionChild">Item lista</string>
     <string name="text">List Item</string>

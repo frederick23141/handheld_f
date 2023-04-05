@@ -4,21 +4,18 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.res.ColorStateList;
 import android.graphics.Color;
-import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import com.example.handheld.R;
 import com.example.handheld.modelos.GalvRecepcionModelo;
-import com.example.handheld.modelos.PedidoModelo;
 
 import java.util.List;
 
@@ -54,7 +51,7 @@ public class listGalvTerminadoAdapter extends ArrayAdapter<GalvRecepcionModelo> 
             linearLayout.setBackgroundTintList(ColorStateList.valueOf(Color.GREEN));
         }
 
-        TextView textonro_orden = view.findViewById(R.id.txtnro_orden);
+        TextView textonro_orden = view.findViewById(R.id.txtReferencias);
         textonro_orden.setText(modelo.getNro_orden());
 
         TextView textonro_rollo = view.findViewById(R.id.txtnro_rollo);
@@ -66,7 +63,7 @@ public class listGalvTerminadoAdapter extends ArrayAdapter<GalvRecepcionModelo> 
         TextView textopeso = view.findViewById(R.id.txtpeso);
         textopeso.setText(modelo.getPeso());
 
-        TextView texto_descripcion = view.findViewById(R.id.txt_descripcion);
+        TextView texto_descripcion = view.findViewById(R.id.txtNCajas);
         texto_descripcion.setText(modelo.getDescripcion());
 
         return view;

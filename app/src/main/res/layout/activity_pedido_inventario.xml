@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -23,7 +22,7 @@
                 android:layout_weight="1"
                 android:background="#5B81F3"
                 android:paddingTop="8dp"
-                android:text="RECEPCION PRODUCTO TERMINADO"
+                android:text="@string/tProducTerminado"
                 android:textAlignment="center"
                 android:textSize="20sp"
                 android:textStyle="bold" />
@@ -42,12 +41,12 @@
                 android:layout_weight="1" />
 
             <TextView
-                android:id="@+id/textView2"
+                android:id="@+id/txtArea"
                 android:layout_width="306dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:background="#C1C0C0"
-                android:text="Area a hacer la recepción:"
+                android:text="@string/txtArea"
                 android:textAlignment="center"
                 android:textSize="20sp"
                 android:textStyle="bold" />
@@ -96,8 +95,8 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:background="#C1C0C0"
-                android:text="Fecha_Inicio"
+                android:background="#B6B6FA"
+                android:text="@string/txtTfechaInicio"
                 android:textAlignment="center"
                 android:textSize="20sp"
                 android:textStyle="bold" />
@@ -112,8 +111,8 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:background="#C1C0C0"
-                android:text="Fecha_Final"
+                android:background="#B6B6FA"
+                android:text="@string/txtTFechaFin"
                 android:textAlignment="center"
                 android:textSize="20sp"
                 android:textStyle="bold" />
@@ -134,11 +133,15 @@
                 android:layout_width="170dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
+                android:autofillHints="date"
                 android:ems="10"
                 android:enabled="true"
                 android:inputType="textPersonName"
                 android:textAlignment="center"
-                android:textStyle="bold" />
+                android:textColor="#000000"
+                android:textColorHint="#000000"
+                android:textStyle="bold"
+                tools:ignore="LabelFor" />
 
             <Space
                 android:layout_width="wrap_content"
@@ -150,10 +153,14 @@
                 android:layout_width="170dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
+                android:autofillHints="date"
                 android:ems="10"
                 android:inputType="textPersonName"
                 android:textAlignment="center"
-                android:textStyle="bold" />
+                android:textColor="#000000"
+                android:textColorHint="#000000"
+                android:textStyle="bold"
+                tools:ignore="LabelFor" />
 
         </LinearLayout>
 
@@ -174,8 +181,8 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:background="#C1C0C0"
-                android:text="Hora_Inicio"
+                android:background="#B6B6FA"
+                android:text="@string/txtTHoraInicio"
                 android:textAlignment="center"
                 android:textSize="20sp"
                 android:textStyle="bold" />
@@ -190,8 +197,8 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:background="#C1C0C0"
-                android:text="Hora_Final"
+                android:background="#B6B6FA"
+                android:text="@string/txtTHoraFin"
                 android:textAlignment="center"
                 android:textSize="20sp"
                 android:textStyle="bold" />
@@ -212,10 +219,14 @@
                 android:layout_width="170dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
+                android:autofillHints="date"
                 android:ems="10"
                 android:inputType="textPersonName"
                 android:textAlignment="center"
-                android:textStyle="bold" />
+                android:textColor="#000000"
+                android:textColorHint="#000000"
+                android:textStyle="bold"
+                tools:ignore="LabelFor" />
 
             <Space
                 android:layout_width="wrap_content"
@@ -227,10 +238,14 @@
                 android:layout_width="170dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
+                android:autofillHints="date"
                 android:ems="10"
                 android:inputType="textPersonName"
                 android:textAlignment="center"
-                android:textStyle="bold" />
+                android:textColor="#000000"
+                android:textColorHint="#000000"
+                android:textStyle="bold"
+                tools:ignore="LabelFor" />
 
         </LinearLayout>
 
@@ -246,12 +261,12 @@
                 android:layout_weight="1" />
 
             <Button
-                android:id="@+id/btn_comenzar"
+                android:id="@+id/btn_Iniciar_proceso"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:backgroundTint="#3CBF41"
-                android:text="Iniciar proceso" />
+                android:text="@string/btn_Iniciar_proceso"/>
 
             <Space
                 android:layout_width="wrap_content"

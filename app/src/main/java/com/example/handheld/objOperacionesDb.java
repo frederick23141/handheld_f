@@ -29,6 +29,25 @@ public class objOperacionesDb {
         return resp;
     }
 
+    public Integer ejecutarInsertJjprgproduccion(String Sql, Context context) throws SQLException {
+        int resp = 0;
+        Connection cnn = new Conexion().conexionBD("JJVPRGPRODUCCION",context);
+        try {
+            if (cnn != null){
+                PreparedStatement stm = cnn.prepareStatement(Sql);
+                stm.executeUpdate();
+                resp = 1;
+                //Toast.makeText(context, "REGISTRO MODIFICADO CORRECTAMENTE", Toast.LENGTH_SHORT).show();
+            }
+
+        }catch (Exception e){
+            Toast.makeText(context, e.getMessage(), Toast.LENGTH_SHORT).show();
+        }
+        assert cnn != null;
+        cnn.close();
+        return resp;
+    }
+
     public Integer ejecutarUpdateDbProduccion(String Sql, Context context) throws SQLException {
         int resp = 0;
         Connection cnn = new Conexion().conexionBD("PRGPRODUCCION",context);
