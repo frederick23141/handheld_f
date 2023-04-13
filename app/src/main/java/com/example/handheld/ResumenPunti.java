@@ -4,6 +4,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.annotation.SuppressLint;
 import android.app.DatePickerDialog;
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -43,6 +44,8 @@ public class ResumenPunti extends AppCompatActivity implements AdapterView.OnIte
     Conexion conexion;
 
     private int dia,mes,ano;
+
+    String fecha;
 
     @SuppressLint("MissingInflatedId")
     @Override
@@ -97,7 +100,7 @@ public class ResumenPunti extends AppCompatActivity implements AdapterView.OnIte
                 if (spiTurnos.getSelectedItem().toString().equals("Seleccione") || eTfecha.getText().toString().equals("")){
                     toastError("Faltan campos por llenar");
                 }else{
-                    String fecha = eTfecha.getText().toString();
+                    fecha = eTfecha.getText().toString();
                     String sql;
                     if(spiTurnos.getSelectedItem().toString().equals("Turno 1")){
                         conexion = new Conexion();
@@ -142,6 +145,24 @@ public class ResumenPunti extends AppCompatActivity implements AdapterView.OnIte
 
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+        Intent intent = new Intent(ResumenPunti.this, MesasRefePunti.class);
+        if(spiTurnos.getSelectedItem().toString().equals("Turno 1")){
+            String sql = "select MESA from F_Recepcion_puntilleria where FECHA >='"+ fecha +" 06:00:00' and FECHA <= '"+ fecha +" 14:00:00' and REFERENCIA = '"+ ListaCajasRecep.get(position).getReferencia() +"' group by MESA";
+            intent.putExtra("sql",sql);
+            intent.putExtra("fecha",fecha);
+            intent.putExtra("turno",spiTurnos.getSelectedItem().toString());
+            intent.putExtra("referencia",ListaCajasRecep.get(position).getReferencia());
+            startActivity(intent);
+        }else{
+            String sql = "select MESA from F_Recepcion_puntilleria where FECHA >='"+ fecha +" 14:00:00' and FECHA <= '"+ fecha +" 22:00:00' and REFERENCIA = '"+ ListaCajasRecep.get(position).getReferencia() +"' group by MESA";
+            intent.putExtra("sql",sql);
+            intent.putExtra("fecha",fecha);
+            intent.putExtra("turno",spiTurnos.getSelectedItem().toString());
+            intent.putExtra("referencia",ListaCajasRecep.get(position).getReferencia());
+            startActivity(intent);
+        }
+
+
 
     }
 }

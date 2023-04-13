@@ -179,7 +179,7 @@ public class IngreProTerPunti extends AppCompatActivity {
         if (encontrado){
             txtCreferencia.setText(descripcion);
 
-            cargarNuevo();
+            //cargarNuevo();
             ingresoDatos();
         }else{
             toastError("Referencia no existente");

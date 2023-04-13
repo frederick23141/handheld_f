@@ -4,7 +4,7 @@
     android:layout_height="match_parent">
 
     <LinearLayout
-        android:id="@+id/ll_respunti"
+        android:id="@+id/ll_mesaspunti"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_margin="3dp"
@@ -16,6 +16,7 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
             android:orientation="horizontal">
 
             <Space
@@ -23,16 +24,12 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1" />
 
-            <LinearLayout
+            <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:orientation="vertical">
-
-                <TextView
-                    android:id="@+id/txtReferencias"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content" />
-            </LinearLayout>
+                android:text="Mesa"
+                android:textSize="20sp"
+                android:textStyle="bold" />
 
             <Space
                 android:layout_width="wrap_content"
@@ -45,6 +42,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
+            android:paddingBottom="10dp"
             android:textAlignment="center">
 
             <Space
@@ -52,30 +50,18 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1" />
 
-            <LinearLayout
+            <TextView
+                android:id="@+id/txtNMesa"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:textAlignment="center">
-
-                <TextView
-                    android:id="@+id/txt_tncajas"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="#Cartones:"
-                    android:textStyle="bold" />
-
-                <TextView
-                    android:id="@+id/txtNCajas"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content" />
-
-            </LinearLayout>
+                android:textSize="20sp"
+                android:textStyle="bold" />
 
             <Space
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight="1" />
+
         </LinearLayout>
 
     </LinearLayout>

@@ -10,6 +10,7 @@ import com.example.handheld.modelos.CentrosModelo;
 import com.example.handheld.modelos.GalvRecepcionModelo;
 import com.example.handheld.modelos.GalvRecepcionadoRollosModelo;
 import com.example.handheld.modelos.InventarioModelo;
+import com.example.handheld.modelos.MesasModelo;
 import com.example.handheld.modelos.PedidoModelo;
 import com.example.handheld.modelos.PersonaModelo;
 import com.example.handheld.modelos.RolloterminadoModelo;
@@ -221,6 +222,7 @@ public class Conexion {
         }
         return descripcion;
     }
+
 
     //Obtiene un dato
     public String obtenerMes(Context context, String sql){
@@ -460,6 +462,24 @@ public class Conexion {
             Toast.makeText(context, e.getMessage(), Toast.LENGTH_SHORT).show();
         }
         return pedidos;
+    }
+
+    public List<MesasModelo> obtenerMesas(Context context, String sql){
+        List<MesasModelo> mesas = new ArrayList<>();
+        MesasModelo modelo;
+
+        try {
+            Statement st = conexionBD("JJVPRGPRODUCCION", context).createStatement();
+            ResultSet rs = st.executeQuery(sql);
+            while (rs.next()){
+                modelo = new MesasModelo();
+                modelo.setMesa(rs.getString("mesa"));
+                mesas.add(modelo);
+            }
+        }catch (Exception e){
+            Toast.makeText(context, e.getMessage(), Toast.LENGTH_SHORT).show();
+        }
+        return mesas;
     }
 
     public List<GalvRecepcionModelo> obtenerGalvTerminado(Context context, String fecha_inicio, String fecha_final){
