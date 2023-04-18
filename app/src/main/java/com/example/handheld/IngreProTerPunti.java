@@ -39,7 +39,7 @@ public class IngreProTerPunti extends AppCompatActivity {
 
     //Se inicializa variables necesarias en la clase
     int yaentre = 0;
-    String codCaja, descripcion;
+    String codCaja, descripcion, conversion;
     objOperacionesDb objOperacionesDb = new objOperacionesDb();
 
     //Se inicializa los varibles para el sonido de error
@@ -126,8 +126,16 @@ public class IngreProTerPunti extends AppCompatActivity {
                     // Convierte la fecha actual en un String con el formato definido
                     String fechaActualString = formatoFecha.format(fechaActual);
 
+                    String cantidad;
+
+                    if (conversion.equals("0.5")){
+                        cantidad = "50";
+                    }else{
+                        cantidad = "1";
+                    }
+
                     String referencia = codigoCaja.getText().toString();
-                    String sql = "INSERT INTO F_Recepcion_puntilleria (OPERARIO,NOMBRE_OPERARIO,MESA,CODIGO_EMPAQUE,FECHA,REFERENCIA) VALUES ('"+nit_usuario+"','"+nombre_usuario+"',"+mesa+","+codigo+",'"+fechaActualString+"','"+referencia+"')";
+                    String sql = "INSERT INTO F_Recepcion_puntilleria (OPERARIO,NOMBRE_OPERARIO,MESA,CODIGO_EMPAQUE,FECHA,REFERENCIA,CANTIDAD) VALUES ('"+nit_usuario+"','"+nombre_usuario+"',"+mesa+","+codigo+",'"+fechaActualString+"','"+referencia+"','"+ cantidad +"')";
                     Integer resp = 0;
                     try {
                         resp = objOperacionesDb.ejecutarInsertJjprgproduccion(sql,IngreProTerPunti.this);
@@ -170,9 +178,10 @@ public class IngreProTerPunti extends AppCompatActivity {
 
         codCaja = codigoCaja.getText().toString().trim();
         descripcion = conexion.obtenerDescripciónReferencias(IngreProTerPunti.this,codCaja);
+        conversion = conexion.obtenerConversionReferencias(IngreProTerPunti.this,codCaja);
         boolean encontrado = false;
 
-        if (!descripcion.equals("")){
+        if (!descripcion.equals("") && !conversion.equals("")){
             encontrado = true;
         }
 

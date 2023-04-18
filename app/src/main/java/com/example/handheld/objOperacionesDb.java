@@ -12,7 +12,7 @@ import java.sql.SQLException;
 public class objOperacionesDb {
     public Integer ejecutarUpdate(String Sql, Context context) throws SQLException {
         int resp = 0;
-        Connection cnn = new Conexion().conexionBD("CORSAN",context);
+        Connection cnn = new Conexion().conexionBD("JJVDMSCIERREAGOSTO",context);
         try {
             if (cnn != null){
                 PreparedStatement stm = cnn.prepareStatement(Sql);
@@ -50,7 +50,7 @@ public class objOperacionesDb {
 
     public Integer ejecutarUpdateDbProduccion(String Sql, Context context) throws SQLException {
         int resp = 0;
-        Connection cnn = new Conexion().conexionBD("PRGPRODUCCION",context);
+        Connection cnn = new Conexion().conexionBD("JJVPRGPRODUCCION",context);
         try {
             if (cnn != null){
                 PreparedStatement stm = cnn.prepareStatement(Sql);
@@ -69,7 +69,7 @@ public class objOperacionesDb {
 
     public Integer ejecutarUpdateProduccion(String Sql, Context context) throws SQLException {
         int resp = 0;
-        Connection cnn = new Conexion().conexionBD("CORSAN",context);
+        Connection cnn = new Conexion().conexionBD("JJVDMSCIERREAGOSTO",context);
         try {
             if (cnn != null){
                 PreparedStatement stm = cnn.prepareStatement(Sql);

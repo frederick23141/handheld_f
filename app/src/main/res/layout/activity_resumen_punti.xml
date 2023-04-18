@@ -41,31 +41,10 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1" />
 
-            <TextView
-                android:id="@+id/textView2"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="Turno:"
-                android:textAlignment="center"
-                android:textSize="20sp"
-                android:textStyle="bold" />
-
             <Space
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight="1" />
-
-            <TextView
-                android:id="@+id/txtFechaTurno"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:background="#C1C0C0"
-                android:text="Fecha"
-                android:textAlignment="center"
-                android:textSize="20sp"
-                android:textStyle="bold" />
 
             <Space
                 android:layout_width="wrap_content"
@@ -84,26 +63,10 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1" />
 
-            <Spinner
-                android:id="@+id/spiTurnos"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content" />
-
             <Space
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight="1" />
-
-            <EditText
-                android:id="@+id/eTfecha"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:ems="10"
-                android:inputType="textPersonName"
-                android:textAlignment="center"
-                android:textColor="#000000"
-                android:textColorHint="#000000" />
 
             <Space
                 android:layout_width="wrap_content"

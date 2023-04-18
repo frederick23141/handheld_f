@@ -76,11 +76,11 @@ public class EscanerInventario extends AppCompatActivity implements AdapterView.
         setContentView(R.layout.activity_escaner_inventario);
 
         //Definimos los elementos del Layout
-        codigoGalva = findViewById(R.id.codigoGalva);
+        codigoGalva = findViewById(R.id.codigoCajaRecep);
         txtTotal = findViewById(R.id.txtTotal);
         txtTotalSinLeer = findViewById(R.id.txtTotalSinLeer);
         txtRollosLeidos = findViewById(R.id.txtRollosLeidos);
-        btnTransaGalv = findViewById(R.id.btnTransaGalv);
+        btnTransaGalv = findViewById(R.id.btnTransaEmp);
         btnCancelarTrans = findViewById(R.id.btnCancelarTrans);
 
         //Recibimos los datos desde la class PedidoInventraio
@@ -137,11 +137,22 @@ public class EscanerInventario extends AppCompatActivity implements AdapterView.
             int total = Integer.parseInt(txtTotal.getText().toString());
             int leidos = (total - sleer);
             if(sleer==0 && total>0){
-                try {
-                    realizarTransaccion();
-                }catch (Exception e){
-                    toastError(e.getMessage());
-                }
+                AlertDialog.Builder builder = new AlertDialog.Builder(EscanerInventario.this);
+                builder.setIcon(R.mipmap.ic_alert).
+                        setTitle("Atención").
+                        setMessage("Se han leido: "+ leidos +" Rollos \n" +
+                                "Se iniciara el translado solo con los rollos leidos!").
+                        setPositiveButton("Aceptar", (dialog, which) -> {
+                            try {
+                                realizarTransaccion();
+                            }catch (Exception e){
+                                toastError(e.getMessage());
+                            }
+                        }).setNegativeButton("Cancelar", (dialog, which) -> {
+
+                        });
+                AlertDialog alertDialog = builder.create();
+                alertDialog.show();
             }else{
                 if(sleer==0 && total==0){
                     toastError("No hay rollos por leer");
@@ -209,6 +220,22 @@ public class EscanerInventario extends AppCompatActivity implements AdapterView.
                 }catch (Exception e){
                     Toast.makeText(EscanerInventario.this, e.getMessage(), Toast.LENGTH_SHORT).show();
                 }
+            }
+        }
+
+        if (listTransactionGal.size()>0){
+            if (ing_prod_ad.ExecuteSqlTransaction(listTransactionGal, "JJVPRGPRODUCCION", EscanerInventario.this)){
+                ListarefeRecepcionados = conexion.galvRefeRecepcionados(EscanerInventario.this,fechaActualString, monthActualString, yearActualString);
+                numero_transaccion = Integer.valueOf(Obj_ordenprodLn.mover_consecutivo("TRB1", EscanerInventario.this));
+                listTransaccionBodega = traslado_bodega(ListarefeRecepcionados, calendar);
+                if (ing_prod_ad.ExecuteSqlTransaction(listTransaccionBodega, "JJVDMSCIERREAGOSTO", EscanerInventario.this)){
+                    toastAcierto("Transaccion Realizada con Exito! --" + numero_transaccion);
+                    consultarGalvTerminado();
+                }else{
+                    toastError("Problemas, No se realizó correctamente la transacción!");
+                }
+            }else{
+                toastError("Error al realizar la transacción!");
             }
         }
 

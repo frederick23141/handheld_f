@@ -6,6 +6,7 @@ import android.os.Build;
 import android.widget.Toast;
 
 import com.example.handheld.conexionDB.Conexion;
+import com.example.handheld.modelos.EmpRecepcionadoCajasModelo;
 import com.example.handheld.modelos.GalvRecepcionadoRollosModelo;
 
 import java.text.SimpleDateFormat;
@@ -36,7 +37,6 @@ public class ObjTraslado_bodLn {
         String sFecha = "";
         int swDoc = 16;
         int swDoc_lin = 0;
-        Boolean inserto = false;
         double vr_unitario = costo_kilo;
 
         if (obj_ordenprodLn.insertarProxMes(cod,context)){
@@ -158,13 +158,12 @@ public class ObjTraslado_bodLn {
 
     public List<Object> listaTrasladoBodegaGalv(List<GalvRecepcionadoRollosModelo> listInfRerencias, Integer num, Integer bod_orig, Integer bod_dest, Calendar dFec, String notas, String usuario, String tipo, String modelo, Context context){
         List<Object> listSql = new ArrayList<>();
-        String sFecha_hora = "";
-        String sFecha = "";
+        String sFecha_hora;
+        String sFecha;
         double vrTotalEncabezado = (double) 0;
 
-        int seq = 0;
-        int swDoc_lin = 0;
-        Boolean inserto = false;
+        int seq;
+        int swDoc_lin;
 
         @SuppressLint("SimpleDateFormat")
         SimpleDateFormat dateFormatsFecha_hora = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
@@ -333,11 +332,174 @@ public class ObjTraslado_bodLn {
         return (listSql);
     }
 
+    public List<Object> listaTrasladoBodegaEmp(List<EmpRecepcionadoCajasModelo> listInfRerencias, Integer num, Integer bod_dest, Calendar dFec, String notas, String usuario, String tipo, String modelo, Context context, String fechatransa){
+        List<Object> listSql = new ArrayList<>();
+        String sFecha_hora;
+        String sFecha;
+        //double vrTotalEncabezado = (double) 0;
+
+        int seq;
+        int swDoc_lin;
+
+        @SuppressLint("SimpleDateFormat")
+        SimpleDateFormat dateFormatsFecha_hora = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
+        sFecha_hora = dateFormatsFecha_hora.format(dFec.getTime());
+
+        @SuppressLint("SimpleDateFormat")
+        SimpleDateFormat dateFormatsFecha = new SimpleDateFormat("yyyy-MM-dd");
+        sFecha = dateFormatsFecha.format(dFec.getTime());
+
+        Calendar pruebaFec = dFec;
+
+        //For para identificar si hay alguna referecia que debe crearse para el proximo mes
+        for(int y=0; y<listInfRerencias.size();y++){
+            String cod = listInfRerencias.get(y).getREFERENCIA();
+
+
+            if (obj_ordenprodLn.insertarProxMes(cod,context)){
+                pruebaFec.add(Calendar.MONTH, 1);
+                if (pruebaFec.after(dFec)){
+                    dFec.add(Calendar.MONTH, 1);
+
+                    //Capturamos el mes en un String
+                    @SuppressLint("SimpleDateFormat")
+                    SimpleDateFormat dateFormatMoth = new SimpleDateFormat("MM");
+                    String month = dateFormatMoth.format(dFec.getTime());
+
+                    //Capturamos el año en un String
+                    @SuppressLint("SimpleDateFormat")
+                    SimpleDateFormat dateFormatYear = new SimpleDateFormat("yyyy");
+                    String year = dateFormatYear.format(dFec.getTime());
+
+                    sFecha = year + "-" + month + "-01";
+
+                    //Capturamos las horas
+                    @SuppressLint("SimpleDateFormat")
+                    SimpleDateFormat dateFormatHour = new SimpleDateFormat("HH");
+                    String hour = dateFormatHour.format(dFec.getTime());
+
+                    //Capturamos los minutos
+                    @SuppressLint("SimpleDateFormat")
+                    SimpleDateFormat dateFormatMinute = new SimpleDateFormat("mm");
+                    String minute = dateFormatMinute.format(dFec.getTime());
+
+                    //Capturamos los segundos
+                    @SuppressLint("SimpleDateFormat")
+                    SimpleDateFormat dateFormatSeconds = new SimpleDateFormat("ss");
+                    String seconds = dateFormatSeconds.format(dFec.getTime());
+
+                    sFecha_hora = "" + month + "-" + "01" + "-" + year + " " + hour + ":" + minute + ":" + seconds + "";
+
+                    pruebaFec.add(Calendar.MONTH, -1);
+                }else{
+                    pruebaFec.add(Calendar.MONTH, -1);
+                }
+            }
+        }
+
+        //For para verificar una por una si las referencias exiten
+        for(int a=0; a<listInfRerencias.size();a++){
+            String cod = listInfRerencias.get(a).getREFERENCIA();
+
+            if (existe_referencias_sto(cod, bod_dest, dFec, context).equals(false)){
+                try {
+                    listSql.add(crear_referencias_sto(cod, bod_dest, dFec));
+                }catch (Exception e){
+                    Toast.makeText(context, e.getMessage(), Toast.LENGTH_SHORT).show();
+                }
+            }
+        }
+
+        /*
+        //For para sumar todas los valores de todas las referencias en una variable para el Encabe
+        for(int i=0; i<listInfRerencias.size();i++){
+            Double peso = listInfRerencias.get(i).getCantidad();
+            Double promedio =  listInfRerencias.get(i).getPromedio();
+            Double costo_unitario = listInfRerencias.get(i).getCosto_unitario();
+
+            if (promedio == 0){
+                vrTotalEncabezado = vrTotalEncabezado + (peso * costo_unitario);
+            }else{
+                vrTotalEncabezado = vrTotalEncabezado + (peso * promedio);
+            }
+        }
+         */
+
+        int swDoc = 12;
+        String Empresa = conexion.obtenerEmpresa(context,fechatransa);
+        String nit;
+        if (Empresa.equals("Corsan")){
+            nit = "890900160";
+        }else{
+            nit = "900029909";
+        }
+
+        int vendedor = 0;
+        String pc = Build.BRAND +"-"+ Build.MODEL;
+        String sql;
+
+        //Ingresamos el Encabezado a la lista
+        sql = "INSERT INTO  documentos (sw,tipo,numero,nit,fecha,vencimiento,valor_total,vendedor,valor_aplicado" +
+                ",anulado,modelo,notas ,usuario,pc,fecha_hora,bodega,duracion,concepto ,centro_doc,spic) VALUES " +
+                "(" + swDoc + ",'" + tipo + "'," + num + "," + Integer.parseInt(nit) + ",'" + sFecha + "','" + sFecha + "'," +
+                "0," + vendedor + "," + 0 + ",0 ,'" + modelo + "','" + notas + "','" + usuario + "" +
+                "','" + pc + "','" + sFecha_hora + "'," + bod_dest + ",50,0,0,'S') ";
+
+        try {
+            listSql.add(sql);
+        }catch (Exception e){
+            Toast.makeText(context, e.getMessage(), Toast.LENGTH_SHORT).show();
+        }
+
+        //For para ingresar a la lista todos los detalles de cada referencia
+        for(int b=0; b<listInfRerencias.size();b++){
+            String cod = listInfRerencias.get(b).getREFERENCIA().trim();
+            Double peso = listInfRerencias.get(b).getCantidad();
+            Double promedio =  listInfRerencias.get(b).getPromedio();
+            Double costo_unitario = listInfRerencias.get(b).getCosto_unitario();
+            Double costo_kilo;
+
+            if (promedio==0){
+                costo_kilo = costo_unitario;
+            }else{
+                costo_kilo = promedio;
+            }
+
+            //'******************* ----------Se adiciona la Entrada
+
+            Double iva = conexion.obtenerIvaReferencia(context,cod);
+
+            int valor_unit = 0;
+            seq = 1;
+            swDoc_lin = 3;
+            sql = "INSERT INTO documentos_lin(sw,tipo,numero,codigo,seq,fec,nit,cantidad,porcentaje_iva,valor_unitario,porcentaje_descuento ," +
+                    "costo_unitario,adicional,vendedor,bodega,und,cantidad_und,cantidad_pedida,maneja_inventario,costo_unitario_sin,cantidad_dos) " +
+                    "VALUES(" + swDoc_lin + ",'" + tipo + "'," + num + ",'" + cod + "'," + seq + ",'" + sFecha + "'," + nit + "," + peso +
+                    ","+ iva +"," + valor_unit +",0, " + costo_kilo + ",'" + notas + "',0," + bod_dest + ",'UND',1,0,'S',0.0000000000000000,1) ";
+
+            try {
+                listSql.add(sql);
+            }catch (Exception e){
+                Toast.makeText(context, e.getMessage(), Toast.LENGTH_SHORT).show();
+            }
+
+            //'Script para ingresar a referencias_sto (STOCK)
+            String actRef = actualizarRefSto(peso, costo_kilo, cod, dFec, bod_dest, swDoc_lin);
+            listSql.add(actRef);
+            String actUlt = sqlActUltEntradaUltSalida(swDoc_lin, cod);
+            listSql.add(actUlt);
+
+        }
+
+        return (listSql);
+    }
+
     public String obtenerBodegaXcodigo(String codigo){
         char primerCaracter = codigo.charAt(0);
         return Character.toString(primerCaracter);
     }
 
+    //Se va hacia la tabla referencias y se actualiza la fecha de la ultima entrada o salida de una referencia
     public String sqlActUltEntradaUltSalida(Integer swTipo, String codigo){
         String sql = "";
         if (swTipo == 11 || swTipo == 16){
@@ -366,17 +528,17 @@ public class ObjTraslado_bodLn {
 
         //'sw 11 resta(salida) , sw 12 suma(entrada)
         if (swTipo == 11 || swTipo == 16){
-            sql = "UPDATE referencias_sto SET can_sal += " + kilos + " , cos_sal +=" + costUnit * kilos + " " +
-                    ", cos_otr_sal +=" + costUnit * kilos + " , can_otr_sal += " + kilos + " , nro_com = " +
+            sql = "UPDATE referencias_sto SET can_sal += " + kilos + " , cos_sal +=" + (costUnit * kilos) + " " +
+                    ", cos_otr_sal +=" + (costUnit * kilos) + " , can_otr_sal += " + kilos + " , nro_com = " +
                     "(CASE WHEN nro_com is null  THEN 1 ELSE nro_com + 1 END ) WHERE bodega = " + bodega + " " +
                     "AND codigo ='" + codigo + "' AND mes = " + month + " and ano = " + year + " ";
         }else if (swTipo == 12 || swTipo == 3){
             sql = "UPDATE referencias_sto SET can_ent = (CASE WHEN can_ent is null  THEN " + kilos + " " +
                     "ELSE can_ent +" + kilos + " END ), cos_ent = (CASE WHEN cos_ent is null  " +
-                    "THEN " + costUnit * kilos + " ELSE cos_ent +" + costUnit * kilos + " END ), " +
+                    "THEN " + (costUnit * kilos) + " ELSE cos_ent +" + (costUnit * kilos) + " END ), " +
                     "can_com = (CASE WHEN can_com is null  THEN " + kilos + " ELSE can_com +" + kilos + " " +
-                    "END ), cos_com = (CASE WHEN cos_com is null  THEN " + costUnit * kilos + " " +
-                    "ELSE cos_com +" + costUnit * kilos + " END ), nro_com = (CASE WHEN nro_com is null  " +
+                    "END ), cos_com = (CASE WHEN cos_com is null  THEN " + (costUnit * kilos) + " " +
+                    "ELSE cos_com +" + (costUnit * kilos) + " END ), nro_com = (CASE WHEN nro_com is null  " +
                     "THEN 1 ELSE nro_com + 1 END )  WHERE bodega = " + bodega + " AND codigo ='" + codigo + "' " +
                     "AND mes = " + month + " and ano = " + year + " ";
         }

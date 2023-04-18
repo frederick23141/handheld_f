@@ -1,9 +1,9 @@
 package com.example.handheld;
 
-import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.annotation.SuppressLint;
+import android.app.AlertDialog;
 import android.content.Context;
 import android.media.AudioManager;
 import android.media.SoundPool;
@@ -14,20 +14,15 @@ import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
-import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.ListAdapter;
-import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.example.handheld.atv.holder.adapters.listGalvTerminadoAdapter;
 import com.example.handheld.conexionDB.Conexion;
-import com.example.handheld.modelos.GalvRecepcionModelo;
-import com.example.handheld.modelos.GalvRecepcionadoRollosModelo;
+import com.example.handheld.modelos.CajasRefeModelo;
+import com.example.handheld.modelos.EmpRecepcionadoCajasModelo;
 
-import java.sql.SQLException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -36,29 +31,29 @@ import java.util.List;
 
 public class RecepcionEmpaque extends AppCompatActivity {
 
-    TextView txtTRefCaja;
-
-    String referencia;
-    //se declaran las variables de los elementos del Layout
-    EditText codigoGalva;
-    TextView txtTotal, txtTotalSinLeer, txtRollosLeidos;
-    Button btnTransaGalv, btnCancelarTrans;
-
     //se declaran las variables donde estaran los datos que vienen de la anterior clase
-    String nit_usuario,fecha_inicio,fecha_final;
-
+    String referencia, descripcion, mesa, nit_persona;
 
     //Se declara un objeto conexion
     Conexion conexion;
 
+    //se declaran las variables de los elementos del Layout
+    EditText codigoCajaRecep;
+    TextView txtTRefCaja, txtCajasSisteEmpa, txtCajasFisiEmpa;
+    Button btnTransaEmp;
+
+    Button btnCancelarTrans;
+
     //Se inicializa variables necesarias en la clase
     int yaentre = 0;
-    String consecutivo;
+    List<CajasRefeModelo> ListaCajasRefe;
+    List<EmpRecepcionadoCajasModelo> ListarefeRecepcionados= new ArrayList<>();
+
     Integer numero_transaccion;
     ObjTraslado_bodLn objTraslado_bodLn = new ObjTraslado_bodLn();
     //objOperacionesDb objOperacionesDb = new objOperacionesDb();
     Ing_prod_ad ing_prod_ad = new Ing_prod_ad();
-    List<GalvRecepcionadoRollosModelo> ListarefeRecepcionados= new ArrayList<>();
+
 
     //Se inicializa los varibles para el sonido de error
     SoundPool sp;
@@ -73,25 +68,22 @@ public class RecepcionEmpaque extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_recepcion_empaque);
 
-        referencia = getIntent().getStringExtra("referencia");
-        txtTRefCaja = findViewById(R.id.txtTRefCaja);
-        txtTRefCaja.setText(referencia);
-
-
-        /*
         //Definimos los elementos del Layout
-        codigoGalva = findViewById(R.id.codigoGalva);
-        txtTotal = findViewById(R.id.txtTotal);
-        txtTotalSinLeer = findViewById(R.id.txtTotalSinLeer);
-        txtRollosLeidos = findViewById(R.id.txtRollosLeidos);
-        btnTransaGalv = findViewById(R.id.btnTransaGalv);
+        txtTRefCaja = findViewById(R.id.txtTRefCaja);
+        txtCajasSisteEmpa = findViewById(R.id.txtCajasSisteEmpa);
+        txtCajasFisiEmpa = findViewById(R.id.txtCajasFisiEmpa);
+        codigoCajaRecep = findViewById(R.id.codigoCajaRecep);
+        btnTransaEmp = findViewById(R.id.btnTransaEmp);
         btnCancelarTrans = findViewById(R.id.btnCancelarTrans);
 
-        //Recibimos los datos desde la class PedidoInventraio
-        nit_usuario = getIntent().getStringExtra("nit_usuario");
-        fecha_inicio = getIntent().getStringExtra("fecha_inicio");
-        fecha_final = getIntent().getStringExtra("fecha_final");
 
+        //Recibimos los datos desde la class PedidoInventraio
+        descripcion = getIntent().getStringExtra("descripcion");
+        referencia = getIntent().getStringExtra("referencia");
+        mesa = getIntent().getStringExtra("mesa");
+        nit_persona = getIntent().getStringExtra("nit_usuario");
+
+        txtTRefCaja.setText(descripcion);
 
         //Se Define los varibles para el sonido de error
         sp = new SoundPool(2, AudioManager.STREAM_MUSIC,1);
@@ -99,28 +91,26 @@ public class RecepcionEmpaque extends AppCompatActivity {
 
         vibrator = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
 
-        /////////////////////////////////////////////////////////////////////////////////////////////
+
+        /////////////////////////////////////////////////////////////////////////////////////////
         //Llamamos al metodo para consultar los rollos de galvanizados listos para recoger
-        consultarGalvTerminado();
+        consultarCajasRefe();
+
 
         /////////////////////////////////////////////////////////////////////////////////////////////
         //Se establece el foco en el edit text
-        codigoGalva.requestFocus();
+        codigoCajaRecep.requestFocus();
 
         /////////////////////////////////////////////////////////////////////////////////////////////
         //Se programa para que al presionar enter en el edit text haga el proceso
-        codigoGalva.setOnKeyListener((v, keyCode, event) -> {
+        codigoCajaRecep.setOnKeyListener((v, keyCode, event) -> {
             if (keyCode == KeyEvent.KEYCODE_ENTER) {
                 if(yaentre == 0){
-                    if(codigoGalva.getText().toString().equals("")){
+                    if(codigoCajaRecep.getText().toString().equals("")){
                         toastError("Por favor escribir o escanear el codigo de barras");
                     }else{
                         closeTecladoMovil();
-                        try {
-                            codigoIngresado();
-                        } catch (SQLException e) {
-                            e.printStackTrace();
-                        }
+                        codigoIngresado();
                     }
                 }else{
                     cargarNuevo();
@@ -132,54 +122,36 @@ public class RecepcionEmpaque extends AppCompatActivity {
 
         btnCancelarTrans.setOnClickListener(this::salir);
 
-        btnTransaGalv.setOnClickListener(v -> {
-            int sleer = Integer.parseInt(txtTotalSinLeer.getText().toString());
-            int total = Integer.parseInt(txtTotal.getText().toString());
-            int leidos = (total - sleer);
-            if(sleer==0 && total>0){
-                try {
-                    realizarTransaccion();
-                }catch (Exception e){
-                    toastError(e.getMessage());
-                }
-            }else{
-                if(sleer==0 && total==0){
-                    toastError("No hay rollos por leer");
-                    AudioError();
-                }else{
-                    if (total == sleer){
-                        toastError("No se ha leido ningun rollo");
-                        AudioError();
-                    }
-                    else{
-                        AlertDialog.Builder builder = new AlertDialog.Builder(EscanerInventario.this);
-                        builder.setIcon(R.mipmap.ic_alert).
-                                setTitle("Atención").
-                                setMessage("Se han leido: "+ leidos +" Rollos \n" +
-                                        "Se iniciara el translado solo con los rollos leidos!").
-                                setPositiveButton("Aceptar", (dialog, which) -> {
-                                    try {
-                                        realizarTransaccion();
-                                    }catch (Exception e){
-                                        toastError(e.getMessage());
-                                    }
-                                }).setNegativeButton("Cancelar", (dialog, which) -> {
+        btnTransaEmp.setOnClickListener(v -> {
+            int numFisi = Integer.parseInt(txtCajasFisiEmpa.getText().toString());
+            if(numFisi>0){
+                AlertDialog.Builder builder = new AlertDialog.Builder(RecepcionEmpaque.this);
+                builder.setIcon(R.mipmap.ic_alert).
+                        setTitle("Atención").
+                        setMessage("Se han leido: "+ numFisi +" Cartones \n" +
+                                "Se iniciara el translado solo con el numero de cartones leidos!").
+                        setPositiveButton("Aceptar", (dialog, which) -> {
+                            try {
+                                realizarTransaccion();
+                            }catch (Exception e){
+                                toastError(e.getMessage());
+                            }
+                        }).setNegativeButton("Cancelar", (dialog, which) -> {
 
-                                });
-                        AlertDialog alertDialog = builder.create();
-                        alertDialog.show();
-                    }
-                }
+                        });
+                AlertDialog alertDialog = builder.create();
+                alertDialog.show();
+            }else{
+                toastError("No se ha leido cartones para recepcionar");
+                AudioError();
             }
         });
-
-         */
     }
 
-    /*
+
     private void realizarTransaccion() {
         //Creamos una lista para almacenar todas las consultas que se realizaran en la base de datos
-        List<Object> listTransactionGal = new ArrayList<>();
+        List<Object> listTransactionEmp = new ArrayList<>();
         //Creamos una lista para almacenar todas las consultas que se realizaran en la base de datos
         List<Object> listTransaccionBodega;
 
@@ -198,31 +170,31 @@ public class RecepcionEmpaque extends AppCompatActivity {
         String monthActualString = formatoMonth.format(fechaActual);
         String yearActualString = formatoYear.format(fechaActual);
 
+        int numFisi = Integer.parseInt(txtCajasFisiEmpa.getText().toString());
+
         //se adicionan los campos recepcionado, nit_recepcionado y fecha_recepcionado a la tabla
-        for(int i=0;i<ListaGalvTerminado.size();i++){
-            if(ListaGalvTerminado.get(i).getColor().equals("GREEN")){
-                String nro_orden = ListaGalvTerminado.get(i).getNro_orden();
-                String nro_rollo = ListaGalvTerminado.get(i).getNro_rollo();
+        for(int i=0;i<numFisi;i++){
+            String referencia = ListaCajasRefe.get(i).getReferencia();
+            String fecha = ListaCajasRefe.get(i).getFecha();
+            String mesa = ListaCajasRefe.get(i).getMesa();
 
-                String sql_rollo= "UPDATE D_rollo_galvanizado_f SET recepcionado='SI', nit_recepcionado='"+ nit_usuario +"', fecha_recepcion='"+ fechaActualString +"' WHERE nro_orden='"+ nro_orden +"' AND consecutivo_rollo='"+nro_rollo+"'";
+            String sql_carton= "UPDATE F_Recepcion_puntilleria SET RECEPCIONADO='SI', NIT_RECEPCIONA='"+ nit_persona +"', fecha_recepcionado='"+ fechaActualString +"' WHERE MESA='"+ mesa +"' AND FECHA='"+fecha+"' AND REFERENCIA='"+ referencia +"' ";
 
-                try {
-                    //Se añade el sql a la lista
-                    listTransactionGal.add(sql_rollo);
-                }catch (Exception e){
-                    Toast.makeText(EscanerInventario.this, e.getMessage(), Toast.LENGTH_SHORT).show();
-                }
+            try {
+                //Se añade el sql a la lista
+                listTransactionEmp.add(sql_carton);
+            }catch (Exception e){
+                Toast.makeText(RecepcionEmpaque.this, e.getMessage(), Toast.LENGTH_SHORT).show();
             }
         }
 
-        if (listTransactionGal.size()>0){
-            if (ing_prod_ad.ExecuteSqlTransaction(listTransactionGal, "JJVPRGPRODUCCION", EscanerInventario.this)){
-                ListarefeRecepcionados = conexion.galvRefeRecepcionados(EscanerInventario.this,fechaActualString, monthActualString, yearActualString);
-                numero_transaccion = Integer.valueOf(Obj_ordenprodLn.mover_consecutivo("TRB1", EscanerInventario.this));
-                listTransaccionBodega = traslado_bodega(ListarefeRecepcionados, calendar);
-                if (ing_prod_ad.ExecuteSqlTransaction(listTransaccionBodega, "JJVDMSCIERREAGOSTO", EscanerInventario.this)){
+        if (listTransactionEmp.size()>0){
+            if (ing_prod_ad.ExecuteSqlTransaction(listTransactionEmp, "JJVPRGPRODUCCION", RecepcionEmpaque.this)){
+                ListarefeRecepcionados = conexion.empaRefeRecepcionados(RecepcionEmpaque.this,fechaActualString, monthActualString, yearActualString);
+                numero_transaccion = Integer.valueOf(Obj_ordenprodLn.mover_consecutivo("EDEP", RecepcionEmpaque.this));
+                listTransaccionBodega = traslado_bodega(ListarefeRecepcionados, calendar, fechaActualString);
+                if (ing_prod_ad.ExecuteSqlTransaction(listTransaccionBodega, "JJVDMSCIERREAGOSTO", RecepcionEmpaque.this)){
                     toastAcierto("Transaccion Realizada con Exito! --" + numero_transaccion);
-                    consultarGalvTerminado();
                 }else{
                     toastError("Problemas, No se realizó correctamente la transacción!");
                 }
@@ -232,30 +204,30 @@ public class RecepcionEmpaque extends AppCompatActivity {
         }
     }
 
-    private List<Object> traslado_bodega(List<GalvRecepcionadoRollosModelo> ListarefeRecepcionados, Calendar calendar){
+    private List<Object> traslado_bodega(List<EmpRecepcionadoCajasModelo> ListarefeRecepcionados, Calendar calendar, String fechatransa){
         List<Object> listSql;
         @SuppressLint("SimpleDateFormat")
         SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy");
         String fecha = dateFormat.format(calendar.getTime());
-        String usuario = nit_usuario;
+        String usuario = nit_persona;
         String notas = "MOVIL fecha:" + fecha + " usuario:" + usuario;
 
-        listSql = objTraslado_bodLn.listaTrasladoBodegaGalv(ListarefeRecepcionados,numero_transaccion, 2, 3, calendar, notas, usuario, "TRB1", "11",EscanerInventario.this);
+        listSql = objTraslado_bodLn.listaTrasladoBodegaEmp(ListarefeRecepcionados,numero_transaccion, 3, calendar, notas, usuario, "EDEP", "01",RecepcionEmpaque.this, fechatransa);
         return listSql;
     }
 
     /////////////////////////////////////////////////////////////////////////////////////////////
-    private void consultarGalvTerminado() {
+    //METODO QUE CONSULTA LAS CAJAS DE UNA REFERENCIA POR MESA Y LOS MUESTRA COMO CAJAS EN EL SISTEMA
+    private void consultarCajasRefe() {
         conexion = new Conexion();
 
-        ListaGalvTerminado = conexion.obtenerGalvTerminado(getApplication(),fecha_inicio,fecha_final);
-        GalvTerminadoAdapter = new listGalvTerminadoAdapter(EscanerInventario.this,R.layout.item_row_galvterminado,ListaGalvTerminado);
-        listviewGalvTerminado.setAdapter(GalvTerminadoAdapter);
+        ListaCajasRefe = conexion.obtenerCajasRefe(getApplication(),mesa,referencia);
 
-        String totalRollos = String.valueOf(ListaGalvTerminado.size());
-        txtTotal.setText(totalRollos);
+        String totalCartones = String.valueOf(ListaCajasRefe.size());
+        txtCajasSisteEmpa.setText(totalCartones);
 
     }
+
 
     /////////////////////////////////////////////////////////////////////////////////////////////
     //Metodo para ocultar el teclado virtual
@@ -268,71 +240,39 @@ public class RecepcionEmpaque extends AppCompatActivity {
     }
 
     /////////////////////////////////////////////////////////////////////////////////////////////
-    private void codigoIngresado() throws SQLException {
-        consecutivo = codigoGalva.getText().toString().trim();
-        boolean encontrado = false;
-        int position = 0;
-        for (int i=0;i<ListaGalvTerminado.size();i++){
-            String codigoList = ListaGalvTerminado.get(i).getNro_orden()+"-"+ListaGalvTerminado.get(i).getNro_rollo();
-            if(consecutivo.equals(codigoList)){
-                encontrado = true;
-                position = i;
-            }
-        }
-        if (encontrado){
-            if(ListaGalvTerminado.get(position).getColor().equals("GREEN")){
-                toastError("Rollo ya leido");
+    //METODO QUE VERIFICA QUE EL CODIGO LEIDO SEA DE LA REFERENCIA SELECCIONADA Y AGREGA UNO AL FISICO
+    //DE LO CONTRARION MUESTRA UN MENSAJE DE ERRROR
+    private void codigoIngresado() {
+        String codigo = codigoCajaRecep.getText().toString().trim();
+        if (codigo.equals(referencia)){
+            int numFisi = Integer.parseInt(txtCajasFisiEmpa.getText().toString());
+            int numSiste = Integer.parseInt(txtCajasSisteEmpa.getText().toString());
+            if (numFisi >= numSiste){
+                toastError("No se pueden leer más Cartones");
                 AudioError();
                 cargarNuevo();
             }else{
-                pintarRollo(position);
-                //recepcionarBD(position);
-                contarSinLeer();
-                contarLeidos();
-                toastAcierto("Rollo encontrado");
+                numFisi++;
+                txtCajasFisiEmpa.setText(String.valueOf(numFisi));
+                toastAcierto("Carton Leido");
                 cargarNuevo();
             }
         }else{
-            toastError("Rollo no encontrado");
+            toastError("Carton Referencia equivocada");
             AudioError();
             cargarNuevo();
         }
     }
 
-    //Se realiza para realizar transaccion rollo a rollo, pero despues se cambia de idea
-    /*
-    private void recepcionarBD(int p) throws SQLException {
-        // Obtén la fecha y hora actual
-        Date fechaActual = new Date();
-
-        // Define el formato de la fecha y hora que deseas obtener
-        @SuppressLint("SimpleDateFormat")
-        SimpleDateFormat formatoFecha = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-
-        // Convierte la fecha actual en un String con el formato definido
-        String fechaActualString = formatoFecha.format(fechaActual);
-
-        String nro_orden = ListaGalvTerminado.get(p).getNro_orden();
-        String nro_rollo = ListaGalvTerminado.get(p).getNro_rollo();
-
-
-        String sql= "UPDATE D_rollo_galvanizado_f SET recepcionado='SI', nit_recepcionado='"+ nit_usuario +"', fecha_recepcion='"+ fechaActualString +"' WHERE nro_orden='"+ nro_orden +"' AND consecutivo_rollo='"+nro_rollo+"'";
-        objOperacionesDb.ejecutarUpdateDbProduccion(sql,EscanerInventario.this);
-
-    }
-     */
-
-
     private void cargarNuevo() {
-        codigoGalva.setText("");
+        codigoCajaRecep.setText("");
         if (yaentre == 0){
             yaentre = 1;
         }else{
             yaentre = 0;
-            codigoGalva.requestFocus();
+            codigoCajaRecep.requestFocus();
         }
     }
-
 
     //METODO PARA CERRAR LA APLICACION
     @SuppressLint("")
@@ -370,6 +310,7 @@ public class RecepcionEmpaque extends AppCompatActivity {
         toast.show();
     }
 
+    //METODO QUE GENERA UN SONIDO DE ERROR
     public void AudioError(){
         sp.play(sonido_de_Reproduccion,100,100,1,0,0);
         vibrator.vibrate(2000);

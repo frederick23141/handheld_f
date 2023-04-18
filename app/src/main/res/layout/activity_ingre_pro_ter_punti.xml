@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -81,11 +80,11 @@
                 android:layout_weight="1" />
 
             <TextView
-                android:id="@+id/textView5"
+                android:id="@+id/txtTReferencia"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="Referencia:"
+                android:text="@string/txtTReferencia"
                 android:textAlignment="center"
                 android:textSize="20sp"
                 android:textStyle="bold" />
@@ -138,7 +137,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="Cantidad: 1 Cartón"
+                android:text="@string/txtTCaja"
                 android:textAlignment="center"
                 android:textSize="20sp"
                 android:textStyle="bold" />
@@ -161,12 +160,12 @@
                 android:layout_weight="1" />
 
             <TextView
-                android:id="@+id/txtLector"
+                android:id="@+id/txtIngresar"
                 android:layout_width="299dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:background="#D0015798"
-                android:text="INGRESAR"
+                android:text="@string/txtIngresar"
                 android:textAlignment="center"
                 android:textSize="16sp"
                 android:textStyle="bold" />
@@ -194,7 +193,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="Cedula:"
+                android:text="@string/txtDocumento"
                 android:textAlignment="textEnd"
                 android:textSize="20sp"
                 android:textStyle="bold" />
@@ -207,7 +206,9 @@
                 android:ems="10"
                 android:inputType="number"
                 android:text=""
-                android:textStyle="bold" />
+                android:textStyle="bold"
+                android:autofillHints="documento"
+                tools:ignore="LabelFor" />
 
             <Space
                 android:layout_width="wrap_content"
@@ -231,7 +232,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="Mesa:"
+                android:text="@string/txtTmesa"
                 android:textAlignment="textEnd"
                 android:textSize="20sp"
                 android:textStyle="bold" />
@@ -244,7 +245,9 @@
                 android:ems="10"
                 android:inputType="number"
                 android:text=""
-                android:textStyle="bold" />
+                android:textStyle="bold"
+                android:autofillHints="Mesa"
+                tools:ignore="LabelFor" />
 
             <Space
                 android:layout_width="wrap_content"
@@ -268,7 +271,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="Codigo Empacador:"
+                android:text="@string/txtTCodigo"
                 android:textAlignment="viewEnd"
                 android:textSize="16sp"
                 android:textStyle="bold" />
@@ -281,7 +284,9 @@
                 android:ems="10"
                 android:inputType="number"
                 android:text=""
-                android:textStyle="bold" />
+                android:textStyle="bold"
+                android:autofillHints="codigo"
+                tools:ignore="LabelFor" />
 
             <Space
                 android:layout_width="wrap_content"
@@ -306,7 +311,7 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:backgroundTint="#FF0000"
-                android:text="CANCELAR" />
+                android:text="@string/btnCancelarCaja" />
 
             <Space
                 android:layout_width="wrap_content"
@@ -320,7 +325,7 @@
                 android:layout_weight="1"
                 android:backgroundTint="#3CBF41"
                 android:drawableEnd="@drawable/cheque"
-                android:text="INGRESAR CAJA" />
+                android:text="@string/btnIngreTermiPunti" />
 
             <Space
                 android:layout_width="wrap_content"

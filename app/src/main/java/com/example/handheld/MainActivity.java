@@ -263,14 +263,11 @@ public class MainActivity extends AppCompatActivity {
         TreeNode subChild5_2 = new TreeNode(subChildItem5_2).setViewHolder(new MyHolder(getApplicationContext(), false, R.layout.child, 100));
 
         //Al darle clic a este elemento en el treeview se abrira una nueva pantalla y se enviaran unos datos
-        subChild5_2.setClickListener(new TreeNode.TreeNodeClickListener() {
-            @Override
-            public void onClick(TreeNode node, Object value) {
-                Intent intent = new Intent(MainActivity.this, ResumenPunti.class);
-                intent.putExtra("nit_usuario", cd);
-                intent.putExtra("nombre_usuario", nombre_usuario);
-                startActivity(intent);
-            }
+        subChild5_2.setClickListener((node, value) -> {
+            Intent intent = new Intent(MainActivity.this, ResumenPunti.class);
+            intent.putExtra("nit_usuario", cd);
+            intent.putExtra("nombre_usuario", nombre_usuario);
+            startActivity(intent);
         });
 
         //Agregamos subgrupo1"Logistica - Recepción".
@@ -305,13 +302,10 @@ public class MainActivity extends AppCompatActivity {
         TreeNode subChild7_1 = new TreeNode(subChildItem7_1).setViewHolder(new MyHolder(getApplicationContext(), false, R.layout.child, 100));
 
         //Al darle clic a este elemento en el treeview se abrira una nueva pantalla y se enviaran unos datos
-        subChild7_1.setClickListener(new TreeNode.TreeNodeClickListener() {
-            @Override
-            public void onClick(TreeNode node, Object value) {
-                Intent intent = new Intent(MainActivity.this, PedidoInventario.class);
-                intent.putExtra("nit_usuario", cd);
-                startActivity(intent);
-            }
+        subChild7_1.setClickListener((node, value) -> {
+            Intent intent = new Intent(MainActivity.this, PedidoInventario.class);
+            intent.putExtra("nit_usuario", cd);
+            startActivity(intent);
         });
 
         //Agregamos subgrupo1"Otros".

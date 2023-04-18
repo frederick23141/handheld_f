@@ -51,7 +51,7 @@ public class Pedido extends AppCompatActivity implements AdapterView.OnItemClick
 
         //Definimos los elemetos del layout en la clase
         btnSalir = findViewById(R.id.btnSalir);
-        btnActualizar = findViewById(R.id.btnActualizar);
+        btnActualizar = findViewById(R.id.btnVolver);
         movimiento = findViewById(R.id.movimiento);
 
         //Definimos los elementos necesarios para el list view

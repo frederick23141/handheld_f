@@ -11,7 +11,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import com.example.handheld.R;
-import com.example.handheld.modelos.CajasReceModelo;
 import com.example.handheld.modelos.MesasModelo;
 
 import java.util.List;

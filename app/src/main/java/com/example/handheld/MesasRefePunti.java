@@ -7,14 +7,13 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.AdapterView;
+import android.widget.Button;
 import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 
 import com.example.handheld.atv.holder.adapters.listMesasRecepAdapter;
-import com.example.handheld.atv.holder.adapters.listpedidoAdapter;
 import com.example.handheld.conexionDB.Conexion;
-import com.example.handheld.modelos.CajasReceModelo;
 import com.example.handheld.modelos.MesasModelo;
 
 import java.util.ArrayList;
@@ -22,7 +21,8 @@ import java.util.List;
 
 public class MesasRefePunti extends AppCompatActivity implements AdapterView.OnItemClickListener {
 
-    TextView txtTrefCaja;
+    TextView txtTrefCaja, txtDesRefe;
+    Button btnVolver;
 
     //Se declaran los elementos necesarios para el list view
     ListView listviewMesas;
@@ -32,10 +32,7 @@ public class MesasRefePunti extends AppCompatActivity implements AdapterView.OnI
     //Se declara un objeto conexion
     Conexion conexion;
 
-    String sql;
-    String fecha;
-    String turno;
-    String referencia;
+    String sql, referencia, descripcion, nit_persona;
 
     String sql_refe;
 
@@ -50,14 +47,23 @@ public class MesasRefePunti extends AppCompatActivity implements AdapterView.OnI
 
         //Recibimos el documento desde la class Main Activity
         sql = getIntent().getStringExtra("sql");
-        fecha = getIntent().getStringExtra("fecha");
-        turno = getIntent().getStringExtra("turno");
         referencia = getIntent().getStringExtra("referencia");
+        descripcion = getIntent().getStringExtra("descripcion");
+        nit_persona = getIntent().getStringExtra("nit_usuario");
 
         txtTrefCaja = findViewById(R.id.txtTrefCaja);
         txtTrefCaja.setText(referencia);
+        txtDesRefe = findViewById(R.id.txtDesRefe);
+        txtDesRefe.setText(descripcion);
+        btnVolver = findViewById(R.id.btnVolver);
 
         consultarMesas();
+
+        btnVolver.setOnClickListener(v -> {
+            Intent intent = new Intent(MesasRefePunti.this,ResumenPunti.class);
+            intent.putExtra("nit_usuario",nit_persona);
+            startActivity(intent);
+        });
     }
 
     //METODO CONSULTAR PEDIDOS
@@ -72,16 +78,13 @@ public class MesasRefePunti extends AppCompatActivity implements AdapterView.OnI
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
         String mesa = ListaMesasRecep.get(position).getMesa();
-        if (turno.equals("Turno 1")){
-            sql_refe = "select * from F_Recepcion_puntilleria where FECHA >='"+ fecha +" 06:00:00' and FECHA <= '"+ fecha +" 14:00:00' and MESA = '"+ mesa +"' and REFERENCIA='"+ referencia +"'";
-        }else{
-            sql_refe = "select * from F_Recepcion_puntilleria where FECHA >='"+ fecha +" 14:00:00' and FECHA <= '"+ fecha +" 22:00:00' and MESA = '"+ mesa +"' and REFERENCIA='"+ referencia +"'";
-        }
+        sql_refe = "select * from F_Recepcion_puntilleria where MESA = '"+ mesa +"' and REFERENCIA='"+ referencia +"' and RECEPCIONADO is null";
         Intent intent = new Intent(MesasRefePunti.this,RecepcionEmpaque.class);
         intent.putExtra("sql",sql_refe);
-        intent.putExtra("fecha",fecha);
-        intent.putExtra("turno",turno);
         intent.putExtra("referencia",referencia);
+        intent.putExtra("mesa",mesa);
+        intent.putExtra("descripcion",descripcion);
+        intent.putExtra("nit_usuario",nit_persona);
         startActivity(intent);
 
 

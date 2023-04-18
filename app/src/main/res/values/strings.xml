@@ -70,4 +70,22 @@
     <string name="txt_tfecha">Fecha:</string>
     <string name="txt_tpendiente">Pendiente:</string>
     <string name="txt_tdescripcion">Descripción:</string>
+
+    //Strings Utilizados en los layouts "activity_ingre_pro_ter_punti"
+    <string name="txtTReferencia">Referencia:</string>
+    <string name="txtTCaja">Cantidad: 1 Cartón</string>
+    <string name="txtIngresar">INGRESAR</string>
+    <string name="txtDocumento">Cedula: </string>
+    <string name="txtTmesa">Mesa: </string>
+    <string name="txtTCodigo">Codigo Empacador: </string>
+    <string name="btnCancelarCaja">CANCELAR</string>
+    <string name="btnIngreTermiPunti">INGRESAR CAJA</string>
+
+    //Strings Utilizados en los layouts "activity_mesas_refe_punti"
+    <string name="btnVolver">VOLVER</string>
+    <string name="txtTMesas">MESAS</string>
+    <string name="txtTrefCaja">Referencia</string>
+    <string name="txtCfisica">Fisico:</string>
+    <string name="txtCsiste">Sistema:</string>
+
 </resources>
