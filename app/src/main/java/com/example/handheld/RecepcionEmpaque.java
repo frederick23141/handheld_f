@@ -40,7 +40,7 @@ public class RecepcionEmpaque extends AppCompatActivity {
     //se declaran las variables de los elementos del Layout
     EditText codigoCajaRecep;
     TextView txtTRefCaja, txtCajasSisteEmpa, txtCajasFisiEmpa;
-    Button btnTransaEmp;
+    Button btnCarton,btnPlegable,btnTransaEmp;
 
     Button btnCancelarTrans;
 
@@ -73,6 +73,8 @@ public class RecepcionEmpaque extends AppCompatActivity {
         txtCajasSisteEmpa = findViewById(R.id.txtCajasSisteEmpa);
         txtCajasFisiEmpa = findViewById(R.id.txtCajasFisiEmpa);
         codigoCajaRecep = findViewById(R.id.codigoCajaRecep);
+        btnCarton = findViewById(R.id.btnCarton);
+        btnPlegable = findViewById(R.id.btnPlegable);
         btnTransaEmp = findViewById(R.id.btnTransaEmp);
         btnCancelarTrans = findViewById(R.id.btnCancelarTrans);
 
@@ -91,6 +93,9 @@ public class RecepcionEmpaque extends AppCompatActivity {
 
         vibrator = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
 
+        /////////////////////////////////////////////////////////////////////////////////////////
+        //Se bloquean los botones que solos e activaran para acero
+        botones(false);
 
         /////////////////////////////////////////////////////////////////////////////////////////
         //Llamamos al metodo para consultar los rollos de galvanizados listos para recoger
@@ -118,6 +123,31 @@ public class RecepcionEmpaque extends AppCompatActivity {
                 return true;
             }
             return false;
+        });
+
+        btnCarton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                int numFisi = Integer.parseInt(txtCajasFisiEmpa.getText().toString());
+                numFisi = numFisi + 50;
+                txtCajasFisiEmpa.setText(String.valueOf(numFisi));
+                toastAcierto("Codigo Leido");
+                codigoCajaRecep.setEnabled(true);
+                botones(false);
+                cargarNuevo();
+            }
+        });
+
+        btnPlegable.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                int numFisi = Integer.parseInt(txtCajasFisiEmpa.getText().toString());
+                numFisi++;
+                txtCajasFisiEmpa.setText(String.valueOf(numFisi));
+                toastAcierto("Codigo Leido");
+                codigoCajaRecep.setEnabled(true);
+                reiniciar();
+            }
         });
 
         btnCancelarTrans.setOnClickListener(this::salir);
@@ -148,6 +178,13 @@ public class RecepcionEmpaque extends AppCompatActivity {
         });
     }
 
+    public void reiniciar(){
+        codigoCajaRecep.setEnabled(true);
+        codigoCajaRecep.setText("");
+        botones(false);
+        codigoCajaRecep.requestFocus();
+        yaentre = 0;
+    }
 
     private void realizarTransaccion() {
         //Creamos una lista para almacenar todas las consultas que se realizaran en la base de datos
@@ -223,7 +260,12 @@ public class RecepcionEmpaque extends AppCompatActivity {
 
         ListaCajasRefe = conexion.obtenerCajasRefe(getApplication(),mesa,referencia);
 
-        String totalCartones = String.valueOf(ListaCajasRefe.size());
+        Integer CantT = 0;
+        for (int i=0; i<ListaCajasRefe.size();i++){
+            Integer cantidad = ListaCajasRefe.get(i).getCantidad();
+            CantT = CantT + cantidad;
+        }
+        String totalCartones = String.valueOf(CantT);
         txtCajasSisteEmpa.setText(totalCartones);
 
     }
@@ -245,23 +287,35 @@ public class RecepcionEmpaque extends AppCompatActivity {
     private void codigoIngresado() {
         String codigo = codigoCajaRecep.getText().toString().trim();
         if (codigo.equals(referencia)){
+            String conversion = conexion.obtenerConversionReferencias(RecepcionEmpaque.this,referencia);
             int numFisi = Integer.parseInt(txtCajasFisiEmpa.getText().toString());
             int numSiste = Integer.parseInt(txtCajasSisteEmpa.getText().toString());
             if (numFisi >= numSiste){
-                toastError("No se pueden leer más Cartones");
+                toastError("No se pueden leer más Codigos");
                 AudioError();
                 cargarNuevo();
             }else{
-                numFisi++;
-                txtCajasFisiEmpa.setText(String.valueOf(numFisi));
-                toastAcierto("Carton Leido");
-                cargarNuevo();
+                if (conversion.equals("0.5")){
+                    botones(true);
+                    toastError("Seleccione que esta recepcionando");
+                    codigoCajaRecep.setEnabled(false);
+                }else{
+                    numFisi++;
+                    txtCajasFisiEmpa.setText(String.valueOf(numFisi));
+                    toastAcierto("Codigo Leido");
+                    cargarNuevo();
+                }
             }
         }else{
-            toastError("Carton Referencia equivocada");
+            toastError("Codigo Referencia equivocada");
             AudioError();
             cargarNuevo();
         }
+    }
+
+    private void botones(boolean b) {
+        btnCarton.setEnabled(b);
+        btnPlegable.setEnabled(b);
     }
 
     private void cargarNuevo() {

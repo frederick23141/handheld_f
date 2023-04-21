@@ -176,7 +176,9 @@
                 android:layout_weight="1"
                 android:backgroundTint="#979797"
                 android:drawableEnd="@drawable/salida"
-                android:text="@string/btnSalida" />
+                android:text="@string/btnSalida"
+                android:textColor="#FFFFFF"
+                android:textStyle="bold" />
 
             <Button
                 android:id="@+id/btnTransaEmp"
@@ -187,7 +189,9 @@
                 android:layout_weight="1"
                 android:backgroundTint="#3CBF41"
                 android:drawableEnd="@drawable/cheque"
-                android:text="@string/btnTransaGalv" />
+                android:text="@string/btnTransaGalv"
+                android:textColor="#FBFBFB"
+                android:textStyle="bold" />
 
         </LinearLayout>
     </LinearLayout>

@@ -40,6 +40,9 @@ public class listMesasRecepAdapter extends ArrayAdapter<MesasModelo> {
         TextView textomesa = view.findViewById(R.id.txtNMesa);
         textomesa.setText(modelo.getMesa());
 
+        TextView textocantidad = view.findViewById(R.id.txtNCantidad);
+        textocantidad.setText(modelo.getCantidad());
+
 
         return view;
     }

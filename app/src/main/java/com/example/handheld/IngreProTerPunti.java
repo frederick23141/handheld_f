@@ -28,8 +28,8 @@ public class IngreProTerPunti extends AppCompatActivity {
 
     //se declaran las variables de los elementos del Layout
     EditText codigoCaja, eCedula, eMesa, eCodigo;
-    TextView txtCreferencia;
-    Button btnCancelarCaja, btnIngreTermiPunti, btnSalir;
+    TextView txtCreferencia, txTNCaja;
+    Button btnCarton, btnPlegable, btnCancelarCaja, btnIngreTermiPunti, btnSalir;
 
     //se declaran las variables donde estaran los datos que vienen de la anterior clase
     String nit_usuario, nombre_usuario;
@@ -50,7 +50,7 @@ public class IngreProTerPunti extends AppCompatActivity {
     Vibrator vibrator;
 
 
-    @SuppressLint("MissingInflatedId")
+    @SuppressLint({"MissingInflatedId", "SetTextI18n"})
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -59,9 +59,12 @@ public class IngreProTerPunti extends AppCompatActivity {
         //Definimos los elementos del Layout
         codigoCaja = findViewById(R.id.codigoCaja);
         txtCreferencia = findViewById(R.id.txtCreferencia);
+        txTNCaja = findViewById(R.id.txTNCaja);
         eCedula = findViewById(R.id.eCedula);
         eMesa = findViewById(R.id.eMesa);
         eCodigo = findViewById(R.id.eCodigo);
+        btnCarton = findViewById(R.id.btnCarton);
+        btnPlegable = findViewById(R.id.btnPlegable);
         btnCancelarCaja = findViewById(R.id.btnCancelarCaja);
         btnIngreTermiPunti = findViewById(R.id.btnIngreTermiPunti);
         btnSalir = findViewById(R.id.btnSalir);
@@ -70,6 +73,8 @@ public class IngreProTerPunti extends AppCompatActivity {
         eCedula.setEnabled(false);
         eMesa.setEnabled(false);
         eCodigo.setEnabled(false);
+        btnCarton.setEnabled(false);
+        btnPlegable.setEnabled(false);
         btnCancelarCaja.setEnabled(false);
         btnIngreTermiPunti.setEnabled(false);
 
@@ -92,7 +97,7 @@ public class IngreProTerPunti extends AppCompatActivity {
                 if(yaentre == 0){
                     if(codigoCaja.getText().toString().trim().equals("")){
                         toastError("Por favor escribir o escanear el codigo de barras");
-
+                        AudioError();
                     }else{
                         closeTecladoMovil();
                         verificarCodigo();
@@ -110,8 +115,9 @@ public class IngreProTerPunti extends AppCompatActivity {
         btnSalir.setOnClickListener(this::salir);
 
         btnIngreTermiPunti.setOnClickListener(v -> {
-            if (eCedula.getText().toString().equals("") || eMesa.getText().toString().equals("") || eCodigo.getText().toString().equals("")){
+            if (eCedula.getText().toString().equals("") || eMesa.getText().toString().equals("") || eCodigo.getText().toString().equals("") || txTNCaja.getText().toString().equals("")){
                 toastError("Campos sin llenar");
+                AudioError();
             }else{
                 if (eCedula.getText().toString().equals(nit_usuario)){
                     String mesa = eMesa.getText().toString().trim();
@@ -129,7 +135,11 @@ public class IngreProTerPunti extends AppCompatActivity {
                     String cantidad;
 
                     if (conversion.equals("0.5")){
-                        cantidad = "50";
+                        if(txTNCaja.getText().toString().equals(" 50 Libras")){
+                            cantidad = "50";
+                        }else{
+                            cantidad = "1";
+                        }
                     }else{
                         cantidad = "1";
                     }
@@ -155,24 +165,32 @@ public class IngreProTerPunti extends AppCompatActivity {
 
             }
         });
+
+        btnCarton.setOnClickListener(v -> txTNCaja.setText(" 50 Libras"));
+
+        btnPlegable.setOnClickListener(v -> txTNCaja.setText(" 1 Libra"));
     }
 
     public void reiniciar(){
         codigoCaja.setEnabled(true);
         codigoCaja.setText("");
         txtCreferencia.setText("");
+        txTNCaja.setText("");
         eCedula.setEnabled(false);
         eCedula.setText("");
         eMesa.setEnabled(false);
         eMesa.setText("");
         eCodigo.setEnabled(false);
         eCodigo.setText("");
+        btnCarton.setEnabled(false);
+        btnPlegable.setEnabled(false);
         btnCancelarCaja.setEnabled(false);
         btnIngreTermiPunti.setEnabled(false);
         codigoCaja.requestFocus();
         yaentre = 0;
     }
 
+    @SuppressLint("SetTextI18n")
     private void verificarCodigo() {
         conexion = new Conexion();
 
@@ -183,7 +201,16 @@ public class IngreProTerPunti extends AppCompatActivity {
 
         if (!descripcion.equals("") && !conversion.equals("")){
             encontrado = true;
+            if (conversion.equals("0.5")){
+                txTNCaja.setText("");
+                btnCarton.setEnabled(true);
+                btnPlegable.setEnabled(true);
+            }else{
+                txTNCaja.setText(" 1 Cartón");
+            }
         }
+
+
 
         if (encontrado){
             txtCreferencia.setText(descripcion);

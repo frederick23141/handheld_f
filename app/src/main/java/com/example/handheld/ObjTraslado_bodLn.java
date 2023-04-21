@@ -235,6 +235,8 @@ public class ObjTraslado_bodLn {
         }
 
         //For para sumar todas los valores de todas las referencias en una variable para el Encabe
+        //Se comenta el codigo debido a que no se guarda el valor de la transaccion
+        /*
         for(int i=0; i<listInfRerencias.size();i++){
             Double peso = listInfRerencias.get(i).getPeso();
             Double promedio =  listInfRerencias.get(i).getPromedio();
@@ -245,7 +247,7 @@ public class ObjTraslado_bodLn {
             }else{
                 vrTotalEncabezado = vrTotalEncabezado + (peso * promedio);
             }
-        }
+        }*/
 
         int swDoc = 16;
         String nit = "890900160";

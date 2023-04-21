@@ -11,6 +11,7 @@ import android.widget.Button;
 import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.example.handheld.atv.holder.adapters.listMesasRecepAdapter;
 import com.example.handheld.conexionDB.Conexion;
@@ -59,11 +60,8 @@ public class MesasRefePunti extends AppCompatActivity implements AdapterView.OnI
 
         consultarMesas();
 
-        btnVolver.setOnClickListener(v -> {
-            Intent intent = new Intent(MesasRefePunti.this,ResumenPunti.class);
-            intent.putExtra("nit_usuario",nit_persona);
-            startActivity(intent);
-        });
+        btnVolver.setOnClickListener(v -> finish());
+
     }
 
     //METODO CONSULTAR PEDIDOS
@@ -78,9 +76,7 @@ public class MesasRefePunti extends AppCompatActivity implements AdapterView.OnI
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
         String mesa = ListaMesasRecep.get(position).getMesa();
-        sql_refe = "select * from F_Recepcion_puntilleria where MESA = '"+ mesa +"' and REFERENCIA='"+ referencia +"' and RECEPCIONADO is null";
         Intent intent = new Intent(MesasRefePunti.this,RecepcionEmpaque.class);
-        intent.putExtra("sql",sql_refe);
         intent.putExtra("referencia",referencia);
         intent.putExtra("mesa",mesa);
         intent.putExtra("descripcion",descripcion);

@@ -252,7 +252,7 @@ public class MainActivity extends AppCompatActivity {
 
         //Al darle clic a este elemento en el treeview se abrira una nueva pantalla y se enviaran unos datos
         subChild5_1.setClickListener((node, value) -> {
-            Intent intent = new Intent(MainActivity.this, PedidoInventario.class);
+            Intent intent = new Intent(MainActivity.this, EscanerInventario.class);
             intent.putExtra("nit_usuario", cd);
             startActivity(intent);
         });

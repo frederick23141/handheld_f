@@ -44,6 +44,9 @@ public class listCajasRecepAdapter extends ArrayAdapter<CajasReceModelo> {
         TextView textodes = view.findViewById(R.id.txtDescripRefe);
         textodes.setText(modelo.getDescripcion());
 
+        TextView textogenerico = view.findViewById(R.id.txt_tncajas);
+        textogenerico.setText(modelo.getGenerico());
+
         TextView textocant = view.findViewById(R.id.txtNCajas);
         textocant.setText(modelo.getCantidad());
 

@@ -50,7 +50,7 @@ public class ResumenPunti extends AppCompatActivity implements AdapterView.OnIte
         btnCargarCajas.setOnClickListener(v -> {
             String sql;
             conexion = new Conexion();
-            sql = "select REFERENCIA, count(REFERENCIA) as cantidad from F_Recepcion_puntilleria where RECEPCIONADO is null group by REFERENCIA order by REFERENCIA";
+            sql = "select REFERENCIA, sum(CANTIDAD) as cantidad from F_Recepcion_puntilleria where RECEPCIONADO is null group by REFERENCIA order by REFERENCIA";
             ListaCajasRecep = conexion.obtenerCajasRecepcionar(ResumenPunti.this, sql);
             for(int i =0; i<ListaCajasRecep.size();i++){
                 String cod = ListaCajasRecep.get(i).getReferencia();
@@ -58,6 +58,13 @@ public class ResumenPunti extends AppCompatActivity implements AdapterView.OnIte
                 String refe = conexion.obtenerDescripcionCodigo(ResumenPunti.this,sqlDes);
                 ListaCajasRecep.get(i).setDescripcion(refe);
             }
+            for(int i =0; i<ListaCajasRecep.size();i++){
+                String cod = ListaCajasRecep.get(i).getReferencia();
+                String sqlDes = "select generico from referencias where codigo ='"+ cod +"'";
+                String generico = conexion.obtenerGenericoCodigo(ResumenPunti.this,sqlDes);
+                ListaCajasRecep.get(i).setGenerico(generico);
+            }
+
             listCajasRecepAdapter = new listCajasRecepAdapter(ResumenPunti.this,R.layout.item_row_respunti,ListaCajasRecep);
             listviewResumenPunti.setAdapter(listCajasRecepAdapter);
         });
@@ -68,7 +75,7 @@ public class ResumenPunti extends AppCompatActivity implements AdapterView.OnIte
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
         Intent intent = new Intent(ResumenPunti.this, MesasRefePunti.class);
 
-        String sql = "select MESA from F_Recepcion_puntilleria where REFERENCIA = '"+ ListaCajasRecep.get(position).getReferencia() +"' and RECEPCIONADO is null group by MESA";
+        String sql = "select MESA, SUM(CANTIDAD) as CANTIDAD from F_Recepcion_puntilleria where REFERENCIA = '"+ ListaCajasRecep.get(position).getReferencia() +"' and RECEPCIONADO is null group by MESA";
         intent.putExtra("sql",sql);
         intent.putExtra("referencia",ListaCajasRecep.get(position).getReferencia());
         intent.putExtra("descripcion",ListaCajasRecep.get(position).getDescripcion());

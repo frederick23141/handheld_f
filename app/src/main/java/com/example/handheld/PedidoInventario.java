@@ -26,6 +26,10 @@ import java.util.Calendar;
 
 public class PedidoInventario extends AppCompatActivity implements View.OnClickListener {
 
+    //SE OMITE ESTE CLASES PORQUE SE DECIDE QUE LA RECEPCION DE GALVANIZADO AHORA NO TENDRA
+    //CORTE Y MOSTRARA TODOS LOS ROLLOS QUE HAY POR RECOGER
+
+
     //se declaran las variables donde estaran los datos que vienen de la anterior clase
     String nit_usuario;
 

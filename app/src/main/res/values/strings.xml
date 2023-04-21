@@ -73,7 +73,8 @@
 
     //Strings Utilizados en los layouts "activity_ingre_pro_ter_punti"
     <string name="txtTReferencia">Referencia:</string>
-    <string name="txtTCaja">Cantidad: 1 Cartón</string>
+    <string name="txtTCaja">Cantidad: </string>
+    <string name="txTNCaja"> 1 Cartón </string>
     <string name="txtIngresar">INGRESAR</string>
     <string name="txtDocumento">Cedula: </string>
     <string name="txtTmesa">Mesa: </string>

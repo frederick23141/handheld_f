@@ -51,12 +51,12 @@ public class Conexion {
 
         try {
             Statement st = conexionBD("JJVDMSCIERREAGOSTO", context).createStatement();
-            ResultSet rs = st.executeQuery("SELECT nombres, nit FROM V_nom_personal_Activo_con_maquila " +
+            ResultSet rs = st.executeQuery("SELECT nombres, nit, centro FROM V_nom_personal_Activo_con_maquila " +
                     "WHERE nit = '" + cedula + "'");
             if (rs.next()){
-                persona = new PersonaModelo(rs.getString("nombres"), rs.getString("nit"));
+                persona = new PersonaModelo(rs.getString("nombres"), rs.getString("nit"), rs.getString("centro"));
             }else{
-                persona = new PersonaModelo("", "");
+                persona = new PersonaModelo("", "","");
             }
         }catch (Exception e){
             Toast.makeText(context, e.getMessage(), Toast.LENGTH_SHORT).show();
@@ -194,6 +194,22 @@ public class Conexion {
     }
 
     //Obtiene un dato
+    public String obtenerGenericoCodigo(Context context, String sql){
+        String generico = "";
+
+        try {
+            Statement st = conexionBD("JJVDMSCIERREAGOSTO", context).createStatement();
+            ResultSet rs = st.executeQuery(sql);
+            if (rs.next()){
+                generico = rs.getString("generico");
+            }
+        }catch (Exception e){
+            Toast.makeText(context, e.getMessage(), Toast.LENGTH_SHORT).show();
+        }
+        return generico;
+    }
+
+    //Obtiene un dato
     public String obtenerCodigoReferencias(Context context, String sql){
         String codigo = "";
 
@@ -215,7 +231,7 @@ public class Conexion {
 
         try {
             Statement st = conexionBD("JJVDMSCIERREAGOSTO", context).createStatement();
-            ResultSet rs = st.executeQuery("select descripcion from referencias where codigo='"+ referencia +"' and ref_anulada = 'N'");
+            ResultSet rs = st.executeQuery("select descripcion from referencias where codigo='"+ referencia +"' and ref_anulada = 'N' and grupo IN ('311','312')");
             if (rs.next()){
                 descripcion = rs.getString("descripcion");
             }
@@ -519,6 +535,7 @@ public class Conexion {
             while (rs.next()){
                 modelo = new MesasModelo();
                 modelo.setMesa(rs.getString("mesa"));
+                modelo.setCantidad(rs.getString("cantidad"));
                 mesas.add(modelo);
             }
         }catch (Exception e){
@@ -527,7 +544,7 @@ public class Conexion {
         return mesas;
     }
 
-    public List<GalvRecepcionModelo> obtenerGalvTerminado(Context context, String fecha_inicio, String fecha_final){
+    public List<GalvRecepcionModelo> obtenerGalvTerminado(Context context){
         List<GalvRecepcionModelo> galvTerminado = new ArrayList<>();
         GalvRecepcionModelo modelo;
 
@@ -535,7 +552,7 @@ public class Conexion {
             Statement st = conexionBD("JJVPRGPRODUCCION", context).createStatement();
             ResultSet rs = st.executeQuery("SELECT R.nro_orden,R.consecutivo_rollo as nro_rollo,S.final_galv,ref.descripcion,R.peso  \n" +
                                                 "FROM D_rollo_galvanizado_f R, D_orden_pro_galv_enc S,CORSAN.dbo.referencias ref,CORSAN.dbo.V_nom_personal_Activo_con_maquila ter \n" +
-                                                "where R.nro_orden = S.consecutivo_orden_G And ref.codigo = S.final_galv and ter.nit=R.nit_operario AND R.fecha_hora >= '"+ fecha_inicio +"' AND  R.fecha_hora  <= '"+ fecha_final +"' and R.no_conforme is null and R.anular is null and R.recepcionado is null and S.final_galv LIKE '33G%'\n" +
+                                                "where R.nro_orden = S.consecutivo_orden_G And ref.codigo = S.final_galv and ter.nit=R.nit_operario AND R.no_conforme is null and R.anular is null and R.recepcionado is null and S.final_galv LIKE '33G%'\n" +
                                                 "order by ref.descripcion");
             while (rs.next()){
                 modelo = new GalvRecepcionModelo();
@@ -559,12 +576,13 @@ public class Conexion {
 
         try {
             Statement st = conexionBD("JJVPRGPRODUCCION", context).createStatement();
-            ResultSet rs = st.executeQuery("select FECHA,REFERENCIA,MESA from F_Recepcion_puntilleria where MESA = '"+ mesa +"' and REFERENCIA='"+ referencia +"' and RECEPCIONADO is null");
+            ResultSet rs = st.executeQuery("select FECHA,REFERENCIA,MESA,CANTIDAD from F_Recepcion_puntilleria where MESA = '"+ mesa +"' and REFERENCIA='"+ referencia +"' and RECEPCIONADO is null order by cantidad desc");
             while (rs.next()){
                 modelo = new CajasRefeModelo();
                 modelo.setFecha(rs.getString("FECHA"));
                 modelo.setReferencia(rs.getString("REFERENCIA"));
                 modelo.setMesa(rs.getString("MESA"));
+                modelo.setCantidad(rs.getInt("CANTIDAD"));
                 cajasRefe.add(modelo);
             }
         }catch (Exception e){

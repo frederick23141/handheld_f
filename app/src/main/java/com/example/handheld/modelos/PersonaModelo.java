@@ -3,10 +3,12 @@ package com.example.handheld.modelos;
 public class PersonaModelo {
     String nombres;
     String nit;
+    String centro;
 
-    public PersonaModelo(String nombres, String nit) {
+    public PersonaModelo(String nombres, String nit, String centro) {
         this.nombres = nombres;
         this.nit = nit;
+        this.centro = centro;
     }
 
     public String getNombres() {
@@ -23,5 +25,13 @@ public class PersonaModelo {
 
     public void setNit(String nit) {
         this.nit = nit;
+    }
+
+    public String getCentro() {
+        return centro;
+    }
+
+    public void setCentro(String centro) {
+        this.centro = centro;
     }
 }

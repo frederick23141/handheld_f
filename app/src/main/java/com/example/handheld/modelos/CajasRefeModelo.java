@@ -4,15 +4,16 @@ public class CajasRefeModelo {
     String fecha;
     String referencia;
     String mesa;
+    Integer cantidad;
 
-    public CajasRefeModelo(String fecha, String referencia, String mesa) {
+    public CajasRefeModelo(String fecha, String referencia, String mesa, Integer cantidad) {
         this.fecha = fecha;
         this.referencia = referencia;
         this.mesa = mesa;
+        this.cantidad = cantidad;
     }
 
-    public CajasRefeModelo(){
-    }
+    public CajasRefeModelo(){}
 
     public String getFecha() {
         return fecha;
@@ -36,5 +37,13 @@ public class CajasRefeModelo {
 
     public void setMesa(String mesa) {
         this.mesa = mesa;
+    }
+
+    public Integer getCantidad() {
+        return cantidad;
+    }
+
+    public void setCantidad(Integer cantidad) {
+        this.cantidad = cantidad;
     }
 }

@@ -29,7 +29,7 @@ public class Ing_prod_ad {
                 throw ex;
             }
         } catch (SQLException ex) {
-            Toast.makeText(context, ex.getErrorCode(), Toast.LENGTH_SHORT).show();
+            Toast.makeText(context, ex.getMessage(), Toast.LENGTH_LONG).show();
         }
         return resp;
     }
