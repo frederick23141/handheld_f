@@ -174,10 +174,10 @@
                 android:id="@+id/btnCarton"
                 android:layout_width="150dp"
                 android:layout_height="130dp"
-                android:layout_marginRight="10dp"
+                android:layout_marginEnd="10dp"
                 android:layout_weight="1"
                 android:backgroundTint="#FFFFFF"
-                android:drawableRight="@drawable/carton"
+                android:drawableEnd="@drawable/carton"
                 android:scrollbarAlwaysDrawHorizontalTrack="false"
                 android:scrollbarAlwaysDrawVerticalTrack="false" />
 
@@ -185,10 +185,10 @@
                 android:id="@+id/btnPlegable"
                 android:layout_width="150dp"
                 android:layout_height="130dp"
-                android:layout_marginLeft="10dp"
+                android:layout_marginStart="10dp"
                 android:layout_weight="1"
                 android:backgroundTint="#FFFFFF"
-                android:drawableRight="@drawable/plegadiza" />
+                android:drawableEnd="@drawable/plegadiza" />
 
             <Space
                 android:layout_width="wrap_content"
@@ -360,7 +360,9 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:backgroundTint="#FF0000"
-                android:text="@string/btnCancelarCaja" />
+                android:text="@string/btnCancelarCaja"
+                android:textColor="#FFFFFF"
+                android:textStyle="bold" />
 
             <Space
                 android:layout_width="wrap_content"
@@ -374,7 +376,9 @@
                 android:layout_weight="1"
                 android:backgroundTint="#3CBF41"
                 android:drawableEnd="@drawable/cheque"
-                android:text="@string/btnIngreTermiPunti" />
+                android:text="@string/btnIngreTermiPunti"
+                android:textColor="#FFFFFF"
+                android:textStyle="bold" />
 
             <Space
                 android:layout_width="wrap_content"
@@ -401,7 +405,9 @@
                 android:drawableEnd="@drawable/salida"
                 android:onClick="salir"
                 android:text="@string/btnSalir"
+                android:textColor="#FFFFFF"
                 android:textSize="12sp"
+                android:textStyle="bold"
                 tools:ignore="UsingOnClickInXml" />
 
             <Space

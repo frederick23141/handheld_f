@@ -90,7 +90,9 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:backgroundTint="#02B2D1"
-                android:text="Cargar" />
+                android:text="Cargar"
+                android:textColor="#FFFFFF"
+                android:textStyle="bold" />
 
             <Space
                 android:layout_width="wrap_content"

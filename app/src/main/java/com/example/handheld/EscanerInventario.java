@@ -9,7 +9,6 @@ import android.media.AudioManager;
 import android.media.SoundPool;
 import android.os.Bundle;
 import android.os.Vibrator;
-import android.text.InputType;
 import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
@@ -144,28 +143,43 @@ public class EscanerInventario extends AppCompatActivity implements AdapterView.
             int leidos = (total - sleer);
             if(sleer==0 && total>0){
                 AlertDialog.Builder builder = new AlertDialog.Builder(EscanerInventario.this);
-                builder.setIcon(R.mipmap.ic_alert).
-                        setTitle("Atención, Se han leido: "+ leidos +" Rollos \n"+
-                                "Ingrese la cedula persona recepciona: ");
-                /*
-                        setMessage("Se han leido: "+ leidos +" Rollos \n" +
-                                "Se iniciara el translado solo con los rollos leidos! \n"+
-                                "Ingrese la cedula persona recepciona");*/
-
-                final EditText recepciona = new EditText(EscanerInventario.this);
-                recepciona.setInputType(InputType.TYPE_CLASS_NUMBER);
-                builder.setView(recepciona);
-
-                builder.setPositiveButton("Aceptar", (dialog, which) -> {
-                            try {
-                                realizarTransaccion();
-                            }catch (Exception e){
-                                toastError(e.getMessage());
-                            }
-                        }).setNegativeButton("Cancelar", (dialog, which) -> {
-                            dialog.cancel();
-                        });
+                View mView = getLayoutInflater().inflate(R.layout.alertdialog_cedularecepciona,null);
+                final EditText txtCedulaLogistica = mView.findViewById(R.id.txtCedulaLogistica);
+                TextView txtMrollos = mView.findViewById(R.id.txtMrollos);
+                txtMrollos.setText("Se han leido: "+ leidos +" Rollos");
+                Button btnAceptar = mView.findViewById(R.id.btnAceptar);
+                Button btnCancelar = mView.findViewById(R.id.btnCancelar);
+                builder.setView(mView);
                 AlertDialog alertDialog = builder.create();
+                btnAceptar.setOnClickListener(v12 -> {
+                    String CeLog = txtCedulaLogistica.getText().toString().trim();
+                    if (CeLog.equals("")){
+                        toastError("Ingresar la cedula de la persona que recepciona");
+                    }else{
+                        if(CeLog.equals(nit_usuario)){
+                            toastError("La Cedula de la persona que recepciona no puede ser igual al de la persona que entrega");
+                        }else{
+                            personaLogistica = conexion.obtenerPersona(EscanerInventario.this,CeLog );
+                            centro = personaLogistica.getCentro();
+                            if (centro.equals("3500")){
+                                try {
+                                    realizarTransaccion();
+                                    alertDialog.dismiss();
+                                }catch (Exception e){
+                                    toastError(e.getMessage());
+                                }
+                            }else{
+                                if (centro.equals("")){
+                                    toastError("Persona no encontrada");
+                                }else{
+                                    toastError("La cedula ingresada no pertenece a logistica!");
+                                }
+                            }
+                        }
+                    }
+                });
+                btnCancelar.setOnClickListener(v1 -> alertDialog.dismiss());
+                alertDialog.setCancelable(false);
                 alertDialog.show();
             }else{
                 if(sleer==0 && total==0){
@@ -187,42 +201,34 @@ public class EscanerInventario extends AppCompatActivity implements AdapterView.
                         Button btnCancelar = mView.findViewById(R.id.btnCancelar);
                         builder.setView(mView);
                         AlertDialog alertDialog = builder.create();
-                        btnAceptar.setOnClickListener(new View.OnClickListener() {
-                            @Override
-                            public void onClick(View v) {
-                                String CeLog = txtCedulaLogistica.getText().toString().trim();
-                                if (CeLog.equals("")){
-                                    toastError("Ingresar la cedula de la persona que recepciona");
+                        btnAceptar.setOnClickListener(v12 -> {
+                            String CeLog = txtCedulaLogistica.getText().toString().trim();
+                            if (CeLog.equals("")){
+                                toastError("Ingresar la cedula de la persona que recepciona");
+                            }else{
+                                if(CeLog.equals(nit_usuario)){
+                                    toastError("La Cedula de la persona que recepciona no puede ser igual al de la persona que entrega");
                                 }else{
-                                    if(CeLog.equals(nit_usuario)){
-                                        toastError("La Cedula de la persona que recepciona no puede ser igual al de la persona que entrega");
+                                    personaLogistica = conexion.obtenerPersona(EscanerInventario.this,CeLog );
+                                    centro = personaLogistica.getCentro();
+                                    if (centro.equals("3500")){
+                                        try {
+                                            realizarTransaccion();
+                                            alertDialog.dismiss();
+                                        }catch (Exception e){
+                                            toastError(e.getMessage());
+                                        }
                                     }else{
-                                        personaLogistica = conexion.obtenerPersona(EscanerInventario.this,CeLog );
-                                        centro = personaLogistica.getCentro();
-                                        if (centro.equals("3500")){
-                                            try {
-                                                realizarTransaccion();
-                                                alertDialog.dismiss();
-                                            }catch (Exception e){
-                                                toastError(e.getMessage());
-                                            }
+                                        if (centro.equals("")){
+                                            toastError("Persona no encontrada");
                                         }else{
-                                            if (centro.equals("")){
-                                                toastError("Persona no encontrada");
-                                            }else{
-                                                toastError("La cedula ingresada no pertenece a logistica!");
-                                            }
+                                            toastError("La cedula ingresada no pertenece a logistica!");
                                         }
                                     }
                                 }
                             }
                         });
-                        btnCancelar.setOnClickListener(new View.OnClickListener() {
-                            @Override
-                            public void onClick(View v) {
-                                alertDialog.dismiss();
-                            }
-                        });
+                        btnCancelar.setOnClickListener(v1 -> alertDialog.dismiss());
                         alertDialog.setCancelable(false);
                         alertDialog.show();
 
@@ -260,7 +266,7 @@ public class EscanerInventario extends AppCompatActivity implements AdapterView.
             String nro_orden = ListaGalvRollosRecep.get(i).getNro_orden();
             String nro_rollo = ListaGalvRollosRecep.get(i).getNro_rollo();
 
-            String sql_rollo= "UPDATE D_rollo_galvanizado_f SET recepcionado='SI', nit_recepcionado='"+ nit_usuario +"', fecha_recepcion='"+ fechaActualString +"', nit_entrega='"+ personaLogistica +"' WHERE nro_orden='"+ nro_orden +"' AND consecutivo_rollo='"+nro_rollo+"'";
+            String sql_rollo= "UPDATE D_rollo_galvanizado_f SET recepcionado='SI', nit_recepcionado='"+ nit_usuario +"', fecha_recepcion='"+ fechaActualString +"', nit_entrega='"+ personaLogistica.getNit() +"' WHERE nro_orden='"+ nro_orden +"' AND consecutivo_rollo='"+nro_rollo+"'";
 
             try {
                 //Se añade el sql a la lista
