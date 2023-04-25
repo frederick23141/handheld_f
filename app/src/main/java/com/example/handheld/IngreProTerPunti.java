@@ -18,6 +18,7 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.handheld.ClasesOperativas.objOperacionesDb;
 import com.example.handheld.conexionDB.Conexion;
 
 import java.sql.SQLException;
@@ -40,7 +41,7 @@ public class IngreProTerPunti extends AppCompatActivity {
     //Se inicializa variables necesarias en la clase
     int yaentre = 0;
     String codCaja, descripcion, conversion;
-    objOperacionesDb objOperacionesDb = new objOperacionesDb();
+    com.example.handheld.ClasesOperativas.objOperacionesDb objOperacionesDb = new objOperacionesDb();
 
     //Se inicializa los varibles para el sonido de error
     SoundPool sp;

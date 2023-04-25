@@ -1,4 +1,4 @@
-package com.example.handheld;
+package com.example.handheld.ClasesOperativas;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
@@ -11,7 +11,7 @@ import java.util.Calendar;
 
 public class Obj_ordenprodLn {
     static Conexion conexion = new Conexion();
-    static objOperacionesDb objOperacionesDb = new objOperacionesDb();
+    static com.example.handheld.ClasesOperativas.objOperacionesDb objOperacionesDb = new objOperacionesDb();
     public static String mover_consecutivo(String tipo, Context context) {
         String numeroString;
         int numero = 0;

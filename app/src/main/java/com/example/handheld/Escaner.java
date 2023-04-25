@@ -22,6 +22,12 @@ import androidx.activity.result.ActivityResultLauncher;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.example.handheld.ClasesOperativas.CaptureActivityPortraint;
+import com.example.handheld.ClasesOperativas.Gestion_alambronLn;
+import com.example.handheld.ClasesOperativas.Ing_prod_ad;
+import com.example.handheld.ClasesOperativas.ObjTraslado_bodLn;
+import com.example.handheld.ClasesOperativas.Obj_ordenprodLn;
+import com.example.handheld.ClasesOperativas.objOperacionesDb;
 import com.example.handheld.atv.holder.adapters.listescanerAdapter;
 import com.example.handheld.conexionDB.Conexion;
 import com.example.handheld.databinding.ActivityEscanerBinding;
@@ -62,7 +68,7 @@ public class Escaner extends AppCompatActivity implements AdapterView.OnItemClic
     //Se declaran los objetos de otras clases necesarias
     Gestion_alambronLn obj_gestion_alambronLn = new Gestion_alambronLn();
     ObjTraslado_bodLn objTraslado_bodLn = new ObjTraslado_bodLn();
-    objOperacionesDb objOperacionesDb = new objOperacionesDb();
+    com.example.handheld.ClasesOperativas.objOperacionesDb objOperacionesDb = new objOperacionesDb();
     Ing_prod_ad ing_prod_ad = new Ing_prod_ad();
 
     //se declaran las variables donde estaran los datos que vienen de la anterior clase

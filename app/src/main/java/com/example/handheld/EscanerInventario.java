@@ -22,6 +22,9 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.handheld.ClasesOperativas.Ing_prod_ad;
+import com.example.handheld.ClasesOperativas.ObjTraslado_bodLn;
+import com.example.handheld.ClasesOperativas.Obj_ordenprodLn;
 import com.example.handheld.atv.holder.adapters.listGalvTerminadoAdapter;
 import com.example.handheld.conexionDB.Conexion;
 import com.example.handheld.modelos.GalvRecepcionModelo;
@@ -63,7 +66,6 @@ public class EscanerInventario extends AppCompatActivity implements AdapterView.
     String centro = "";
     PersonaModelo personaLogistica;
     ObjTraslado_bodLn objTraslado_bodLn = new ObjTraslado_bodLn();
-    //objOperacionesDb objOperacionesDb = new objOperacionesDb();
     Ing_prod_ad ing_prod_ad = new Ing_prod_ad();
     List<GalvRecepcionadoRollosModelo> ListarefeRecepcionados= new ArrayList<>();
 
@@ -113,21 +115,24 @@ public class EscanerInventario extends AppCompatActivity implements AdapterView.
         codigoGalva.requestFocus();
 
         /////////////////////////////////////////////////////////////////////////////////////////////
-        //Se programa para que al presionar enter en el edit text haga el proceso
+        //Se programa para que al presionar (enter) en el EditText inicie el proceso
         codigoGalva.setOnKeyListener((v, keyCode, event) -> {
             if (keyCode == KeyEvent.KEYCODE_ENTER) {
                 if(yaentre == 0){
                     if(codigoGalva.getText().toString().equals("")){
                         toastError("Por favor escribir o escanear el codigo de barras");
                     }else{
+                        //Ocultamos el teclado de la pantalla
                         closeTecladoMovil();
                         try {
+                            //Verificamos el codigo
                             codigoIngresado();
                         } catch (SQLException e) {
                             e.printStackTrace();
                         }
                     }
                 }else{
+                    //Cargamos de nuevo las varibles y cambiamos "yaentre" a 1 ó 0
                     cargarNuevo();
                 }
                 return true;
@@ -135,13 +140,20 @@ public class EscanerInventario extends AppCompatActivity implements AdapterView.
             return false;
         });
 
+        /////////////////////////////////////////////////////////////////////////////////////////////
+        //Se programa para que al presionar el boton se salga del programa
         btnCancelarTrans.setOnClickListener(this::salir);
 
+        /////////////////////////////////////////////////////////////////////////////////////////////
+        //Se programa para que al presionar el boton inicie el proceso de transacción
         btnTransaGalv.setOnClickListener(v -> {
             int sleer = Integer.parseInt(txtTotalSinLeer.getText().toString());
             int total = Integer.parseInt(txtTotal.getText().toString());
             int leidos = (total - sleer);
+            //Verificamos que la cantidad de rollos sin leer sea 0 y si hubiera produccion en
+            //galvanizado que leer
             if(sleer==0 && total>0){
+                //Mostramos el mensaje para logistica
                 AlertDialog.Builder builder = new AlertDialog.Builder(EscanerInventario.this);
                 View mView = getLayoutInflater().inflate(R.layout.alertdialog_cedularecepciona,null);
                 final EditText txtCedulaLogistica = mView.findViewById(R.id.txtCedulaLogistica);
@@ -159,10 +171,13 @@ public class EscanerInventario extends AppCompatActivity implements AdapterView.
                         if(CeLog.equals(nit_usuario)){
                             toastError("La Cedula de la persona que recepciona no puede ser igual al de la persona que entrega");
                         }else{
+                            //Verificamos el numero de documentos de la persona en la base da datos
                             personaLogistica = conexion.obtenerPersona(EscanerInventario.this,CeLog );
                             centro = personaLogistica.getCentro();
+                            //Verificamos que la persona sea de logistica
                             if (centro.equals("3500")){
                                 try {
+                                    //Iniciamos la transacción
                                     realizarTransaccion();
                                     alertDialog.dismiss();
                                 }catch (Exception e){
@@ -238,6 +253,9 @@ public class EscanerInventario extends AppCompatActivity implements AdapterView.
         });
     }
 
+    /////////////////////////////////////////////////////////////////////////////////////////////
+    //Funcion que genera todas las listas de consultas en la base de datos, las ejecuta generando
+    //Una TRB1 en el sistema de bodega 2 a bodega 3 con los rollos leidos
     private void realizarTransaccion() {
         //Creamos una lista para almacenar todas las consultas que se realizaran en la base de datos
         List<Object> listTransactionGal = new ArrayList<>();
@@ -277,14 +295,17 @@ public class EscanerInventario extends AppCompatActivity implements AdapterView.
         }
 
         if (listTransactionGal.size()>0){
+            //Ejecutamos la consultas que llenan los campos de recepción
             if (ing_prod_ad.ExecuteSqlTransaction(listTransactionGal, "JJVPRGPRODUCCION", EscanerInventario.this)){
                 ListarefeRecepcionados = conexion.galvRefeRecepcionados(EscanerInventario.this,fechaActualString, monthActualString, yearActualString);
                 numero_transaccion = Integer.valueOf(Obj_ordenprodLn.mover_consecutivo("TRB1", EscanerInventario.this));
                 listTransaccionBodega = traslado_bodega(ListarefeRecepcionados, calendar);
+                //Ejecutamos la lista de consultas para hacer la TRB1
                 if (ing_prod_ad.ExecuteSqlTransaction(listTransaccionBodega, "JJVDMSCIERREAGOSTO", EscanerInventario.this)){
                     toastAcierto("Transaccion Realizada con Exito! --" + numero_transaccion);
                     consultarGalvTerminado();
                 }else{
+                    //Si la consulta falla revertimos la llenada de campos de recepcion en la base de datos
                     for(int i=0;i<ListaGalvRollosRecep.size();i++){
                         String nro_orden = ListaGalvRollosRecep.get(i).getNro_orden();
                         String nro_rollo = ListaGalvRollosRecep.get(i).getNro_rollo();
@@ -308,6 +329,9 @@ public class EscanerInventario extends AppCompatActivity implements AdapterView.
         }
     }
 
+    /////////////////////////////////////////////////////////////////////////////////////////////
+    //Funcion que genera la lista de consultas que modifican las tablas en la base da datos de Corsan
+    //Para generar la transacción
     private List<Object> traslado_bodega(List<GalvRecepcionadoRollosModelo> ListarefeRecepcionados, Calendar calendar){
         List<Object> listSql;
         @SuppressLint("SimpleDateFormat")
@@ -320,17 +344,25 @@ public class EscanerInventario extends AppCompatActivity implements AdapterView.
         return listSql;
     }
 
+    /////////////////////////////////////////////////////////////////////////////////////////////
+    //Metodo que consulta los rollos que hay en producción que no se han recepcionado e
+    //inicializa el listview
     private void consultarGalvTerminado() {
         conexion = new Conexion();
+        //Inicializamos la lista de los rollos escaneados
         ListaGalvRollosRecep = new ArrayList<>();
 
+        //Consultamos los rollos de producción que no se han recepcionado en la base de datos
         ListaGalvTerminado = conexion.obtenerGalvTerminado(getApplication());
+        //Enviamos la lista vacia de rollos escaneados al listview
         GalvTerminadoAdapter = new listGalvTerminadoAdapter(EscanerInventario.this,R.layout.item_row_galvterminado,ListaGalvRollosRecep);
         listviewGalvTerminado.setAdapter(GalvTerminadoAdapter);
 
+        //Enviamos la cantidad de rollos de producción que no se han recepcionado al TextView
         String totalRollos = String.valueOf(ListaGalvTerminado.size());
         txtTotal.setText(totalRollos);
 
+        //Contamos los rollos leidos y sin leer para mostrarlos en los TextView
         contarSinLeer();
         contarLeidos();
     }
@@ -346,6 +378,8 @@ public class EscanerInventario extends AppCompatActivity implements AdapterView.
     }
 
     /////////////////////////////////////////////////////////////////////////////////////////////
+    //Metodo que verifica que el codigo escaneado se encuentre en la lista de rollos de producción
+    //No recepcionados
     private void codigoIngresado() throws SQLException {
         consecutivo = codigoGalva.getText().toString().trim();
         boolean encontrado = false;
@@ -357,18 +391,26 @@ public class EscanerInventario extends AppCompatActivity implements AdapterView.
                 position = i;
             }
         }
+        //Si el rollos es encontrado o no se muestra mensaje
         if (encontrado){
+            //Si el rollo encontrado esta pintado de verde ya fue leido anteriormente
             if(ListaGalvTerminado.get(position).getColor().equals("GREEN")){
                 toastError("Rollo Ya leido");
                 AudioError();
                 cargarNuevo();
             }else{
+                //Copiamos el rollo encontrado de la lista de producción
                 galvRecepcionModelo = ListaGalvTerminado.get(position);
+                //Agregamos la copia a la de los rollos escaneados
                 ListaGalvRollosRecep.add(galvRecepcionModelo);
+                //Pintamos el rollo de verde en la lista de produccion para no poder volverlo a leer
                 pintarRollo(position);
+                //Contamos los rollos leidos y no leidos
                 contarSinLeer();
                 contarLeidos();
+                //Mostramos mensaje
                 toastAcierto("Rollo encontrado");
+                //Inicializamos la lectura
                 cargarNuevo();
             }
         }else{
@@ -400,6 +442,9 @@ public class EscanerInventario extends AppCompatActivity implements AdapterView.
 
     }
      */
+
+    /////////////////////////////////////////////////////////////////////////////////////////////
+    //Metodo que cuenta los rollos que faltan por leer y muestra la cantidad en el TextView
     @SuppressLint("SetTextI18n")
     private void contarSinLeer() {
         int sinLeer = 0;
@@ -413,6 +458,8 @@ public class EscanerInventario extends AppCompatActivity implements AdapterView.
         txtTotalSinLeer.setText(Integer.toString(sinLeer));
     }
 
+    /////////////////////////////////////////////////////////////////////////////////////////////
+    //Metodo que cuenta los rollos leeidos y muestra la cantidad en el TextView
     @SuppressLint("SetTextI18n")
     private void contarLeidos() {
         int Leido = 0;
@@ -426,6 +473,8 @@ public class EscanerInventario extends AppCompatActivity implements AdapterView.
         txtRollosLeidos.setText(Integer.toString(Leido));
     }
 
+    /////////////////////////////////////////////////////////////////////////////////////////////
+    //Metodo que borra el codigo del EditText y cambia la variable "yaentre"
     private void cargarNuevo() {
         codigoGalva.setText("");
         if (yaentre == 0){
@@ -436,6 +485,9 @@ public class EscanerInventario extends AppCompatActivity implements AdapterView.
         }
     }
 
+    /////////////////////////////////////////////////////////////////////////////////////////////
+    //Metodo que pinta el rollo encontrado en la lista de producción y muestra en el listView la lista
+    //De rollos leidos
     private void pintarRollo(int posicion) {
         ListaGalvTerminado.get(posicion).setColor("GREEN");
         GalvTerminadoAdapter = new listGalvTerminadoAdapter(EscanerInventario.this,R.layout.item_row_galvterminado,ListaGalvRollosRecep);
@@ -485,6 +537,8 @@ public class EscanerInventario extends AppCompatActivity implements AdapterView.
         toast.show();
     }
 
+    /////////////////////////////////////////////////////////////////////////////////////////////
+    //Metodo que reproduce sonido y hace vibrar el dispositivo
     public void AudioError(){
         sp.play(sonido_de_Reproduccion,100,100,1,0,0);
         vibrator.vibrate(2000);

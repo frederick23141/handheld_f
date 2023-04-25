@@ -14,6 +14,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.handheld.ClasesOperativas.MyHolder;
 import com.example.handheld.atv.model.TreeNode;
 import com.example.handheld.atv.view.AndroidTreeView;
 import com.example.handheld.conexionDB.Conexion;

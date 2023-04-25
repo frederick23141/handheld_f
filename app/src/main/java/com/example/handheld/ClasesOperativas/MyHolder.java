@@ -1,4 +1,4 @@
-package com.example.handheld;
+package com.example.handheld.ClasesOperativas;
 
 
 import android.annotation.SuppressLint;
@@ -8,6 +8,7 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.example.handheld.R;
 import com.example.handheld.atv.model.TreeNode;
 
 
