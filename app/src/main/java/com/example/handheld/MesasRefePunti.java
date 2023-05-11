@@ -11,7 +11,6 @@ import android.widget.Button;
 import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.example.handheld.atv.holder.adapters.listMesasRecepAdapter;
 import com.example.handheld.conexionDB.Conexion;
@@ -34,8 +33,6 @@ public class MesasRefePunti extends AppCompatActivity implements AdapterView.OnI
     Conexion conexion;
 
     String sql, referencia, descripcion, nit_persona;
-
-    String sql_refe;
 
     @SuppressLint("MissingInflatedId")
     @Override
@@ -64,7 +61,7 @@ public class MesasRefePunti extends AppCompatActivity implements AdapterView.OnI
 
     }
 
-    //METODO CONSULTAR PEDIDOS
+    //METODO CONSULTAR PRODUCCIÓN DE UNA REFERENCIA EN LAS MESAS
     public void consultarMesas(){
         conexion = new Conexion();
 

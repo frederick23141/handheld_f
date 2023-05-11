@@ -5,7 +5,6 @@ import android.content.Context;
 import android.os.Build;
 import android.widget.Toast;
 
-import com.example.handheld.ClasesOperativas.Obj_ordenprodLn;
 import com.example.handheld.conexionDB.Conexion;
 import com.example.handheld.modelos.EmpRecepcionadoCajasModelo;
 import com.example.handheld.modelos.GalvRecepcionadoRollosModelo;

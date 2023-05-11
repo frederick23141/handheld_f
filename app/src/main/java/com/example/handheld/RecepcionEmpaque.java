@@ -133,11 +133,14 @@ public class RecepcionEmpaque extends AppCompatActivity {
             public void onClick(View v) {
                 int numFisi = Integer.parseInt(txtCajasFisiEmpa.getText().toString());
                 numFisi = numFisi + 50;
-                txtCajasFisiEmpa.setText(String.valueOf(numFisi));
-                toastAcierto("Codigo Leido");
-                codigoCajaRecep.setEnabled(true);
-                botones(false);
-                cargarNuevo();
+                int numSiste = Integer.parseInt(txtCajasSisteEmpa.getText().toString());
+                if(numFisi>numSiste){
+                    toastError("No es posible leer una caja más");
+                }else{
+                    txtCajasFisiEmpa.setText(String.valueOf(numFisi));
+                    toastAcierto("Codigo Leido");
+                    reiniciar();
+                }
             }
         });
 
@@ -146,10 +149,14 @@ public class RecepcionEmpaque extends AppCompatActivity {
             public void onClick(View v) {
                 int numFisi = Integer.parseInt(txtCajasFisiEmpa.getText().toString());
                 numFisi++;
-                txtCajasFisiEmpa.setText(String.valueOf(numFisi));
-                toastAcierto("Codigo Leido");
-                codigoCajaRecep.setEnabled(true);
-                reiniciar();
+                int numSiste = Integer.parseInt(txtCajasSisteEmpa.getText().toString());
+                if(numFisi>numSiste){
+                    toastError("No es posible leer una caja más");
+                }else{
+                    txtCajasFisiEmpa.setText(String.valueOf(numFisi));
+                    toastAcierto("Codigo Leido");
+                    reiniciar();
+                }
             }
         });
 
@@ -213,18 +220,21 @@ public class RecepcionEmpaque extends AppCompatActivity {
         int numFisi = Integer.parseInt(txtCajasFisiEmpa.getText().toString());
 
         //se adicionan los campos recepcionado, nit_recepcionado y fecha_recepcionado a la tabla
-        for(int i=0;i<numFisi;i++){
+        for(int i=0;i<ListaCajasRefe.size();i++){
             String referencia = ListaCajasRefe.get(i).getReferencia();
             String fecha = ListaCajasRefe.get(i).getFecha();
             String mesa = ListaCajasRefe.get(i).getMesa();
+            Integer cantidad = ListaCajasRefe.get(i).getCantidad();
+            if((numFisi-cantidad)>=0){
+                String sql_carton= "UPDATE F_Recepcion_puntilleria SET RECEPCIONADO='SI', NIT_RECEPCIONA='"+ nit_persona +"', fecha_recepcionado='"+ fechaActualString +"' WHERE MESA='"+ mesa +"' AND FECHA='"+fecha+"' AND REFERENCIA='"+ referencia +"' ";
 
-            String sql_carton= "UPDATE F_Recepcion_puntilleria SET RECEPCIONADO='SI', NIT_RECEPCIONA='"+ nit_persona +"', fecha_recepcionado='"+ fechaActualString +"' WHERE MESA='"+ mesa +"' AND FECHA='"+fecha+"' AND REFERENCIA='"+ referencia +"' ";
-
-            try {
-                //Se añade el sql a la lista
-                listTransactionEmp.add(sql_carton);
-            }catch (Exception e){
-                Toast.makeText(RecepcionEmpaque.this, e.getMessage(), Toast.LENGTH_SHORT).show();
+                try {
+                    //Se añade el sql a la lista
+                    listTransactionEmp.add(sql_carton);
+                }catch (Exception e){
+                    Toast.makeText(RecepcionEmpaque.this, e.getMessage(), Toast.LENGTH_SHORT).show();
+                }
+                numFisi = numFisi - cantidad;
             }
         }
 

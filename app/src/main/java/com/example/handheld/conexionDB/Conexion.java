@@ -67,14 +67,12 @@ public class Conexion {
     //Obtiene un dato
     public String obtenerIdAlamImport(Context context, String sql){
         String id = "";
-
         try {
             Statement st = conexionBD("JJVPRGPRODUCCION", context).createStatement();
             ResultSet rs = st.executeQuery(sql);
             if (rs.next()){
                 id = rs.getString("id");
             }
-
         }catch (Exception e){
             Toast.makeText(context, e.getMessage(), Toast.LENGTH_SHORT).show();
         }
@@ -226,7 +224,7 @@ public class Conexion {
     }
 
     //Obtiene un dato
-    public String obtenerDescripciónReferencias(Context context, String referencia){
+    public String obtenerDescripcionReferencias(Context context, String referencia){
         String descripcion = "";
 
         try {
@@ -636,6 +634,8 @@ public class Conexion {
         return cajasRecep;
     }
 
+    /////////////////////////////////////////////////////////////////////////////////////////////////
+    //
     public List<GalvRecepcionadoRollosModelo> galvRefeRecepcionados(Context context, String fecha_recepcion, String month, String year){
         List<GalvRecepcionadoRollosModelo> refeRecepcionados = new ArrayList<>();
         GalvRecepcionadoRollosModelo modelo;

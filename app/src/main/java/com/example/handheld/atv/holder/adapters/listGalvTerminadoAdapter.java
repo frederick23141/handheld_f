@@ -44,6 +44,7 @@ public class listGalvTerminadoAdapter extends ArrayAdapter<GalvRecepcionModelo> 
 
         LinearLayout linearLayout = view.findViewById(R.id.ll_galva);
 
+        //Agrega el color de fondo del linearLayout
         String color = modelo.getColor();
         if (color.equals("RED")){
             linearLayout.setBackgroundTintList(ColorStateList.valueOf(Color.RED));

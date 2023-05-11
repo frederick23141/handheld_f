@@ -196,7 +196,7 @@ public class IngreProTerPunti extends AppCompatActivity {
         conexion = new Conexion();
 
         codCaja = codigoCaja.getText().toString().trim();
-        descripcion = conexion.obtenerDescripciónReferencias(IngreProTerPunti.this,codCaja);
+        descripcion = conexion.obtenerDescripcionReferencias(IngreProTerPunti.this,codCaja);
         conversion = conexion.obtenerConversionReferencias(IngreProTerPunti.this,codCaja);
         boolean encontrado = false;
 

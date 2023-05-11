@@ -226,6 +226,7 @@ public class EscanerInventario extends AppCompatActivity implements AdapterView.
                                 }else{
                                     personaLogistica = conexion.obtenerPersona(EscanerInventario.this,CeLog );
                                     centro = personaLogistica.getCentro();
+                                    //Verificamos que la persona pertenezca al centro de logistica
                                     if (centro.equals("3500")){
                                         try {
                                             realizarTransaccion();
@@ -233,6 +234,7 @@ public class EscanerInventario extends AppCompatActivity implements AdapterView.
                                         }catch (Exception e){
                                             toastError(e.getMessage());
                                         }
+                                        closeTecladoMovil();
                                     }else{
                                         if (centro.equals("")){
                                             toastError("Persona no encontrada");
@@ -263,6 +265,8 @@ public class EscanerInventario extends AppCompatActivity implements AdapterView.
         List<Object> listTransaccionBodega;
         //Lista donde revertimos la primer consulta si el segundo proceso no se realiza bien
         List<Object> listTransactionError = new ArrayList<>();
+        //Lista donde agregamos las consultas que agrearan el campo trb1
+        List<Object> listTransactionTrb1 = new ArrayList<>();
 
         // Obtén la fecha y hora actual
         Date fechaActual = new Date();
@@ -302,8 +306,23 @@ public class EscanerInventario extends AppCompatActivity implements AdapterView.
                 listTransaccionBodega = traslado_bodega(ListarefeRecepcionados, calendar);
                 //Ejecutamos la lista de consultas para hacer la TRB1
                 if (ing_prod_ad.ExecuteSqlTransaction(listTransaccionBodega, "JJVDMSCIERREAGOSTO", EscanerInventario.this)){
-                    toastAcierto("Transaccion Realizada con Exito! --" + numero_transaccion);
-                    consultarGalvTerminado();
+                    for(int u=0;u<ListaGalvRollosRecep.size();u++){
+                        String nro_orden = ListaGalvRollosRecep.get(u).getNro_orden();
+                        String nro_rollo = ListaGalvRollosRecep.get(u).getNro_rollo();
+                        String sql_trb1= "UPDATE D_rollo_galvanizado_f SET trb1="+ numero_transaccion +" WHERE nro_orden='"+ nro_orden +"' AND consecutivo_rollo='"+nro_rollo+"'";
+                        try {
+                            //Se añade el sql a la lista
+                            listTransactionTrb1.add(sql_trb1);
+                        }catch (Exception e){
+                            Toast.makeText(EscanerInventario.this, e.getMessage(), Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                    if(ing_prod_ad.ExecuteSqlTransaction(listTransactionTrb1, "JJVPRGPRODUCCION", EscanerInventario.this)){
+                        consultarGalvTerminado();
+                        toastAcierto("Transaccion Realizada con Exito! --" + numero_transaccion);
+                    }else{
+                        toastError("Problemas, No se realizó correctamente la transacción!");
+                    };
                 }else{
                     //Si la consulta falla revertimos la llenada de campos de recepcion en la base de datos
                     for(int i=0;i<ListaGalvRollosRecep.size();i++){
