@@ -491,8 +491,8 @@ public class Escaner extends AppCompatActivity implements AdapterView.OnItemClic
             Toast.makeText(Escaner.this, e.getMessage(), Toast.LENGTH_SHORT).show();
         }
 
-        if (ing_prod_ad.ExecuteSqlTransaction(listTransaccion_corsan, "CORSAN", Escaner.this)){
-            if (ing_prod_ad.ExecuteSqlTransaction(listTransaccion_prod, "PRGPRODUCCION", Escaner.this)){
+        if (ing_prod_ad.ExecuteSqlTransaction(listTransaccion_corsan, "JJVDMSCIERREAGOSTO", Escaner.this)){
+            if (ing_prod_ad.ExecuteSqlTransaction(listTransaccion_prod, "JJVPRGPRODUCCION", Escaner.this)){
                 addRollo(num_importacion, consecutivo, gPeso, gNum_rollo, gDeta, gNit_prov, gTipo);
                 etCodigo.setEnabled(true);
                 leer_nuevo();
@@ -501,12 +501,14 @@ public class Escaner extends AppCompatActivity implements AdapterView.OnItemClic
                 toastAcierto("Transaccion Realizada con Exito! - "+ gTipo +": " + numero_transaccion);
             }else{
                 toastError("Problemas, No se realizó correctamente la transacción!");
+                etCodigo.setEnabled(true);
                 leer_nuevo();
                 resp = false;
             }
 
         }else{
             toastError("Error al realizar la transacción!");
+            etCodigo.setEnabled(true);
             leer_nuevo();
             resp = false;
         }
