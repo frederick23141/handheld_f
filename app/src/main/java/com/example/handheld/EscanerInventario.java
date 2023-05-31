@@ -359,7 +359,7 @@ public class EscanerInventario extends AppCompatActivity implements AdapterView.
         String usuario = nit_usuario;
         String notas = "MOVIL fecha:" + fecha + " usuario:" + usuario;
 
-        listSql = objTraslado_bodLn.listaTrasladoBodegaGalv(ListarefeRecepcionados,numero_transaccion, 2, 3, calendar, notas, usuario, "TRB1", "11",EscanerInventario.this);
+        listSql = objTraslado_bodLn.listaTrasladoBodegaGalv(ListarefeRecepcionados,numero_transaccion, 17, 3, calendar, notas, usuario, "TRB1", "30",EscanerInventario.this);
         return listSql;
     }
 
