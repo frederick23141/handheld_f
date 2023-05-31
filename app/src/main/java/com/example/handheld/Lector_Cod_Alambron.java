@@ -153,7 +153,6 @@ public class Lector_Cod_Alambron extends AppCompatActivity {
 
     //Metodo para Validacion inicial de requisicion
     private boolean validar_requisicion() {
-       //conexion = new Conexion();
         String mensaje = "";
         boolean resp = false;
         nit_usuario = getIntent().getStringExtra("nit_usuario");
@@ -193,7 +192,7 @@ public class Lector_Cod_Alambron extends AppCompatActivity {
     }
 
 
-    //Se crea el metoto para crear e iniciar la Requisicion
+    //Se crea el metodo para crear e iniciar la Requisicion
 
     private boolean iniciarRequisicion() throws SQLException {
         conexion = new Conexion();
@@ -216,16 +215,14 @@ public class Lector_Cod_Alambron extends AppCompatActivity {
 
 
 
-    //Se crea el Metodo llamar los metodos de validarrequisicion e inciarrequisicion
+    //Se crea el Metodo para hacer el llamado de los metodos de validarrequisicion e inciarrequisicion
     private void validarYCrearRequisicion() throws SQLException {
         if (validar_requisicion()) {
             if (iniciarRequisicion()) {
                 toastAcierto("Requisición creada con éxito");
-                //Toast.makeText(getApplicationContext(), "Requisición creada con éxito", Toast.LENGTH_SHORT).show();
                 continua();//Si pasa correctamente se abre la siguiente ventana
                 btnContinuar.setEnabled(false);
             } else {
-                //Toast.makeText(getApplicationContext(), "Error al crear la requisición", Toast.LENGTH_SHORT).show();
                 toastError("Error al crear la requisición");
             }
         }
@@ -240,6 +237,7 @@ public class Lector_Cod_Alambron extends AppCompatActivity {
         verificarTransaccionesPendientes(nit_usuario);
         if(requisicionesPendientes.isEmpty()){
             toastAcierto("Se iniciara un nuevo proceso de Descargue de Alambron");
+            eCantRollos.setText("");
         }
         else{
             toastAlert("Existe un descargue de Alambron incompleto, se cargaran los datos para terminar el proceso");
@@ -279,13 +277,9 @@ public class Lector_Cod_Alambron extends AppCompatActivity {
             System.out.println(consecutivo);//imprimimos todos los datos de la lista
             id_Inirequisicion= consecutivo.getConsecutivo(); //Asignamos en la posicion el id de requisicion existente
             System.out.println("El numero de requisicion es: "+id_Inirequisicion);
+            eCantRollos.setText(consecutivo.getNumero_rollos_descargar());
         }
 
-
-        int cant=requisicionesPendientes.size();
-        System.out.println("la cantidad de rollos es : " + cant);
-        eCantRollos.setText(String.valueOf(cant));
-        System.out.println("El numero de rollos pendientes ingresados es: "+eCantRollos);
         return requisicionesPendientes;
     }
 

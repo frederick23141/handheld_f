@@ -24,8 +24,10 @@ public class LectorCodCargueModelo implements Serializable {
 
     private String costo_unitario_alambron;
 
+    private String numero_rollos_descargar;
 
-    public LectorCodCargueModelo(String numero_transaccion, String codigoalambron, String pesoAlambron, String num_imp, String detalle,String consecutivo,String num_rolloAlambron,String estado_muestra,String nit_proveedor,String costo_unitario_alambron) {
+
+    public LectorCodCargueModelo(String numero_transaccion, String codigoalambron, String pesoAlambron, String num_imp, String detalle,String consecutivo,String num_rolloAlambron,String estado_muestra,String nit_proveedor,String costo_unitario_alambron,String numero_rollos_descargar) {
         this.consecutivo = consecutivo;
         this.numero_transaccion = numero_transaccion;
         this.Codigoalambron = codigoalambron;
@@ -36,6 +38,7 @@ public class LectorCodCargueModelo implements Serializable {
         this.estado_muestra = estado_muestra;
         this.nit_proveedor = nit_proveedor;
         this.costo_unitario_alambron = costo_unitario_alambron;
+        this.numero_rollos_descargar=numero_rollos_descargar;
     }
 
     public LectorCodCargueModelo() {
@@ -120,5 +123,13 @@ public class LectorCodCargueModelo implements Serializable {
 
     public void setCosto_unitario_alambron(String costo_unitario_alambron) {
         this.costo_unitario_alambron = costo_unitario_alambron;
+    }
+
+    public String getNumero_rollos_descargar() {
+        return numero_rollos_descargar;
+    }
+
+    public void setNumero_rollos_descargar(String numero_rollos_descargar) {
+        this.numero_rollos_descargar = numero_rollos_descargar;
     }
 }

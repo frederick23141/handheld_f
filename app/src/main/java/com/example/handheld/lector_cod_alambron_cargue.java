@@ -181,7 +181,7 @@ public class lector_cod_alambron_cargue extends AppCompatActivity implements Ada
 
 
        // verificarTransaccionesPendientes(nit_usuario,id_Alambronrequision);
-        //ValidarRequisicionesIniciadas();
+        ValidarRequisicionesIniciadas();
 
 
     }
@@ -231,6 +231,8 @@ public class lector_cod_alambron_cargue extends AppCompatActivity implements Ada
 
         requisicionesPendientes=conexion.lista_pendientes_requisicion(lector_cod_alambron_cargue.this,sql);
 
+        if(!requisicionesPendientes.isEmpty())
+        {
         for (LectorCodCargueModelo consecutivo : requisicionesPendientes) {
             System.out.println(consecutivo);//imprimimos todos los datos de la lista
             Log.d("TAG", String.valueOf(consecutivo));
@@ -247,13 +249,16 @@ public class lector_cod_alambron_cargue extends AppCompatActivity implements Ada
             modelo.setEstado_muestra("0");
             ListaCodAlambron.add(modelo);
 
-            mAdapterCodAlambron=new listLectorCodAlambronCargueAdapter(lector_cod_alambron_cargue.this,R.layout.item_row_lectorcodalambron,ListaCodAlambron);
+            mAdapterCodAlambron = new listLectorCodAlambronCargueAdapter(lector_cod_alambron_cargue.this, R.layout.item_row_lectorcodalambron, ListaCodAlambron);
             mListView.setAdapter(mAdapterCodAlambron);
+        }
+            toastAcierto("Se cargaran los datos de la requisicion pendiente");
+            contar_movimientos();
 
+        }else {
+            toastAcierto("Por favor inicie la lectura de los rollos  descagados");
         }
 
-        toastAcierto("Se cargaran los datos de la requisicion pendiente");
-        contar_movimientos();
 
     }
 
@@ -486,19 +491,33 @@ public class lector_cod_alambron_cargue extends AppCompatActivity implements Ada
     }
 
     //Funcion para contar los movimientos es decir numero de rollos leidos en la lista
-       /*private void contar_movimientos() {
+
+        private void contar_movimientos() {
             cant = mAdapterCodAlambron.getCount();
             TxtCountMovi.setText(String.valueOf(cant));
-        }*/
-
-    private void contar_movimientos() {
-        if (mAdapterCodAlambron.getCount() == 0) {
-            cant = 0; // Asignar 0 cuando la lista esté vacía
-        } else {
-            cant = mAdapterCodAlambron.getCount();
         }
-        TxtCountMovi.setText(String.valueOf(cant));
-    }
+
+   /* private void contar_movimientos() {
+        try {
+            if (mAdapterCodAlambron == null) {
+                throw new NullPointerException("Se iniciara el proceso de lectura de tiquetes de alambron");
+            }
+
+            if (mAdapterCodAlambron.getCount() == 0) {
+                cant = 0; // Asignar 0 cuando la lista esté vacía
+            } else {
+                cant = mAdapterCodAlambron.getCount();
+            }
+
+            TxtCountMovi.setText(String.valueOf(cant));
+        } catch (NullPointerException e) {
+            // Manejar la excepción aquí
+            e.printStackTrace(); // Opcionalmente, imprimir el rastro de la excepción para depuración
+            toastAcierto("El sistema esta listo para iniciar el descargue");
+            // Realiza alguna acción adecuada para manejar la excepción, como mostrar un mensaje de error al usuario
+        }
+    }*/
+
 
     //Metodo para llamar los procesos para la transaccion
     public void transaccion () {

@@ -797,6 +797,7 @@ public class Conexion {
                 modelo.setCodigoalambron(rs.getString("codigo"));
                 modelo.setCosto_unitario_alambron(rs.getString("costo_kilo"));
                 modelo.setEstado_muestra("0");
+                modelo.setNumero_rollos_descargar(rs.getString("num_rollos"));
                 consulta_pendientes_requision.add(modelo);
             }
         }catch (Exception e){
