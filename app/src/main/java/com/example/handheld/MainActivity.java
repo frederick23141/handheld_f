@@ -145,8 +145,22 @@ public class MainActivity extends AppCompatActivity {
         MyHolder.IconTreeItem subChildItem1_2 = new MyHolder.IconTreeItem(R.drawable.ic_folder, "Traslado de Bodega (2-1)");
         TreeNode subChild1_2 = new TreeNode(subChildItem1_2).setViewHolder(new MyHolder(getApplicationContext(), false, R.layout.child, 100));
 
+
+        //SubGrupo3 "Gestion de Alambron"
+        //Enviamos el icono y el texto para el SubGrupo
+        MyHolder.IconTreeItem subChildItem1_3 = new MyHolder.IconTreeItem(R.drawable.ic_folder, "Descargue de Alambron");
+        TreeNode subChild1_3 = new TreeNode(subChildItem1_3).setViewHolder(new MyHolder(getApplicationContext(), false, R.layout.child, 100));
+
+        //Al darle clic a este elemento en el treeview se abrira una nueva pantalla y se enviaran unos datos
+        subChild1_3.setClickListener((node, value) -> {
+            Intent i = new Intent(MainActivity.this,Lector_Cod_Alambron.class);
+            i.putExtra("nit_usuario",cd);
+            startActivity(i);
+        });
+
         //Agregamos subgrupo1"Gestion de Alambron".
         child1.addChild(subChild1_1);
+        child1.addChild(subChild1_3);
 
         //Agregamos subgrupo2"Gestion de Alambron".
         //child1.addChild(subChild1_2);

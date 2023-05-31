@@ -2,8 +2,14 @@ package com.example.handheld.ClasesOperativas;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.database.SQLException;
 import android.os.Build;
+import android.widget.TableLayout;
+import android.widget.TableRow;
+import android.widget.TextView;
 import android.widget.Toast;
+
+import androidx.annotation.NonNull;
 
 import com.example.handheld.conexionDB.Conexion;
 import com.example.handheld.modelos.EmpRecepcionadoCajasModelo;
@@ -12,6 +18,7 @@ import com.example.handheld.modelos.GalvRecepcionadoRollosModelo;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.List;
 
 public class ObjTraslado_bodLn {
@@ -582,4 +589,199 @@ public class ObjTraslado_bodLn {
 
         return "INSERT INTO referencias_sto (bodega, codigo, ano, mes, can_ini, can_ent, can_sal, cos_ini, cos_ent, cos_sal, can_vta, cos_vta, val_vta, can_dev_vta, cos_dev_vta, val_dev, can_com, cos_com, can_dev_com, cos_dev_com, can_otr_ent, cos_otr_ent, can_otr_sal, cos_otr_sal, can_tra, cos_tra, sub_cos, baj_cos, nro_vta, nro_dev_vta, nro_com, nro_dev_com, nro_ped, can_ped, cos_ini_aju, cos_ent_aju, cos_sal_aju) VALUES (" + bodega + ", '" + codigo + "', " + ano + ", " + mes + ", 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)";
     }
+
+
+    ////////////////////////////////////////////////////////////////////////////////////////////
+    /////////// METODO PARA LA TRANSACCION DE DESCARGUE DE ALAMBRON ///////////////////////////
+    //////////////////////////////////////////////////////////////////////////////////////////
+
+    public List<Object> listaTransaccionTableLayout_importaciones(int numero, TableLayout dt_codigos_valores, String bodega, Calendar dFec, String notas, String usuario, String tipo, Double nit_proveedor, @NonNull String modelo, Context context) throws SQLException {
+        // Convertir modelo a "01" si es "1"
+
+        if (modelo.equals("1")) {
+            modelo = "01";
+        }
+        String sql;
+        int seq = 0;
+        List<Object> listSql = new ArrayList<Object>();
+        double valorUnitario = 0;
+        String nit = nit_proveedor.toString();
+        double vrTotal = calcular_costo_total_importacion(dt_codigos_valores);
+        int vendedor = 0;
+        String pc = Build.MODEL;
+        @SuppressLint("SimpleDateFormat")
+        SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
+        String fecha_hora = dateFormat.format(dFec.getTime());
+        String sFecha_hora = "";
+        String sFecha = "";
+        int swDoc = consultarSwTipo(tipo,context);
+        int swDoc_lin = consultarSwTipo(tipo,context);
+        double costo_kilo = 0;
+        double porc_iva = conexion.obtenerIvaPorc(context);
+        double vr_iva = 0;
+        double vr_tot_mercancia = 0;
+
+        // Calcular vr_iva, vrTotal y vr_tot_mercancia si tipo = "CMP1" y modelo = "01" o "03"
+        if (tipo.equals("CMP1") && (modelo.equals("01") || modelo.equals("03"))) {
+            vr_iva = vrTotal * porc_iva;
+            vrTotal += vr_iva;
+            vr_tot_mercancia = vrTotal - vr_iva;
+        }
+
+        // Actualizar swDoc_lin si swDoc es 11 o 12
+        if (swDoc == 11) {
+            swDoc_lin = swDoc;
+        } else if (swDoc == 12) {
+            swDoc_lin = 3;
+        }
+
+        // Insertar el registro en la tabla orden_prod
+        if (obj_ordenprodLn.insertarProxMes(String.valueOf(dt_codigos_valores.getChildAt(0).getId()),context)) {
+            dFec.add(Calendar.MONTH, 1);
+
+            //Capturamos el mes en un String
+            @SuppressLint("SimpleDateFormat")
+            SimpleDateFormat dateFormatMoth = new SimpleDateFormat("MM");
+            String month = dateFormatMoth.format(dFec.getTime());
+
+            //Capturamos el año en un String
+            @SuppressLint("SimpleDateFormat")
+            SimpleDateFormat dateFormatYear = new SimpleDateFormat("yyyy");
+            String year = dateFormatYear.format(dFec.getTime());
+
+            sFecha_hora = year + "-" + month + "-01";
+
+            //Capturamos las horas
+            @SuppressLint("SimpleDateFormat")
+            SimpleDateFormat dateFormatHour = new SimpleDateFormat("HH");
+            String hour = dateFormatHour.format(dFec.getTime());
+
+            //Capturamos los minutos
+            @SuppressLint("SimpleDateFormat")
+            SimpleDateFormat dateFormatMinute = new SimpleDateFormat("mm");
+            String minute = dateFormatMinute.format(dFec.getTime());
+
+            //Capturamos los segundos
+            @SuppressLint("SimpleDateFormat")
+            SimpleDateFormat dateFormatSeconds = new SimpleDateFormat("ss");
+            String seconds = dateFormatSeconds.format(dFec.getTime());
+
+            fecha_hora = "" + month + "-" + "01" + "-" + year + " " + hour + ":" + minute + ":" + seconds + "";
+
+            sFecha = sFecha_hora;
+
+        }else{
+            Calendar calendar = Calendar.getInstance();
+            @SuppressLint("SimpleDateFormat")
+            SimpleDateFormat dateFormatsFecha_hora = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
+            sFecha_hora = dateFormatsFecha_hora.format(calendar.getTime());
+
+            @SuppressLint("SimpleDateFormat")
+            SimpleDateFormat dateFormatfecha_hora = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
+            fecha_hora = dateFormatfecha_hora.format(calendar.getTime());
+
+
+            @SuppressLint("SimpleDateFormat")
+            SimpleDateFormat dateFormatsFecha = new SimpleDateFormat("yyyy-MM-dd");
+            sFecha = dateFormatsFecha.format(calendar.getTime());
+        }
+
+        sql = "INSERT INTO documentos " +
+                "(sw, tipo, numero, nit, fecha, vencimiento, valor_total, vendedor, valor_aplicado, " +
+                "anulado, modelo, notas, usuario, pc, fecha_hora, bodega, duracion, concepto, centro_doc, spic, iva, valor_mercancia) " +
+                "VALUES (" + swDoc + ",'" + tipo + "'," + numero + "," + nit + ",'" + sFecha + "','" + sFecha + "'," + vrTotal + "," + vendedor + "," + 0 + ",0 " +
+                ",'" + modelo + "','" + notas + "','" + usuario + "','" + pc + "','" + sFecha + "'," + bodega + ",15,0,0,'S'," + vr_iva + "," + vr_tot_mercancia + ")";
+        try {
+            listSql.add(sql);
+        }catch (Exception e){
+            Toast.makeText(context, e.getMessage(), Toast.LENGTH_SHORT).show();
+        }
+
+
+        for (int i = 1; i < dt_codigos_valores.getChildCount(); i++) {
+            TableRow tableRow = (TableRow) dt_codigos_valores.getChildAt(i);
+            String unitarioValor=((TextView) tableRow.getChildAt(4)).getText().toString();
+            String kilo_costo=((TextView) tableRow.getChildAt(4)).getText().toString();
+            valorUnitario = Double.parseDouble(unitarioValor);
+            costo_kilo = Double.parseDouble(kilo_costo);
+            seq = i;
+            sql = "INSERT INTO documentos_lin(sw,tipo,numero,codigo,seq,fec,nit,cantidad,porcentaje_iva,valor_unitario,porcentaje_descuento " +
+                    ",costo_unitario,adicional,vendedor,bodega,und,cantidad_und,cantidad_pedida,maneja_inventario,costo_unitario_sin,cantidad_dos) " +
+                    "VALUES(" + swDoc_lin + ",'" + tipo + "'," + numero + ",'" + ((TextView) tableRow.getChildAt(0)).getText().toString() + "'," + seq + ",'" + sFecha + "'," + nit + "," + ((TextView) tableRow.getChildAt(2)).getText().toString() + ",16," + valorUnitario + ",0," +
+                    "" + costo_kilo + ",'" + notas + "',0," + bodega + ",'UND',1,0,'S',0.0000000000000000,1) ";
+            listSql.add(sql);
+            //Script para ingresar a referencias_sto (STOCK)
+            listSql.add(actualizarRefSto(Double.parseDouble(((TextView) tableRow.getChildAt(1)).getText().toString()), costo_kilo, ((TextView) tableRow.getChildAt(0)).getText().toString(), dFec, Integer.valueOf(bodega), swDoc));
+            listSql.add(sqlActUltEntradaUltSalida(swDoc, ((TextView) tableRow.getChildAt(0)).getText().toString()));
+        }
+
+        // Continuar con la implementación del método...
+
+        if (tipo.equals("CMP1") && (modelo.equals("01") || modelo.equals("03"))) {
+            listSql.addAll(script_cuentas(tipo, modelo, (double) numero, vr_tot_mercancia, nit_proveedor, sFecha, context));
+        }
+
+        return  (listSql);
+    }
+
+
+    private double calcular_costo_total_importacion(TableLayout tableLayout) {
+        double costo_total = 0;
+        double cantidad = 0;
+        double costo_unitario = 0;
+        for (int i = 1; i < tableLayout.getChildCount(); i++) {
+            TableRow tableRow = (TableRow) tableLayout.getChildAt(i);
+            cantidad = Double.parseDouble(((TextView) tableRow.getChildAt(1)).getText().toString());
+            costo_unitario = Double.parseDouble(((TextView) tableRow.getChildAt(4)).getText().toString());
+            costo_total += cantidad * costo_unitario;
+        }
+        return costo_total;
+    }
+
+    public int consultarSwTipo(String tipo,Context context) throws SQLException {
+        int sw = 0;
+        String swString = String.valueOf(conexion.obtenerconsultaSwTipo(context,tipo));
+        if (swString != null && !swString.isEmpty()) {
+            sw = Integer.parseInt(swString);
+        }
+        return sw;
+    }
+
+    private List<Object> script_cuentas(String tipo, String modelo, Double numero, Double costo_total, Double nit, String fec,Context context) {
+        List<Object> listSql = new ArrayList<Object>();
+        String sql_consulta_tipo_transacciones_mod = "SELECT cta1,cta2,cta3 FROM tipo_transacciones_mod WHERE tipo ='" + tipo + "' AND modelo= '" + modelo + "'";
+        List<Object> dt_cuentas = Collections.singletonList(conexion.lista_consulta_tipo_transacciones(context, sql_consulta_tipo_transacciones_mod));
+        String sql_movimientos = "";
+        String sql = "";
+        Integer seq = 1;
+        Double valor = 0.0;
+        Double iva = conexion.obtenerIvaPorc(context);
+        Double valor_iva = costo_total * iva;
+        Double centro = 0.0;
+        for (int j = 0; j < dt_cuentas.size(); j++) {
+            Object item = dt_cuentas.get(j);
+            switch (item.toString()) {
+                case "220501":
+                    valor = costo_total + valor_iva;
+                    valor *= -1;
+                    sql_movimientos = "INSERT INTO movimiento (tipo, numero,seq, nit, fec,  cuenta, centro, valor) VALUES ('" + tipo + "', " + numero + "," + seq + ", " + nit + ",'" + fec + "', " + item + ", " + centro + ", " + valor + ")";
+                    listSql.add(sql_movimientos);
+                    seq += 1;
+                case "14050100" :
+                    valor = costo_total;
+                    sql_movimientos = "INSERT INTO movimiento (tipo, numero,seq, nit, fec,  cuenta, centro, valor) VALUES ('" + tipo + "', " + numero + "," + seq + ", " + nit + ", '" + fec + "', " + item + ", " + centro + ", " + valor + ")";
+                    listSql.add(sql_movimientos);
+                    seq += 1;
+                case "24080505":
+                    valor = valor_iva;
+                    sql_movimientos = "INSERT INTO movimiento (tipo, numero,seq, nit, fec,  cuenta, centro, valor,base) VALUES ('" + tipo + "', " + numero + "," + seq + ", " + nit + ", '" + fec + "', " + item + ", " + centro + ", " + valor + "," + costo_total + ")";
+                    listSql.add(sql_movimientos);
+                    seq += 1;
+            }
+        }
+        return listSql;
+    }
+
+
+
 }

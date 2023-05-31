@@ -18,6 +18,27 @@
         android:theme="@style/Theme.Handheld"
         tools:targetApi="31">
         <activity
+            android:name=".lector_cod_alambron_muestreo"
+            android:exported="false">
+        <meta-data
+            android:name="android.app.lib_name"
+            android:value="" />
+        </activity>
+        <activity
+            android:name=".lector_cod_alambron_cargue"
+            android:exported="false">
+            <meta-data
+                android:name="android.app.lib_name"
+                android:value="" />
+        </activity>
+        <activity
+            android:name=".Lector_Cod_Alambron"
+            android:exported="false">
+            <meta-data
+                android:name="android.app.lib_name"
+                android:value="" />
+        </activity>
+        <activity
             android:name=".RecepcionEmpaque"
             android:exported="false">
             <meta-data

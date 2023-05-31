@@ -8,10 +8,12 @@ import android.widget.Toast;
 import com.example.handheld.modelos.CajasReceModelo;
 import com.example.handheld.modelos.CajasRefeModelo;
 import com.example.handheld.modelos.CentrosModelo;
+import com.example.handheld.modelos.CuentasModelo;
 import com.example.handheld.modelos.EmpRecepcionadoCajasModelo;
 import com.example.handheld.modelos.GalvRecepcionModelo;
 import com.example.handheld.modelos.GalvRecepcionadoRollosModelo;
 import com.example.handheld.modelos.InventarioModelo;
+import com.example.handheld.modelos.LectorCodCargueModelo;
 import com.example.handheld.modelos.MesasModelo;
 import com.example.handheld.modelos.PedidoModelo;
 import com.example.handheld.modelos.PersonaModelo;
@@ -683,6 +685,129 @@ public class Conexion {
         }
         return refeRecepcionados;
     }
+
+
+    // Consultas agregadas para Descargue de Alambron
+
+    //Obtener dato de IdRequisición
+
+    public String obtenerIdAlamRequesicion(Context context, String sql){
+        String id_Inirequisicion = "";
+
+        try {
+            Statement st = conexionBD("JJVPRGPRODUCCION", context).createStatement();
+            //ResultSet rs = st.executeQuery("SELECT (CASE WHEN MAX(id) IS NULL THEN 1 ELSE MAX(id)+1 END) as id FROM J_alambron_requisicion");
+            ResultSet rs = st.executeQuery(sql);
+            if (rs.next()){
+                id_Inirequisicion = rs.getString("id");
+            }
+        }catch (Exception e){
+            Toast.makeText(context, e.getMessage(), Toast.LENGTH_SHORT).show();
+        }
+        return id_Inirequisicion;
+    }
+
+    //Obtener nombre del proveedor
+    public String obtenerNombreProveedor(Context context, String sql){
+        String nombreProveedor = "";
+
+        try {
+            Statement st = conexionBD("JJVDMSCIERREAGOSTO", context).createStatement();
+            ResultSet rs = st.executeQuery(sql);
+            if (rs.next()){
+                nombreProveedor = rs.getString("nombres");
+            }
+        }catch (Exception e){
+            Toast.makeText(context, e.getMessage(), Toast.LENGTH_SHORT).show();
+        }
+        return nombreProveedor;
+    }
+
+    public Double obtenerIvaPorc(Context context){
+        Double porcentaje = null;
+
+        try {
+            Statement st = conexionBD("JJVDMSCIERREAGOSTO", context).createStatement();
+            ResultSet rs = st.executeQuery("SELECT porcentaje FROM J_iva_porcentaje");
+            if (rs.next()){
+                porcentaje = rs.getDouble("porcentaje");
+            }
+        }catch (Exception e){
+            Toast.makeText(context, e.getMessage(), Toast.LENGTH_SHORT).show();
+        }
+        return porcentaje;
+    }
+
+
+
+    public int obtenerconsultaSwTipo(Context context, String tipo){
+        int sw = 0;
+
+        try {
+            Statement st = conexionBD("JJVDMSCIERREAGOSTO", context).createStatement();
+            ResultSet rs = st.executeQuery("SELECT sw FROM tipo_transacciones WHERE tipo = '" + tipo + "'");
+            if (rs.next()){
+                sw = rs.getInt("sw");
+            }
+        }catch (Exception e){
+            Toast.makeText(context, e.getMessage(), Toast.LENGTH_SHORT).show();
+        }
+        return sw;
+    }
+
+    public List<CuentasModelo> lista_consulta_tipo_transacciones(Context context, String sql){
+        List<CuentasModelo> consulta_tipo_transacciones = new ArrayList<>();
+        CuentasModelo modelo;
+
+        try {
+            Statement st = conexionBD("JJVDMSCIERREAGOSTO", context).createStatement();
+            ResultSet rs = st.executeQuery(sql);
+            while (rs.next()){
+                modelo = new CuentasModelo();
+                modelo.setCta1(rs.getString("cta1"));
+                modelo.setCta2(rs.getString("cta2"));
+                modelo.setCta3(rs.getString("cta3"));
+                consulta_tipo_transacciones.add(modelo);
+            }
+        }catch (Exception e){
+            Toast.makeText(context, e.getMessage(), Toast.LENGTH_SHORT).show();
+        }
+        return consulta_tipo_transacciones;
+    }
+
+
+    //Obtiene los datos de las requisiciones iniciadas y que no fueron cerradas
+    public ArrayList<LectorCodCargueModelo> lista_pendientes_requisicion(Context context, String sql){
+        ArrayList<LectorCodCargueModelo> consulta_pendientes_requision = new ArrayList<>();
+        LectorCodCargueModelo modelo;
+
+        try {
+            Statement st = conexionBD("JJVPRGPRODUCCION", context).createStatement();
+            ResultSet rs = st.executeQuery(sql);
+            while (rs.next()){
+
+                modelo = new LectorCodCargueModelo();
+                modelo.setNit_proveedor(rs.getString("nit_proveedor"));
+                modelo.setNum_imp(rs.getString("numero_importacion"));
+                modelo.setDetalle(rs.getString("id_det"));
+                modelo.setNum_rolloAlambron(rs.getString("numero_rollo"));
+                modelo.setNumero_transaccion(rs.getString("id_requisicion"));
+                modelo.setConsecutivo(rs.getString("id_requisicion"));
+                modelo.setPesoAlambron(rs.getString("peso"));
+                modelo.setCodigoalambron(rs.getString("codigo"));
+                modelo.setCosto_unitario_alambron(rs.getString("costo_kilo"));
+                modelo.setEstado_muestra("0");
+                consulta_pendientes_requision.add(modelo);
+            }
+        }catch (Exception e){
+            Toast.makeText(context, e.getMessage(), Toast.LENGTH_SHORT).show();
+        }
+        return consulta_pendientes_requision;
+    }
+
+
+
+
 
 
 }
