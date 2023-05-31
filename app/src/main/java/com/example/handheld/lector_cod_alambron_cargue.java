@@ -66,6 +66,7 @@ public class lector_cod_alambron_cargue extends AppCompatActivity implements Ada
 
     private final List<LectorCodAlambronModelo> ListaCodAlambron = new ArrayList<>();
     public final   ArrayList<String> listaConsecutivos = new ArrayList<>();
+    List<LectorCodCargueModelo> requisicionesPendientes = new ArrayList<>();
 
     //se declaran las variables de los elementos del Layout
     Button btntransaccion,btncargar,btnmuestreo;
@@ -109,14 +110,7 @@ public class lector_cod_alambron_cargue extends AppCompatActivity implements Ada
         id_Alambronrequision = intent.getStringExtra("id_Alambronrequision"); //Recibimos el Id_requision enviado de la clase Lector_Cod_Alambron
         eCantRollos= Integer.parseInt(intent.getStringExtra("eCantRollos"));  //Recibimos la cantidad de rollos de la clase Lector_Cod_Alambron
         nit_usuario = getIntent().getStringExtra("nit_usuario");  //Recibimos el nit_usuario enviado de la clase Lector_Cod_Alambron
-        // listadoPendientes=intent.getStringArrayListExtra("ListaPendientes"); //Recibimos el listado de requisiciones abiertas y sin cerrar y este tendra datos los cuales se cargaran en el listview
 
-  /* //Verificar la lista e imprimir los datos que trae esta
-        for (String consecutivo : listadoPendientes) {
-            System.out.println(consecutivo);//imprimimos todos los datos de la lista
-            Log.d("TAG", String.valueOf(consecutivo));
-        }
-*/
 
         //Se establece el foco en el edit text del codigo de barras
         eCodBarrasCargue.requestFocus();
@@ -186,9 +180,8 @@ public class lector_cod_alambron_cargue extends AppCompatActivity implements Ada
 
 
 
-
-
        // verificarTransaccionesPendientes(nit_usuario,id_Alambronrequision);
+        //ValidarRequisicionesIniciadas();
 
 
     }
@@ -203,6 +196,20 @@ public class lector_cod_alambron_cargue extends AppCompatActivity implements Ada
         Intent intent = new Intent(this, lector_cod_alambron_muestreo.class);
         intent.putStringArrayListExtra("listaConsecutivos", listaConsecutivos);
         startActivity(intent);
+    }
+
+    /////////////////////////////////////////////////////////////////////////////////////////////////
+    ///SE AGREGAN LOS METODOS PARA VALIDAR LAS REQUISICIONES PENDIENTES Y CARGAR LOS ROLLOS LEIDOS///
+    /////////////////////////////////////////////////////////////////////////////////////////////////
+    public void ValidarRequisicionesIniciadas(){
+        verificarTransaccionesPendientes(nit_usuario,id_Alambronrequision);
+        if(requisicionesPendientes.isEmpty()){
+            toastAcierto("Se habilita el sistema para la lectura de los rollos a descargar");
+        }
+        else{
+            toastAlert("Existe un descargue de Alambron incompleto, se cargaran los datos para terminar el proceso");
+
+        }
     }
 
 
@@ -221,7 +228,7 @@ public class lector_cod_alambron_cargue extends AppCompatActivity implements Ada
                 "r.num_importacion = d.num_importacion  AND r.id_solicitud_det  = d.id_det \n" +
                 "AND a.id =' " + id_resicionpendiente + "' \n " + "AND r.id_requisicion =' " + id_resicionpendiente + "' \n" +
                 "AND a.nit = '" + nit + "'";
-        List<LectorCodCargueModelo> requisicionesPendientes = new ArrayList<>();
+
         requisicionesPendientes=conexion.lista_pendientes_requisicion(lector_cod_alambron_cargue.this,sql);
 
         for (LectorCodCargueModelo consecutivo : requisicionesPendientes) {
@@ -479,8 +486,17 @@ public class lector_cod_alambron_cargue extends AppCompatActivity implements Ada
     }
 
     //Funcion para contar los movimientos es decir numero de rollos leidos en la lista
+       /*private void contar_movimientos() {
+            cant = mAdapterCodAlambron.getCount();
+            TxtCountMovi.setText(String.valueOf(cant));
+        }*/
+
     private void contar_movimientos() {
-        cant = mAdapterCodAlambron.getCount();
+        if (mAdapterCodAlambron.getCount() == 0) {
+            cant = 0; // Asignar 0 cuando la lista esté vacía
+        } else {
+            cant = mAdapterCodAlambron.getCount();
+        }
         TxtCountMovi.setText(String.valueOf(cant));
     }
 
