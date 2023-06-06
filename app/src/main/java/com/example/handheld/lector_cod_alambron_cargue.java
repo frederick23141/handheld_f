@@ -534,7 +534,7 @@ public class lector_cod_alambron_cargue extends AppCompatActivity implements Ada
                                 Toast.makeText(lector_cod_alambron_cargue.this, "Ingrese la cantidad de rollos en la planilla de descargue", Toast.LENGTH_SHORT).show();
                             } else if (mAdapterCodAlambron.getCount() == eCantRollos) {
                                 try {
-                                    toastAlert("Estamos ingresando al proceso de verificar transacciones");
+                                  //  toastAlert("Estamos ingresando al proceso de verificar transacciones");
                                     if (verificar_proveedores_transacciones()) {
                                         try {
                                             if (terminar_cargue()) {
@@ -572,7 +572,7 @@ public class lector_cod_alambron_cargue extends AppCompatActivity implements Ada
     // *********** SE CREAN LOS METODOS Y LAS FUNCIONES PARA VALIDAR EL NIT DEL PROVEEDOR **************//
     //**************************************************************************************************//
     private boolean verificar_proveedores_transacciones() throws SQLException {
-        toastAcierto("Entramos en verificar proveedores");
+       // toastAcierto("Entramos en verificar proveedores");
         boolean resp = false;
         TableLayout tl_codigos_valores = new TableLayout(this);
         Collections.sort(ListaCodAlambron, new Comparator<LectorCodAlambronModelo>() {
@@ -591,11 +591,11 @@ public class lector_cod_alambron_cargue extends AppCompatActivity implements Ada
                 if (prov_ant != nit_proveedor) {
                     prov_ant = nit_proveedor;
                     tl_codigos_valores.removeAllViews();
-                    toastAlert("Se inicia creacion del TableLayout");
+                  //  toastAlert("Se inicia creacion del TableLayout");
                     tl_codigos_valores = get_datos(nit_proveedor);
-                    toastAcierto("Se construyo el TableLayout");
-                    printTableLayout(tl_codigos_valores);
-                    toastAcierto("Se llama y se crea el TableLayout del metodo get_datos correctamente");
+                    //  toastAcierto("Se construyo el TableLayout");
+                    // printTableLayout(tl_codigos_valores);
+                  //  toastAcierto("Se llama y se crea el TableLayout del metodo get_datos correctamente");
 
 
                     if (realizar_transaccion(tl_codigos_valores, nit_proveedor, num_importacion)) {
@@ -607,10 +607,7 @@ public class lector_cod_alambron_cargue extends AppCompatActivity implements Ada
         }
         //Prueba para imprimir TABLELAYOUT
         // Imprimir el TableLayout en la consola
-
-
-        toastAlert("Estamos saliendo de verificar proovedores");
-
+       // toastAlert("Estamos saliendo de verificar proovedores");
 
         return resp;
     }
@@ -746,9 +743,9 @@ public class lector_cod_alambron_cargue extends AppCompatActivity implements Ada
             //nitProveedor = Double.parseDouble(row.get("nit_proveedor").toString());
         }
         String sqlPesoRollo = "";
-        toastAlert("Entramos al metodo ingProdDms");
+        //toastAlert("Entramos al metodo ingProdDms");
         listTransaccionCorsan.addAll(ingProdDms(dtValores, tipo, nitProveedor, modelo, numImportacion));
-        toastAcierto("Salimos del metodo ingProdDms");
+        //toastAcierto("Salimos del metodo ingProdDms");
         for (int i = 1; i < dtValores.getChildCount(); i++) {
             TableRow row = (TableRow) dtValores.getChildAt(i);
             TextView codigo = (TextView) row.getChildAt(0);
@@ -771,11 +768,13 @@ public class lector_cod_alambron_cargue extends AppCompatActivity implements Ada
         if (ing_prod_ad.ExecuteSqlTransaction(listTransaccionCorsan, "JJVDMSCIERREAGOSTO",lector_cod_alambron_cargue.this)) {
             Toast.makeText(this, "Transacción realizada con éxito!\n" + nombreProveedor + "\n" + tipo + ": " + numero_transaccion, Toast.LENGTH_LONG).show();
             if (!ing_prod_ad.ExecuteSqlTransaction(listTransaccionProd, "JJVPRGPRODUCCION",lector_cod_alambron_cargue.this)) {
-                Toast.makeText(this, "Error al actualizar los Códigos de barra, comuníquese con sistemas!", Toast.LENGTH_LONG).show();
+                toastError("Error al actualizar los Códigos de barra, comuníquese con sistemas!");
+                //Toast.makeText(this, "Error al actualizar los Códigos de barra, comuníquese con sistemas!", Toast.LENGTH_LONG).show();
                 resp = false;
             }
         } else {
-            Toast.makeText(this, "Error al realizar la transacción!", Toast.LENGTH_LONG).show();
+            toastError("Error al realizar la transacción!");
+            //Toast.makeText(this, "Error al realizar la transacción!", Toast.LENGTH_LONG).show();
             resp = false;
         }
         return resp;
@@ -794,9 +793,10 @@ public class lector_cod_alambron_cargue extends AppCompatActivity implements Ada
         String notas = "SP No." + num_imp + ". " + Fec + " usr:" + usuario;
         //String notas = "SP No." + num_imp + ". " + dFec.getYear() + "-" + dFec.getMonth() + "-" + dFec.getDay() + " usr:" + usuario;
         numero_transacc = Obj_ordenprodLn.mover_consecutivo(tipo, lector_cod_alambron_cargue.this);
-        toastAcierto("Pasamos el metodo mover consecutivo y entramos al metodo listaTransaccionTableLayout_importaciones"+ numero_transacc);
+        //toastAcierto("Pasamos el metodo mover consecutivo y entramos al metodo listaTransaccionTableLayout_importaciones"+ numero_transacc);
+        toastAcierto("Se asigna el consecutivo y se asigno el siguiente numero de transaccion: " + numero_transacc);
         List<Object> transacciones = objTraslado_bodLn.listaTransaccionTableLayout_importaciones(Integer.parseInt(numero_transacc), tl,  bodega,calendar, notas, usuario, tipo, nit_proveedor, modelo,lector_cod_alambron_cargue.this);
-        toastAcierto("se termina la transaccion de listaTransaccionTableLayout_importaciones valida las bases de datos");
+        //toastAcierto("se termina la transaccion de listaTransaccionTableLayout_importaciones valida las bases de datos");
 
         return transacciones;
     }
