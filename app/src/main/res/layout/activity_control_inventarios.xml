@@ -92,7 +92,7 @@
 
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="83dp"
+            android:layout_height="66dp"
             android:orientation="horizontal">
 
             <Space
@@ -114,8 +114,8 @@
         </LinearLayout>
 
         <LinearLayout
-            android:layout_width="408dp"
-            android:layout_height="78dp"
+            android:layout_width="match_parent"
+            android:layout_height="65dp"
             android:orientation="horizontal">
 
             <Space
@@ -128,12 +128,12 @@
                 android:layout_width="275dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:layouut_padding="20dp"
-                android:text="Iniciar inventario"
                 android:backgroundTint="#3CBF41"
                 android:drawableEnd="@drawable/play"
+                android:layouut_padding="20dp"
+                android:text="Iniciar inventario"
                 android:textColor="#FFFFFF"
-                android:textStyle="bold"/>
+                android:textStyle="bold" />
 
             <Space
                 android:layout_width="wrap_content"
@@ -144,7 +144,7 @@
 
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="80dp"
+            android:layout_height="66dp"
             android:orientation="horizontal">
 
             <Space
@@ -157,10 +157,10 @@
                 android:layout_width="275dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:layouut_padding="20dp"
-                android:text="Salir"
                 android:drawableEnd="@drawable/salida1"
+                android:layouut_padding="20dp"
                 android:onClick="salir"
+                android:text="Salir"
                 android:textColor="#000000"
                 android:textSize="16sp"
                 android:textStyle="bold"
@@ -171,6 +171,23 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1" />
 
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/linearLayoutpiedepagina"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginStart="2dp"
+            android:layout_marginTop="1dp"
+            android:layout_marginEnd="2dp"
+            android:orientation="horizontal">
+
+            <ImageView
+                android:id="@+id/imageView5"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                app:srcCompat="@drawable/inventario" />
         </LinearLayout>
 
     </LinearLayout>
