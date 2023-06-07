@@ -18,11 +18,14 @@
         android:theme="@style/Theme.Handheld"
         tools:targetApi="31">
         <activity
+            android:name=".Control_Inventarios"
+            android:exported="false" />
+        <activity
             android:name=".lector_cod_alambron_muestreo"
             android:exported="false">
-        <meta-data
-            android:name="android.app.lib_name"
-            android:value="" />
+            <meta-data
+                android:name="android.app.lib_name"
+                android:value="" />
         </activity>
         <activity
             android:name=".lector_cod_alambron_cargue"
