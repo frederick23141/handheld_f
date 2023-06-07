@@ -140,11 +140,11 @@ public class lector_cod_alambron_cargue extends AppCompatActivity implements Ada
                 String numero_rollo = obj_gestion_alambronLn.extraerDatoCodigoBarras("num_rollo", consecutivo);
                 double peso;
                 peso = Double.parseDouble(ePesoAlambron.getText().toString());
-                toastAcierto("el numero de importacion es :" + num_importacion +"el consecutivo es:"+consecutivo+"el peso:"+peso+"el numero de rollo:"+numero_rollo+
-                        "el detalle es :" + id_detalle +"el proveedor es: "+nit_proveedor);
+               /*toastAcierto("el numero de importacion es :" + num_importacion +"el consecutivo es:"+consecutivo+"el peso:"+peso+"el numero de rollo:"+numero_rollo+
+                        "el detalle es :" + id_detalle +"el proveedor es: "+nit_proveedor);*/
                 try {
                     addRollo(num_importacion, consecutivo, ePesoAlambron.getText().toString(), numero_rollo, id_detalle, nit_proveedor);
-                    //btnmuestreo.setEnabled(true);
+                    btnmuestreo.setEnabled(true);
                 } catch (SQLException e) {
                     throw new RuntimeException(e);
                 }
@@ -159,6 +159,7 @@ public class lector_cod_alambron_cargue extends AppCompatActivity implements Ada
         btntransaccion.setOnClickListener(v -> transaccion());
 
         //se programa el boton para las acciones del muestreo
+        btnmuestreo.setEnabled(false);
         btnmuestreo.setOnClickListener(v ->  datosmuestreo() );
 
         //Se realiza la validacion para cuando se oprime la tecla enter sobre el codigo de barras si este se ingresa manualmente
