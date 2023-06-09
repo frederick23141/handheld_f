@@ -323,8 +323,24 @@ public class MainActivity extends AppCompatActivity {
             startActivity(intent);
         });
 
+        /////////////////////////////////////////////////////////////////////////////////////////////
+        //////////////////////////// SE CREA SUBGRUPO PARA INVENTARIOS //////////////////////////////
+        ////////////////////////////////////////////////////////////////////////////////////////////
+        //SubGrupo2"Otros "
+        //Enviamos el icono y el texto para el SubGrupo
+        MyHolder.IconTreeItem subChildItem7_2 = new MyHolder.IconTreeItem(R.drawable.ic_folder, "Control de inventario");
+        TreeNode subChild7_2 = new TreeNode(subChildItem7_2).setViewHolder(new MyHolder(getApplicationContext(), false, R.layout.child, 100));
+
+        //Al darle clic a este elemento en el treeview se abrira una nueva pantalla y se enviaran unos datos
+        subChild7_2.setClickListener((node, value) -> {
+            Intent intent = new Intent(MainActivity.this, Control_Inventarios.class);
+            intent.putExtra("nit_usuario", cd);
+            startActivity(intent);
+        });
+
         //Agregamos subgrupo1"Otros".
         //child6.addChild(subChild7_1); No mostramos el subgrupo de otros
+        child7.addChild(subChild7_2);
 
         //Agregamos Grupo"Otros".
         //parent.addChildren(child1);

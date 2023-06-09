@@ -5,6 +5,7 @@ import android.content.Context;
 import android.os.StrictMode;
 import android.widget.Toast;
 
+import com.example.handheld.modelos.BodegasModelo;
 import com.example.handheld.modelos.CajasReceModelo;
 import com.example.handheld.modelos.CajasRefeModelo;
 import com.example.handheld.modelos.CentrosModelo;
@@ -804,6 +805,42 @@ public class Conexion {
             Toast.makeText(context, e.getMessage(), Toast.LENGTH_SHORT).show();
         }
         return consulta_pendientes_requision;
+    }
+
+
+
+
+
+    ////////////////////////////////////////////////////////////////////////////////////////////////
+    ///////////////// OBTENER DATOS PARA CONSULTAS EN INVENTARIOS //////////////////////////////////
+    ////////////////////////////////////////////////////////////////////////////////////////////////
+
+    public List<BodegasModelo> listarBodegas(Context context, String sql){
+        List<BodegasModelo> consulta_bodegas = new ArrayList<>();
+        BodegasModelo modelo;
+
+
+        try {
+            Statement st = conexionBD("JJVDMSCIERREAGOSTO", context).createStatement();
+            ResultSet rs = st.executeQuery(sql);
+
+            /*modelo.setBodega("7");
+            modelo.setDescripcion("(2)-BODEGA (BRILLANTE,ESPECIAL,RECOCIDO)");
+            consulta_bodegas.add(modelo);*/
+            while (rs.next()){
+                modelo = new BodegasModelo();
+                modelo.setBodega(rs.getString("bodega"));
+                modelo.setDescripcion(rs.getString("descripcion"));
+                consulta_bodegas.add(modelo);
+            }
+            modelo = new BodegasModelo();
+            modelo.setBodega("7");
+            modelo.setDescripcion("(2)-BODEGA (BRILLANTE,ESPECIAL,RECOCIDO)");
+            consulta_bodegas.add(modelo);
+        }catch (Exception e){
+            Toast.makeText(context, e.getMessage(), Toast.LENGTH_SHORT).show();
+        }
+        return consulta_bodegas;
     }
 
 

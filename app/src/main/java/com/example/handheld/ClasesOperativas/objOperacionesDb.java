@@ -90,27 +90,6 @@ public class objOperacionesDb {
         return resp;
     }
 
-    public ArrayList<String> listadoDatosProduccion(String Sql, Context context) throws SQLException {
-        ArrayList<String> resultados = new ArrayList<>();
-        Connection cnn = new Conexion().conexionBD("JJVPRGPRODUCCION",context);
-        try {
-            if (cnn != null){
-                PreparedStatement stm = cnn.prepareStatement(Sql);
-                ResultSet rs = stm.executeQuery();
-                while(rs.next()) {
-                    resultados.add(rs.getString(1)); // Agregar el campo que se desea obtener a la lista
-                }
-            }
-
-        } catch (Exception e) {
-            Toast.makeText(context, e.getMessage(), Toast.LENGTH_SHORT).show();
-        }
-        assert cnn != null;
-        cnn.close();
-        return resultados;
-    }
-
-
 
     public ArrayList<HashMap<String, Object>> listadoDatosProduccionHasp(String Sql, Context context) throws SQLException {
         ArrayList<HashMap<String, Object>> resultados = new ArrayList<>();

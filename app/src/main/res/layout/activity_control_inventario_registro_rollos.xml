@@ -26,7 +26,8 @@
             <LinearLayout
                 android:layout_width="146dp"
                 android:layout_height="match_parent"
-                android:orientation="vertical">
+                android:orientation="vertical"
+                android:background="#FFFFFF">
 
                 <ImageView
                     android:id="@+id/imageView4"
@@ -38,7 +39,7 @@
                     android:layout_width="149dp"
                     android:layout_height="512dp"
                     android:layout_gravity="top"
-                    android:background="000000"
+                    android:background="#FFFFFF"
                     android:orientation="vertical">
 
                     <ImageView
@@ -119,7 +120,10 @@
                         android:id="@+id/eCodBarrasInv"
                         android:layout_width="match_parent"
                         android:layout_height="44dp"
-                        android:text="LEA CODIGO DE BARRAS" />
+                        android:text="LEA CODIGO DE BARRAS"
+                        android:textStyle="bold"
+                        android:gravity="center"
+                        android:autofillHints="" />
 
                     <LinearLayout
                         android:layout_width="match_parent"
@@ -139,8 +143,12 @@
                         android:id="@+id/btnTerminar"
                         android:layout_width="match_parent"
                         android:layout_height="56dp"
+                        android:text="Terminar"
                         android:textStyle="bold"
-                        android:text="Terminar" />
+                        android:drawableEnd="@drawable/completed"
+                        android:textColor="#FFFFFF"
+                        android:backgroundTint="#3CBF41"
+                        />
                 </LinearLayout>
 
             </LinearLayout>

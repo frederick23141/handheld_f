@@ -130,7 +130,6 @@
                 android:layout_weight="1"
                 android:backgroundTint="#3CBF41"
                 android:drawableEnd="@drawable/play"
-                android:layouut_padding="20dp"
                 android:text="Iniciar inventario"
                 android:textColor="#FFFFFF"
                 android:textStyle="bold" />
@@ -158,7 +157,6 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:drawableEnd="@drawable/salida1"
-                android:layouut_padding="20dp"
                 android:onClick="salir"
                 android:text="Salir"
                 android:textColor="#000000"
