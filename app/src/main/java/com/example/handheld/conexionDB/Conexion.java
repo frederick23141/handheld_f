@@ -844,6 +844,25 @@ public class Conexion {
     }
 
 
+    //Obtener dato de Id_inventario
+
+    public String obtenerIdInventario(Context context, String sql){
+        String id_inventario = "";
+
+        try {
+            Statement st = conexionBD("JJVPRGPRODUCCION", context).createStatement();
+            //ResultSet rs = st.executeQuery("SELECT (CASE WHEN MAX(id) IS NULL THEN 1 ELSE MAX(id)+1 END) as id FROM J_alambron_requisicion");
+            ResultSet rs = st.executeQuery(sql);
+            if (rs.next()){
+                id_inventario = rs.getString("id");
+            }
+        }catch (Exception e){
+            Toast.makeText(context, e.getMessage(), Toast.LENGTH_SHORT).show();
+        }
+        return id_inventario;
+    }
+
+
 
 
 
