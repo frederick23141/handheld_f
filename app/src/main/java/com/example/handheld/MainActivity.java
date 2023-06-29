@@ -272,24 +272,39 @@ public class MainActivity extends AppCompatActivity {
             startActivity(intent);
         });
 
-        //SubGrupo2"Mesas Empaque"
+        //SubGrupo1"Logistica - Recepción "
         //Enviamos el icono y el texto para el SubGrupo
-        MyHolder.IconTreeItem subChildItem5_2 = new MyHolder.IconTreeItem(R.drawable.ic_folder, "Puntilleria");
+        MyHolder.IconTreeItem subChildItem5_2 = new MyHolder.IconTreeItem(R.drawable.ic_folder, "Trefilación");
         TreeNode subChild5_2 = new TreeNode(subChildItem5_2).setViewHolder(new MyHolder(getApplicationContext(), false, R.layout.child, 100));
 
         //Al darle clic a este elemento en el treeview se abrira una nueva pantalla y se enviaran unos datos
         subChild5_2.setClickListener((node, value) -> {
+            Intent intent = new Intent(MainActivity.this, RecepcionTerminadoTrefilacion.class);
+            intent.putExtra("nit_usuario", cd);
+            startActivity(intent);
+        });
+
+        //SubGrupo2"Mesas Empaque"
+        //Enviamos el icono y el texto para el SubGrupo
+        MyHolder.IconTreeItem subChildItem5_3 = new MyHolder.IconTreeItem(R.drawable.ic_folder, "Puntilleria");
+        TreeNode subChild5_3 = new TreeNode(subChildItem5_3).setViewHolder(new MyHolder(getApplicationContext(), false, R.layout.child, 100));
+
+        //Al darle clic a este elemento en el treeview se abrira una nueva pantalla y se enviaran unos datos
+        subChild5_3.setClickListener((node, value) -> {
             Intent intent = new Intent(MainActivity.this, ResumenPunti.class);
             intent.putExtra("nit_usuario", cd);
             intent.putExtra("nombre_usuario", nombre_usuario);
             startActivity(intent);
         });
 
-        //Agregamos subgrupo1"Logistica - Recepción".
+        //Agregamos subgrupo1"Logistica - Recepción: Galvanizado".
         child5.addChild(subChild5_1);
 
+        //Agregamos subgrupo2"Logistica - Recepción: Trefilación".
+        //child5.addChild(subChild5_2);
+
         //Agregamos subgrupo2"Mesas Empaque".
-        child5.addChild(subChild5_2);
+        child5.addChild(subChild5_3);
 
         //Agregamos Grupo"Logistica - Recepción".
         //parent.addChildren(child1);

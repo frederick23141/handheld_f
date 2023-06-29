@@ -26,10 +26,12 @@ import com.example.handheld.ClasesOperativas.Ing_prod_ad;
 import com.example.handheld.ClasesOperativas.ObjTraslado_bodLn;
 import com.example.handheld.ClasesOperativas.Obj_ordenprodLn;
 import com.example.handheld.atv.holder.adapters.listGalvTerminadoAdapter;
+import com.example.handheld.atv.holder.adapters.listTrefiTerminadoAdapter;
 import com.example.handheld.conexionDB.Conexion;
-import com.example.handheld.modelos.GalvRecepcionModelo;
 import com.example.handheld.modelos.GalvRecepcionadoRollosModelo;
 import com.example.handheld.modelos.PersonaModelo;
+import com.example.handheld.modelos.TrefiRecepcionModelo;
+import com.example.handheld.modelos.TrefiRecepcionadoRollosModelo;
 
 import java.sql.SQLException;
 import java.text.SimpleDateFormat;
@@ -38,23 +40,22 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
-public class EscanerInventario extends AppCompatActivity implements AdapterView.OnItemClickListener {
+public class RecepcionTerminadoTrefilacion extends AppCompatActivity implements AdapterView.OnItemClickListener {
 
     //se declaran las variables de los elementos del Layout
-    EditText codigoGalva;
+    EditText codigoTrefi;
     TextView txtTotal, txtTotalSinLeer, txtRollosLeidos;
-    Button btnTransaGalv, btnCancelarTrans;
+    Button btnTransaTrefi, btnCancelarTrans;
 
     //se declaran las variables donde estaran los datos que vienen de la anterior clase
     String nit_usuario;
-    //fecha_inicio,fecha_final; YA NO SE RECIBEN FECHAS DE CORTES
 
     //Se declaran los elementos necesarios para el list view
-    ListView listviewGalvTerminado;
-    List<GalvRecepcionModelo> ListaGalvTerminado= new ArrayList<>();
-    List<GalvRecepcionModelo> ListaGalvRollosRecep;
-    ListAdapter GalvTerminadoAdapter;
-    GalvRecepcionModelo galvRecepcionModelo;
+    ListView listviewTrefiTerminado;
+    List<TrefiRecepcionModelo> ListaTrefiTerminado= new ArrayList<>();
+    List<TrefiRecepcionModelo> ListaTrefiRollosRecep;
+    ListAdapter TrefiTerminadoAdapter;
+    TrefiRecepcionModelo trefiRecepcionModelo;
 
     //Se declara un objeto conexion
     Conexion conexion;
@@ -67,7 +68,7 @@ public class EscanerInventario extends AppCompatActivity implements AdapterView.
     PersonaModelo personaLogistica;
     ObjTraslado_bodLn objTraslado_bodLn = new ObjTraslado_bodLn();
     Ing_prod_ad ing_prod_ad = new Ing_prod_ad();
-    List<GalvRecepcionadoRollosModelo> ListarefeRecepcionados= new ArrayList<>();
+    List<TrefiRecepcionadoRollosModelo> ListarefeRecepcionados= new ArrayList<>();
 
     //Se inicializa los varibles para el sonido de error
     SoundPool sp;
@@ -76,18 +77,17 @@ public class EscanerInventario extends AppCompatActivity implements AdapterView.
     //Se inicializa una instancia para hacer vibrar el celular
     Vibrator vibrator;
 
-    @SuppressLint({"MissingInflatedId", "SetTextI18n"})
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_escaner_inventario);
+        setContentView(R.layout.activity_recepcion_terminado_trefilacion);
 
         //Definimos los elementos del Layout
-        codigoGalva = findViewById(R.id.codigoCajaRecep);
+        codigoTrefi = findViewById(R.id.codigoCajaRecep);
         txtTotal = findViewById(R.id.txtTotal);
         txtTotalSinLeer = findViewById(R.id.txtTotalSinLeer);
         txtRollosLeidos = findViewById(R.id.txtRollosLeidos);
-        btnTransaGalv = findViewById(R.id.btnTransaEmp);
+        btnTransaTrefi = findViewById(R.id.btnTransaEmp);
         btnCancelarTrans = findViewById(R.id.btnCancelarTrans);
 
         //Recibimos los datos desde la class PedidoInventraio
@@ -96,9 +96,9 @@ public class EscanerInventario extends AppCompatActivity implements AdapterView.
         //fecha_final = getIntent().getStringExtra("fecha_final"); //YA NO SE RECIBE FECHA FINAL
 
         //Definimos los elementos necesarios para el list view
-        listviewGalvTerminado = findViewById(R.id.listviewTrefiTerminado);
-        listviewGalvTerminado.setOnItemClickListener(this); //Determinamos a que elemento va dirigido el OnItemClick
-        galvRecepcionModelo = new GalvRecepcionModelo();
+        listviewTrefiTerminado = findViewById(R.id.listviewTrefiTerminado);
+        listviewTrefiTerminado.setOnItemClickListener(this); //Determinamos a que elemento va dirigido el OnItemClick
+        trefiRecepcionModelo = new TrefiRecepcionModelo();
 
         //Se Define los varibles para el sonido de error
         sp = new SoundPool(2, AudioManager.STREAM_MUSIC,1);
@@ -108,18 +108,18 @@ public class EscanerInventario extends AppCompatActivity implements AdapterView.
 
         /////////////////////////////////////////////////////////////////////////////////////////////
         //Llamamos al metodo para consultar los rollos de galvanizados listos para recoger
-        consultarGalvTerminado();
+        consultarTrefiTerminado();
 
         /////////////////////////////////////////////////////////////////////////////////////////////
         //Se establece el foco en el edit text
-        codigoGalva.requestFocus();
+        codigoTrefi.requestFocus();
 
         /////////////////////////////////////////////////////////////////////////////////////////////
         //Se programa para que al presionar (enter) en el EditText inicie el proceso
-        codigoGalva.setOnKeyListener((v, keyCode, event) -> {
+        codigoTrefi.setOnKeyListener((v, keyCode, event) -> {
             if (keyCode == KeyEvent.KEYCODE_ENTER) {
                 if(yaentre == 0){
-                    if(codigoGalva.getText().toString().equals("")){
+                    if(codigoTrefi.getText().toString().equals("")){
                         toastError("Por favor escribir o escanear el codigo de barras");
                     }else{
                         //Ocultamos el teclado de la pantalla
@@ -146,7 +146,7 @@ public class EscanerInventario extends AppCompatActivity implements AdapterView.
 
         /////////////////////////////////////////////////////////////////////////////////////////////
         //Se programa para que al presionar el boton inicie el proceso de transacción
-        btnTransaGalv.setOnClickListener(v -> {
+        btnTransaTrefi.setOnClickListener(v -> {
             int sleer = Integer.parseInt(txtTotalSinLeer.getText().toString());
             int total = Integer.parseInt(txtTotal.getText().toString());
             int leidos = (total - sleer);
@@ -154,7 +154,7 @@ public class EscanerInventario extends AppCompatActivity implements AdapterView.
             //galvanizado que leer
             if(sleer==0 && total>0){
                 //Mostramos el mensaje para logistica
-                AlertDialog.Builder builder = new AlertDialog.Builder(EscanerInventario.this);
+                AlertDialog.Builder builder = new AlertDialog.Builder(RecepcionTerminadoTrefilacion.this);
                 View mView = getLayoutInflater().inflate(R.layout.alertdialog_cedularecepciona,null);
                 final EditText txtCedulaLogistica = mView.findViewById(R.id.txtCedulaLogistica);
                 TextView txtMrollos = mView.findViewById(R.id.txtMrollos);
@@ -172,7 +172,7 @@ public class EscanerInventario extends AppCompatActivity implements AdapterView.
                             toastError("La Cedula de la persona que recepciona no puede ser igual al de la persona que entrega");
                         }else{
                             //Verificamos el numero de documentos de la persona en la base da datos
-                            personaLogistica = conexion.obtenerPersona(EscanerInventario.this,CeLog );
+                            personaLogistica = conexion.obtenerPersona(RecepcionTerminadoTrefilacion.this,CeLog );
                             centro = personaLogistica.getCentro();
                             //Verificamos que la persona sea de logistica
                             if (centro.equals("3500")){
@@ -207,7 +207,7 @@ public class EscanerInventario extends AppCompatActivity implements AdapterView.
                     }
                     else{
 
-                        AlertDialog.Builder builder = new AlertDialog.Builder(EscanerInventario.this);
+                        AlertDialog.Builder builder = new AlertDialog.Builder(RecepcionTerminadoTrefilacion.this);
                         View mView = getLayoutInflater().inflate(R.layout.alertdialog_cedularecepciona,null);
                         final EditText txtCedulaLogistica = mView.findViewById(R.id.txtCedulaLogistica);
                         TextView txtMrollos = mView.findViewById(R.id.txtMrollos);
@@ -224,7 +224,7 @@ public class EscanerInventario extends AppCompatActivity implements AdapterView.
                                 if(CeLog.equals(nit_usuario)){
                                     toastError("La Cedula de la persona que recepciona no puede ser igual al de la persona que entrega");
                                 }else{
-                                    personaLogistica = conexion.obtenerPersona(EscanerInventario.this,CeLog );
+                                    personaLogistica = conexion.obtenerPersona(RecepcionTerminadoTrefilacion.this,CeLog );
                                     centro = personaLogistica.getCentro();
                                     //Verificamos que la persona pertenezca al centro de logistica
                                     if (centro.equals("3500")){
@@ -260,7 +260,7 @@ public class EscanerInventario extends AppCompatActivity implements AdapterView.
     //Una TRB1 en el sistema de bodega 2 a bodega 3 con los rollos leidos
     private void realizarTransaccion() {
         //Creamos una lista para almacenar todas las consultas que se realizaran en la base de datos
-        List<Object> listTransactionGal = new ArrayList<>();
+        List<Object> listTransactionTrefi = new ArrayList<>();
         //Creamos una lista para almacenar todas las consultas que se realizaran en la base de datos
         List<Object> listTransaccionBodega;
         //Lista donde revertimos la primer consulta si el segundo proceso no se realiza bien
@@ -284,60 +284,63 @@ public class EscanerInventario extends AppCompatActivity implements AdapterView.
         String yearActualString = formatoYear.format(fechaActual);
 
         //se adicionan los campos recepcionado, nit_recepcionado y fecha_recepcionado a la tabla
-        for(int i=0;i<ListaGalvRollosRecep.size();i++){
-            String nro_orden = ListaGalvRollosRecep.get(i).getNro_orden();
-            String nro_rollo = ListaGalvRollosRecep.get(i).getNro_rollo();
+        for(int i=0;i<ListaTrefiRollosRecep.size();i++){
+            String cod_orden = ListaTrefiRollosRecep.get(i).getCod_orden();
+            String id_detalle = ListaTrefiRollosRecep.get(i).getId_detalle();
+            String id_rollo = ListaTrefiRollosRecep.get(i).getId_rollo();
 
-            String sql_rollo= "UPDATE D_rollo_galvanizado_f SET recepcionado='SI', nit_recepcionado='"+ nit_usuario +"', fecha_recepcion='"+ fechaActualString +"', nit_entrega='"+ personaLogistica.getNit() +"' WHERE nro_orden='"+ nro_orden +"' AND consecutivo_rollo='"+nro_rollo+"'";
+            String sql_rollo= "UPDATE J_rollos_tref SET recepcionado='SI', nit_recepcionado='"+ nit_usuario +"', fecha_recepcion='"+ fechaActualString +"', nit_entrega='"+ personaLogistica.getNit() +"' WHERE cod_orden='"+ cod_orden +"' AND id_detalle='"+id_detalle+"' AND id_rollo='"+id_rollo+"'";
 
             try {
                 //Se añade el sql a la lista
-                listTransactionGal.add(sql_rollo);
+                listTransactionTrefi.add(sql_rollo);
             }catch (Exception e){
-                Toast.makeText(EscanerInventario.this, e.getMessage(), Toast.LENGTH_SHORT).show();
+                Toast.makeText(RecepcionTerminadoTrefilacion.this, e.getMessage(), Toast.LENGTH_SHORT).show();
             }
         }
 
-        if (listTransactionGal.size()>0){
+        if (listTransactionTrefi.size()>0){
             //Ejecutamos la consultas que llenan los campos de recepción
-            if (ing_prod_ad.ExecuteSqlTransaction(listTransactionGal, "PRGPRODUCCION", EscanerInventario.this)){
-                ListarefeRecepcionados = conexion.galvRefeRecepcionados(EscanerInventario.this,fechaActualString, monthActualString, yearActualString);
-                numero_transaccion = Integer.valueOf(Obj_ordenprodLn.mover_consecutivo("TRB1", EscanerInventario.this));
+            if (ing_prod_ad.ExecuteSqlTransaction(listTransactionTrefi, "JJVPRGPRODUCCION", RecepcionTerminadoTrefilacion.this)){
+                ListarefeRecepcionados = conexion.trefiRefeRecepcionados(RecepcionTerminadoTrefilacion.this,fechaActualString, monthActualString, yearActualString);
+                numero_transaccion = Integer.valueOf(Obj_ordenprodLn.mover_consecutivo("TRB1", RecepcionTerminadoTrefilacion.this));
                 listTransaccionBodega = traslado_bodega(ListarefeRecepcionados, calendar);
                 //Ejecutamos la lista de consultas para hacer la TRB1
-                if (ing_prod_ad.ExecuteSqlTransaction(listTransaccionBodega, "CORSAN", EscanerInventario.this)){
-                    for(int u=0;u<ListaGalvRollosRecep.size();u++){
-                        String nro_orden = ListaGalvRollosRecep.get(u).getNro_orden();
-                        String nro_rollo = ListaGalvRollosRecep.get(u).getNro_rollo();
-                        String sql_trb1= "UPDATE D_rollo_galvanizado_f SET trb1="+ numero_transaccion +" WHERE nro_orden='"+ nro_orden +"' AND consecutivo_rollo='"+nro_rollo+"'";
+                if (ing_prod_ad.ExecuteSqlTransaction(listTransaccionBodega, "JJVDMSCIERREAGOSTO", RecepcionTerminadoTrefilacion.this)){
+                    for(int u=0;u<ListaTrefiRollosRecep.size();u++){
+                        String cod_orden = ListaTrefiRollosRecep.get(u).getCod_orden();
+                        String id_detalle = ListaTrefiRollosRecep.get(u).getId_detalle();
+                        String id_rollo = ListaTrefiRollosRecep.get(u).getId_rollo();
+                        String sql_trb1= "UPDATE J_rollos_tref SET trb1="+ numero_transaccion +" WHERE cod_orden='"+ cod_orden +"' AND id_detalle='"+id_detalle+"' AND id_rollo='"+id_rollo+"'";
                         try {
                             //Se añade el sql a la lista
                             listTransactionTrb1.add(sql_trb1);
                         }catch (Exception e){
-                            Toast.makeText(EscanerInventario.this, e.getMessage(), Toast.LENGTH_SHORT).show();
+                            Toast.makeText(RecepcionTerminadoTrefilacion.this, e.getMessage(), Toast.LENGTH_SHORT).show();
                         }
                     }
-                    if(ing_prod_ad.ExecuteSqlTransaction(listTransactionTrb1, "PRGPRODUCCION", EscanerInventario.this)){
-                        consultarGalvTerminado();
+                    if(ing_prod_ad.ExecuteSqlTransaction(listTransactionTrb1, "JJVPRGPRODUCCION", RecepcionTerminadoTrefilacion.this)){
+                        consultarTrefiTerminado();
                         toastAcierto("Transaccion Realizada con Exito! --" + numero_transaccion);
                     }else{
                         toastError("Problemas, No se realizó correctamente la transacción!");
                     };
                 }else{
                     //Si la consulta falla revertimos la llenada de campos de recepcion en la base de datos
-                    for(int i=0;i<ListaGalvRollosRecep.size();i++){
-                        String nro_orden = ListaGalvRollosRecep.get(i).getNro_orden();
-                        String nro_rollo = ListaGalvRollosRecep.get(i).getNro_rollo();
+                    for(int i=0;i<ListaTrefiRollosRecep.size();i++){
+                        String cod_orden = ListaTrefiRollosRecep.get(i).getCod_orden();
+                        String id_detalle = ListaTrefiRollosRecep.get(i).getId_detalle();
+                        String id_rollo = ListaTrefiRollosRecep.get(i).getId_rollo();
 
-                        String sql_rollo= "UPDATE D_rollo_galvanizado_f SET recepcionado=null, nit_recepcionado=null, fecha_recepcion=null, nit_entrega=null WHERE nro_orden='"+ nro_orden +"' AND consecutivo_rollo='"+nro_rollo+"'";
+                        String sql_rollo= "UPDATE J_rollos_tref SET recepcionado=null, nit_recepcionado=null, fecha_recepcion=null, nit_entrega=null WHERE cod_orden='"+ cod_orden +"' AND id_detalle='"+id_detalle+"' AND id_rollo='"+id_rollo+"'";
 
                         try {
                             //Se añade el sql a la lista - esto es un
                             listTransactionError.add(sql_rollo);
                         }catch (Exception e){
-                            Toast.makeText(EscanerInventario.this, e.getMessage(), Toast.LENGTH_SHORT).show();
+                            Toast.makeText(RecepcionTerminadoTrefilacion.this, e.getMessage(), Toast.LENGTH_SHORT).show();
                         }
-                        ing_prod_ad.ExecuteSqlTransaction(listTransactionError,"PRGPRODUCCION",EscanerInventario.this);
+                        ing_prod_ad.ExecuteSqlTransaction(listTransactionError,"JJVPRGPRODUCCION",RecepcionTerminadoTrefilacion.this);
                     }
                     toastError("Problemas, No se realizó correctamente la transacción!");
 
@@ -351,34 +354,34 @@ public class EscanerInventario extends AppCompatActivity implements AdapterView.
     /////////////////////////////////////////////////////////////////////////////////////////////
     //Funcion que genera la lista de consultas que modifican las tablas en la base da datos de Corsan
     //Para generar la transacción
-    private List<Object> traslado_bodega(List<GalvRecepcionadoRollosModelo> ListarefeRecepcionados, Calendar calendar){
+    private List<Object> traslado_bodega(List<TrefiRecepcionadoRollosModelo> ListarefeRecepcionados, Calendar calendar){
         List<Object> listSql;
         @SuppressLint("SimpleDateFormat")
-        SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss");
+        SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy");
         String fecha = dateFormat.format(calendar.getTime());
         String usuario = nit_usuario;
         String notas = "MOVIL fecha:" + fecha + " usuario:" + usuario;
 
-        listSql = objTraslado_bodLn.listaTrasladoBodegaGalv(ListarefeRecepcionados,numero_transaccion, 17, 3, calendar, notas, usuario, "TRB1", "30",EscanerInventario.this);
+        listSql = objTraslado_bodLn.listaTrasladoBodegaTrefi(ListarefeRecepcionados,numero_transaccion, 2, 3, calendar, notas, usuario, "TRB1", "11",RecepcionTerminadoTrefilacion.this);
         return listSql;
     }
 
     /////////////////////////////////////////////////////////////////////////////////////////////
     //Metodo que consulta los rollos que hay en producción que no se han recepcionado e
     //inicializa el listview
-    private void consultarGalvTerminado() {
+    private void consultarTrefiTerminado() {
         conexion = new Conexion();
         //Inicializamos la lista de los rollos escaneados
-        ListaGalvRollosRecep = new ArrayList<>();
+        ListaTrefiRollosRecep = new ArrayList<>();
 
         //Consultamos los rollos de producción que no se han recepcionado en la base de datos
-        ListaGalvTerminado = conexion.obtenerGalvTerminado(getApplication());
+        ListaTrefiTerminado = conexion.obtenerTrefiTerminado(getApplication());
         //Enviamos la lista vacia de rollos escaneados al listview
-        GalvTerminadoAdapter = new listGalvTerminadoAdapter(EscanerInventario.this,R.layout.item_row_galvterminado,ListaGalvRollosRecep);
-        listviewGalvTerminado.setAdapter(GalvTerminadoAdapter);
+        TrefiTerminadoAdapter = new listTrefiTerminadoAdapter(RecepcionTerminadoTrefilacion.this,R.layout.item_row_trefiterminado,ListaTrefiRollosRecep);
+        listviewTrefiTerminado.setAdapter(TrefiTerminadoAdapter);
 
         //Enviamos la cantidad de rollos de producción que no se han recepcionado al TextView
-        String totalRollos = String.valueOf(ListaGalvTerminado.size());
+        String totalRollos = String.valueOf(ListaTrefiTerminado.size());
         txtTotal.setText(totalRollos);
 
         //Contamos los rollos leidos y sin leer para mostrarlos en los TextView
@@ -400,11 +403,11 @@ public class EscanerInventario extends AppCompatActivity implements AdapterView.
     //Metodo que verifica que el codigo escaneado se encuentre en la lista de rollos de producción
     //No recepcionados
     private void codigoIngresado() throws SQLException {
-        consecutivo = codigoGalva.getText().toString().trim();
+        consecutivo = codigoTrefi.getText().toString().trim();
         boolean encontrado = false;
         int position = 0;
-        for (int i=0;i<ListaGalvTerminado.size();i++){
-            String codigoList = ListaGalvTerminado.get(i).getNro_orden()+"-"+ListaGalvTerminado.get(i).getNro_rollo();
+        for (int i=0;i<ListaTrefiTerminado.size();i++){
+            String codigoList = ListaTrefiTerminado.get(i).getCod_orden()+"-"+ListaTrefiTerminado.get(i).getId_detalle()+"-"+ListaTrefiTerminado.get(i).getId_rollo();
             if(consecutivo.equals(codigoList)){
                 encontrado = true;
                 position = i;
@@ -413,15 +416,15 @@ public class EscanerInventario extends AppCompatActivity implements AdapterView.
         //Si el rollos es encontrado o no se muestra mensaje
         if (encontrado){
             //Si el rollo encontrado esta pintado de verde ya fue leido anteriormente
-            if(ListaGalvTerminado.get(position).getColor().equals("GREEN")){
+            if(ListaTrefiTerminado.get(position).getColor().equals("GREEN")){
                 toastError("Rollo Ya leido");
                 AudioError();
                 cargarNuevo();
             }else{
                 //Copiamos el rollo encontrado de la lista de producción
-                galvRecepcionModelo = ListaGalvTerminado.get(position);
+                trefiRecepcionModelo = ListaTrefiTerminado.get(position);
                 //Agregamos la copia a la de los rollos escaneados
-                ListaGalvRollosRecep.add(galvRecepcionModelo);
+                ListaTrefiRollosRecep.add(trefiRecepcionModelo);
                 //Pintamos el rollo de verde en la lista de produccion para no poder volverlo a leer
                 pintarRollo(position);
                 //Contamos los rollos leidos y no leidos
@@ -452,12 +455,12 @@ public class EscanerInventario extends AppCompatActivity implements AdapterView.
         // Convierte la fecha actual en un String con el formato definido
         String fechaActualString = formatoFecha.format(fechaActual);
 
-        String nro_orden = ListaGalvTerminado.get(p).getNro_orden();
-        String nro_rollo = ListaGalvTerminado.get(p).getNro_rollo();
+        String nro_orden = ListaTrefiTerminado.get(p).getNro_orden();
+        String nro_rollo = ListaTrefiTerminado.get(p).getNro_rollo();
 
 
         String sql= "UPDATE D_rollo_galvanizado_f SET recepcionado='SI', nit_recepcionado='"+ nit_usuario +"', fecha_recepcion='"+ fechaActualString +"' WHERE nro_orden='"+ nro_orden +"' AND consecutivo_rollo='"+nro_rollo+"'";
-        objOperacionesDb.ejecutarUpdateDbProduccion(sql,EscanerInventario.this);
+        objOperacionesDb.ejecutarUpdateDbProduccion(sql,RecepcionTerminadoTrefilacion.this);
 
     }
      */
@@ -468,12 +471,12 @@ public class EscanerInventario extends AppCompatActivity implements AdapterView.
     private void contarSinLeer() {
         int sinLeer = 0;
         /*
-        for(int x=0;x<ListaGalvTerminado.size();x++){
-            if(ListaGalvTerminado.get(x).getColor().equals("RED")){
+        for(int x=0;x<ListaTrefiTerminado.size();x++){
+            if(ListaTrefiTerminado.get(x).getColor().equals("RED")){
                 sinLeer++;
             }
         }*/
-        sinLeer = ListaGalvTerminado.size() - ListaGalvRollosRecep.size();
+        sinLeer = ListaTrefiTerminado.size() - ListaTrefiRollosRecep.size();
         txtTotalSinLeer.setText(Integer.toString(sinLeer));
     }
 
@@ -483,24 +486,24 @@ public class EscanerInventario extends AppCompatActivity implements AdapterView.
     private void contarLeidos() {
         int Leido = 0;
         /*
-        for(int x=0;x<ListaGalvTerminado.size();x++){
-            if(ListaGalvTerminado.get(x).getColor().equals("GREEN")){
+        for(int x=0;x<ListaTrefiTerminado.size();x++){
+            if(ListaTrefiTerminado.get(x).getColor().equals("GREEN")){
                 Leido++;
             }
         }*/
-        Leido = ListaGalvRollosRecep.size();
+        Leido = ListaTrefiRollosRecep.size();
         txtRollosLeidos.setText(Integer.toString(Leido));
     }
 
     /////////////////////////////////////////////////////////////////////////////////////////////
     //Metodo que borra el codigo del EditText y cambia la variable "yaentre"
     private void cargarNuevo() {
-        codigoGalva.setText("");
+        codigoTrefi.setText("");
         if (yaentre == 0){
             yaentre = 1;
         }else{
             yaentre = 0;
-            codigoGalva.requestFocus();
+            codigoTrefi.requestFocus();
         }
     }
 
@@ -508,9 +511,9 @@ public class EscanerInventario extends AppCompatActivity implements AdapterView.
     //Metodo que pinta el rollo encontrado en la lista de producción y muestra en el listView la lista
     //De rollos leidos
     private void pintarRollo(int posicion) {
-        ListaGalvTerminado.get(posicion).setColor("GREEN");
-        GalvTerminadoAdapter = new listGalvTerminadoAdapter(EscanerInventario.this,R.layout.item_row_galvterminado,ListaGalvRollosRecep);
-        listviewGalvTerminado.setAdapter(GalvTerminadoAdapter);
+        ListaTrefiTerminado.get(posicion).setColor("GREEN");
+        TrefiTerminadoAdapter = new listTrefiTerminadoAdapter(RecepcionTerminadoTrefilacion.this,R.layout.item_row_trefiterminado,ListaTrefiRollosRecep);
+        listviewTrefiTerminado.setAdapter(TrefiTerminadoAdapter);
     }
 
     /////////////////////////////////////////////////////////////////////////////////////////////
@@ -562,4 +565,5 @@ public class EscanerInventario extends AppCompatActivity implements AdapterView.
         sp.play(sonido_de_Reproduccion,100,100,1,0,0);
         vibrator.vibrate(2000);
     }
+
 }

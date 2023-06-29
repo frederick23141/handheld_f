@@ -20,6 +20,8 @@ import com.example.handheld.modelos.PedidoModelo;
 import com.example.handheld.modelos.PersonaModelo;
 import com.example.handheld.modelos.RolloterminadoModelo;
 import com.example.handheld.modelos.TipotransModelo;
+import com.example.handheld.modelos.TrefiRecepcionModelo;
+import com.example.handheld.modelos.TrefiRecepcionadoRollosModelo;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -53,7 +55,7 @@ public class Conexion {
         PersonaModelo persona = null;
 
         try {
-            Statement st = conexionBD("JJVDMSCIERREAGOSTO", context).createStatement();
+            Statement st = conexionBD("CORSAN", context).createStatement();
             ResultSet rs = st.executeQuery("SELECT nombres, nit, centro FROM V_nom_personal_Activo_con_maquila " +
                     "WHERE nit = '" + cedula + "'");
             if (rs.next()){
@@ -71,7 +73,7 @@ public class Conexion {
     public String obtenerIdAlamImport(Context context, String sql){
         String id = "";
         try {
-            Statement st = conexionBD("JJVPRGPRODUCCION", context).createStatement();
+            Statement st = conexionBD("PRGPRODUCCION", context).createStatement();
             ResultSet rs = st.executeQuery(sql);
             if (rs.next()){
                 id = rs.getString("id");
@@ -86,7 +88,7 @@ public class Conexion {
         int id = 0;
 
         try {
-            Statement st = conexionBD("JJVPRGPRODUCCION", context).createStatement();
+            Statement st = conexionBD("PRGPRODUCCION", context).createStatement();
             ResultSet rs = st.executeQuery(sql);
             if (rs.next()){
                 id = Integer.parseInt(rs.getString("id"));
@@ -103,7 +105,7 @@ public class Conexion {
         String peso = "";
 
         try {
-            Statement st = conexionBD("JJVPRGPRODUCCION", context).createStatement();
+            Statement st = conexionBD("PRGPRODUCCION", context).createStatement();
             ResultSet rs = st.executeQuery(sql);
             if (rs.next()){
                 peso = rs.getString("peso");
@@ -119,7 +121,7 @@ public class Conexion {
         String codigo = null;
 
         try {
-            Statement st = conexionBD("JJVPRGPRODUCCION", context).createStatement();
+            Statement st = conexionBD("PRGPRODUCCION", context).createStatement();
             ResultSet rs = st.executeQuery(sql);
             if (rs.next()){
                 codigo = rs.getString("codigo");
@@ -135,7 +137,7 @@ public class Conexion {
         String codigo = null;
 
         try {
-            Statement st = conexionBD("JJVPRGPRODUCCION", context).createStatement();
+            Statement st = conexionBD("PRGPRODUCCION", context).createStatement();
             ResultSet rs = st.executeQuery(sql);
             if (rs.next()){
                 codigo = rs.getString("codigo");
@@ -151,7 +153,7 @@ public class Conexion {
         String Stock = null;
 
         try {
-            Statement st = conexionBD("JJVDMSCIERREAGOSTO", context).createStatement();
+            Statement st = conexionBD("CORSAN", context).createStatement();
             ResultSet rs = st.executeQuery("SELECT stock,bodega FROM v_referencias_sto_hoy WHERE codigo = '" + codigo + "' and bodega = " + bodega + " ");
             if (rs.next()){
                 Stock = rs.getString("stock");
@@ -167,7 +169,7 @@ public class Conexion {
         String numero = "";
 
         try {
-            Statement st = conexionBD("JJVDMSCIERREAGOSTO", context).createStatement();
+            Statement st = conexionBD("CORSAN", context).createStatement();
             ResultSet rs = st.executeQuery(sql);
             if (rs.next()){
                 numero = rs.getString("numero");
@@ -183,7 +185,7 @@ public class Conexion {
         String descripcion = "";
 
         try {
-            Statement st = conexionBD("JJVDMSCIERREAGOSTO", context).createStatement();
+            Statement st = conexionBD("CORSAN", context).createStatement();
             ResultSet rs = st.executeQuery(sql);
             if (rs.next()){
                 descripcion = rs.getString("descripcion");
@@ -199,7 +201,7 @@ public class Conexion {
         String generico = "";
 
         try {
-            Statement st = conexionBD("JJVDMSCIERREAGOSTO", context).createStatement();
+            Statement st = conexionBD("CORSAN", context).createStatement();
             ResultSet rs = st.executeQuery(sql);
             if (rs.next()){
                 generico = rs.getString("generico");
@@ -215,7 +217,7 @@ public class Conexion {
         String codigo = "";
 
         try {
-            Statement st = conexionBD("JJVDMSCIERREAGOSTO", context).createStatement();
+            Statement st = conexionBD("CORSAN", context).createStatement();
             ResultSet rs = st.executeQuery(sql);
             if (rs.next()){
                 codigo = rs.getString("codigo");
@@ -231,7 +233,7 @@ public class Conexion {
         String descripcion = "";
 
         try {
-            Statement st = conexionBD("JJVDMSCIERREAGOSTO", context).createStatement();
+            Statement st = conexionBD("CORSAN", context).createStatement();
             ResultSet rs = st.executeQuery("select descripcion from referencias where codigo='"+ referencia +"' and ref_anulada = 'N' and grupo IN ('311','312')");
             if (rs.next()){
                 descripcion = rs.getString("descripcion");
@@ -247,7 +249,7 @@ public class Conexion {
         String conversion = "";
 
         try {
-            Statement st = conexionBD("JJVDMSCIERREAGOSTO", context).createStatement();
+            Statement st = conexionBD("CORSAN", context).createStatement();
             ResultSet rs = st.executeQuery("select conversion from referencias where codigo='"+ referencia +"' and ref_anulada = 'N'");
             if (rs.next()){
                 conversion = rs.getString("conversion");
@@ -264,7 +266,7 @@ public class Conexion {
         String mes = "";
 
         try {
-            Statement st = conexionBD("JJVDMSCIERREAGOSTO", context).createStatement();
+            Statement st = conexionBD("CORSAN", context).createStatement();
             ResultSet rs = st.executeQuery(sql);
             if (rs.next()){
                 mes = rs.getString("mes");
@@ -280,7 +282,7 @@ public class Conexion {
         String costo_kilo = null;
 
         try {
-            Statement st = conexionBD("JJVPRGPRODUCCION", context).createStatement();
+            Statement st = conexionBD("PRGPRODUCCION", context).createStatement();
             ResultSet rs = st.executeQuery(sql);
             if (rs.next()){
                 costo_kilo = rs.getString("costo_kilo");
@@ -296,7 +298,7 @@ public class Conexion {
         Double iva = null;
 
         try {
-            Statement st = conexionBD("JJVDMSCIERREAGOSTO", context).createStatement();
+            Statement st = conexionBD("CORSAN", context).createStatement();
             ResultSet rs = st.executeQuery("select porcentaje_iva from referencias where codigo = '"+ cod +"'");
             if (rs.next()){
                 iva = rs.getDouble("porcentaje_iva");
@@ -312,7 +314,7 @@ public class Conexion {
         String Empresa = null;
 
         try {
-            Statement st = conexionBD("JJVPRGPRODUCCION", context).createStatement();
+            Statement st = conexionBD("PRGPRODUCCION", context).createStatement();
             ResultSet rs = st.executeQuery("select OPERARIO from F_Recepcion_puntilleria where FECHA_RECEPCIONADO = '"+ fecha +"' group by OPERARIO");
             if (rs.next()){
                 Operario = rs.getString("OPERARIO");
@@ -322,7 +324,7 @@ public class Conexion {
         }
 
         try {
-            Statement st = conexionBD("JJVDMSCIERREAGOSTO", context).createStatement();
+            Statement st = conexionBD("CORSAN", context).createStatement();
             ResultSet rs = st.executeQuery("select Empresa from V_nom_personal_Activo_con_maquila where nit = '"+ Operario +"'");
             if (rs.next()){
                 Empresa = rs.getString("Empresa");
@@ -339,7 +341,7 @@ public class Conexion {
         String cantidad = null;
 
         try {
-            Statement st = conexionBD("JJVPRGPRODUCCION", context).createStatement();
+            Statement st = conexionBD("PRGPRODUCCION", context).createStatement();
             ResultSet rs = st.executeQuery(sql);
             if (rs.next()){
                 cantidad = rs.getString("pendiente");
@@ -355,7 +357,7 @@ public class Conexion {
         String numImport = "";
 
         try {
-            Statement st = conexionBD("JJVPRGPRODUCCION", context).createStatement();
+            Statement st = conexionBD("PRGPRODUCCION", context).createStatement();
             ResultSet rs = st.executeQuery(sql);
             if (rs.next()){
                 numImport = rs.getString("num_importacion");
@@ -372,7 +374,7 @@ public class Conexion {
         boolean resp = false;
 
         try {
-            Statement st = conexionBD("JJVDMSCIERREAGOSTO", context).createStatement();
+            Statement st = conexionBD("CORSAN", context).createStatement();
             ResultSet rs = st.executeQuery("SELECT codigo FROM referencias WHERE codigo = '" + codigo + "'");
             if (rs.next()){
                 Pcodigo = rs.getString("codigo");
@@ -392,7 +394,7 @@ public class Conexion {
         boolean resp = false;
 
         try {
-            Statement st = conexionBD("JJVDMSCIERREAGOSTO", context).createStatement();
+            Statement st = conexionBD("CORSAN", context).createStatement();
             ResultSet rs = st.executeQuery("SELECT tipo FROM tipo_transacciones WHERE tipo = '" + tipoSpinner + "'");
             if (rs.next()){
                 tipo = rs.getString("tipo");
@@ -411,7 +413,7 @@ public class Conexion {
         TipotransModelo Tipo;
 
         try {
-            Statement st = conexionBD("JJVDMSCIERREAGOSTO", context).createStatement();
+            Statement st = conexionBD("CORSAN", context).createStatement();
             ResultSet rs = st.executeQuery("SELECT T.tipo,T.sw FROM  tipo_transacciones T WHERE T.tipo = 'TRB1' ");
             while (rs.next()){
                 Tipo = new TipotransModelo();
@@ -430,7 +432,7 @@ public class Conexion {
         InventarioModelo Inventario;
 
         try {
-            Statement st = conexionBD("JJVPRGPRODUCCION", context).createStatement();
+            Statement st = conexionBD("PRGPRODUCCION", context).createStatement();
             ResultSet rs = st.executeQuery(sql);
             while (rs.next()){
                 Inventario = new InventarioModelo();
@@ -450,7 +452,7 @@ public class Conexion {
         RolloterminadoModelo Terminado;
 
         try {
-            Statement st = conexionBD("JJVPRGPRODUCCION", context).createStatement();
+            Statement st = conexionBD("PRGPRODUCCION", context).createStatement();
             ResultSet rs = st.executeQuery(sql);
             while (rs.next()){
                 Terminado = new RolloterminadoModelo();
@@ -470,7 +472,7 @@ public class Conexion {
         CentrosModelo Centro;
 
         try {
-            Statement st = conexionBD("JJVDMSCIERREAGOSTO", context).createStatement();
+            Statement st = conexionBD("CORSAN", context).createStatement();
             ResultSet rs = st.executeQuery("SELECT centro,(CONVERT(varchar, centro) + '--' + descripcion) AS descripcion FROM centros WHERE centro IN (2100,2200,2300,5200,6400)");
             while (rs.next()){
                 Centro = new CentrosModelo();
@@ -486,10 +488,10 @@ public class Conexion {
 
     public boolean eliminarTiqueteUnico(Context context, String num_importacion, String num_rollo, String nit_proveedor, String detalle){
         boolean resp = false;
-        Connection connection = conexionBD("JJVPRGPRODUCCION", context);
+        Connection connection = conexionBD("PRGPRODUCCION", context);
         try {
             if (connection != null){
-                PreparedStatement stm = conexionBD("JJVPRGPRODUCCION", context).prepareStatement("DELETE FROM  J_alambron_importacion_det_rollos WHERE num_importacion =" + num_importacion + " AND numero_rollo = " + num_rollo + " AND nit_proveedor=" + nit_proveedor + " AND id_solicitud_det =" + detalle);
+                PreparedStatement stm = conexionBD("PRGPRODUCCION", context).prepareStatement("DELETE FROM  J_alambron_importacion_det_rollos WHERE num_importacion =" + num_importacion + " AND numero_rollo = " + num_rollo + " AND nit_proveedor=" + nit_proveedor + " AND id_solicitud_det =" + detalle);
                 stm.executeQuery();
                 resp = true;
                 Toast.makeText(context, "Tiquete borrado", Toast.LENGTH_SHORT).show();
@@ -505,7 +507,7 @@ public class Conexion {
         PedidoModelo modelo;
 
         try {
-            Statement st = conexionBD("JJVPRGPRODUCCION", context).createStatement();
+            Statement st = conexionBD("PRGPRODUCCION", context).createStatement();
             ResultSet rs = st.executeQuery("SELECT E.numero,D.id_detalle,E.fecha,D.codigo,(D.cantidad - (SELECT COUNT(numero) FROM J_salida_alambron_transaccion  WHERE numero = D.numero AND id_detalle = D.id_detalle))As pendiente,R.descripcion \n" +
                     "                               FROM J_salida_alambron_enc E ,J_salida_alambron_det D, CORSAN.dbo.referencias R \n" +
                     "                                  WHERE E.anulado is null AND  R.codigo = D.codigo AND D.numero = E.numero AND (D.cantidad - (SELECT COUNT(numero) FROM J_salida_alambron_transaccion  WHERE numero = D.numero AND id_detalle = D.id_detalle)) > 0 AND (e.devolver = 'N' OR e.devolver IS NULL ) \n" +
@@ -531,7 +533,7 @@ public class Conexion {
         MesasModelo modelo;
 
         try {
-            Statement st = conexionBD("JJVPRGPRODUCCION", context).createStatement();
+            Statement st = conexionBD("PRGPRODUCCION", context).createStatement();
             ResultSet rs = st.executeQuery(sql);
             while (rs.next()){
                 modelo = new MesasModelo();
@@ -550,7 +552,7 @@ public class Conexion {
         GalvRecepcionModelo modelo;
 
         try {
-            Statement st = conexionBD("JJVPRGPRODUCCION", context).createStatement();
+            Statement st = conexionBD("PRGPRODUCCION", context).createStatement();
             ResultSet rs = st.executeQuery("SELECT R.nro_orden,R.consecutivo_rollo as nro_rollo,S.final_galv,ref.descripcion,R.peso  \n" +
                                                 "FROM D_rollo_galvanizado_f R, D_orden_pro_galv_enc S,CORSAN.dbo.referencias ref,CORSAN.dbo.V_nom_personal_Activo_con_maquila ter \n" +
                                                 "where R.nro_orden = S.consecutivo_orden_G And ref.codigo = S.final_galv and ter.nit=R.nit_operario AND R.no_conforme is null and R.anular is null and R.recepcionado is null and S.final_galv LIKE '33G%'\n" +
@@ -571,12 +573,39 @@ public class Conexion {
         return galvTerminado;
     }
 
+    public List<TrefiRecepcionModelo> obtenerTrefiTerminado(Context context){
+        List<TrefiRecepcionModelo> trefiTerminado = new ArrayList<>();
+        TrefiRecepcionModelo modelo;
+
+        try {
+            Statement st = conexionBD("PRGPRODUCCION", context).createStatement();
+            ResultSet rs = st.executeQuery("select R.cod_orden,R.id_detalle,R.id_rollo, O.prod_final,Ref.descripcion, R.peso\n" +
+                    "from J_rollos_tref R inner join J_orden_prod_tef O on R.cod_orden = O.consecutivo inner join CORSAN.dbo.referencias Ref on O.prod_final = Ref.codigo\n" +
+                    "where O.prod_final like '33%' and R.recepcionado is null and R.anulado is null and R.no_conforme is null  and R.motivo is null and R.traslado is null and\n" +
+                    "R.saga is null and R.bobina is null and R.scla is null and R.destino is null and R.srec is null and R.scal is null and R.scae is null and R.sar is null and R.sav is null");
+            while (rs.next()){
+                modelo = new TrefiRecepcionModelo();
+                modelo.setCod_orden(rs.getString("cod_orden"));
+                modelo.setId_detalle(rs.getString("id_detalle"));
+                modelo.setId_rollo(rs.getString("id_rollo"));
+                modelo.setReferencia(rs.getString("prod_final"));
+                modelo.setDescripcion(rs.getString("descripcion"));
+                modelo.setPeso(String.valueOf(rs.getInt("peso")));
+                modelo.setColor("RED");
+                trefiTerminado.add(modelo);
+            }
+        }catch (Exception e){
+            Toast.makeText(context, e.getMessage(), Toast.LENGTH_SHORT).show();
+        }
+        return trefiTerminado;
+    }
+
     public List<CajasRefeModelo> obtenerCajasRefe(Context context, String mesa, String referencia){
         List<CajasRefeModelo> cajasRefe = new ArrayList<>();
         CajasRefeModelo modelo;
 
         try {
-            Statement st = conexionBD("JJVPRGPRODUCCION", context).createStatement();
+            Statement st = conexionBD("PRGPRODUCCION", context).createStatement();
             ResultSet rs = st.executeQuery("select FECHA,REFERENCIA,MESA,CANTIDAD from F_Recepcion_puntilleria where MESA = '"+ mesa +"' and REFERENCIA='"+ referencia +"' and RECEPCIONADO is null order by cantidad desc");
             while (rs.next()){
                 modelo = new CajasRefeModelo();
@@ -597,7 +626,7 @@ public class Conexion {
         GalvRecepcionModelo modelo;
 
         try {
-            Statement st = conexionBD("JJVPRGPRODUCCION", context).createStatement();
+            Statement st = conexionBD("PRGPRODUCCION", context).createStatement();
             ResultSet rs = st.executeQuery("SELECT R.nro_orden,R.consecutivo_rollo as nro_rollo,S.final_galv,ref.descripcion,R.peso  \n" +
                     "FROM D_rollo_galvanizado_f R, D_orden_pro_galv_enc S,CORSAN.dbo.referencias ref,CORSAN.dbo.V_nom_personal_Activo_con_maquila ter \n" +
                     "where R.nro_orden = S.consecutivo_orden_G And ref.codigo = S.final_galv and ter.nit=R.nit_operario AND R.fecha_hora >= '"+ fecha_inicio +"' AND  R.fecha_hora  <= '"+ fecha_final +"' and R.no_conforme is null and R.anular is null and R.recepcionado is null and S.final_galv LIKE '33G%'\n" +
@@ -623,7 +652,7 @@ public class Conexion {
         CajasReceModelo modelo;
 
         try {
-            Statement st = conexionBD("JJVPRGPRODUCCION", context).createStatement();
+            Statement st = conexionBD("PRGPRODUCCION", context).createStatement();
             ResultSet rs = st.executeQuery(sql);
             while (rs.next()){
                 modelo = new CajasReceModelo();
@@ -644,7 +673,7 @@ public class Conexion {
         GalvRecepcionadoRollosModelo modelo;
 
         try {
-            Statement st = conexionBD("JJVPRGPRODUCCION", context).createStatement();
+            Statement st = conexionBD("PRGPRODUCCION", context).createStatement();
             ResultSet rs = st.executeQuery("select sum(R.peso) as peso, (SELECT p.promedio from corsan.dbo.v_promedio p where codigo = O.final_galv and P.ano = "+ year +" and P.mes = "+ month +")  as promedio, (select costo_unitario from CORSAN.dbo.referencias R where codigo = O.final_galv) as costo_unitario , O.final_galv " +
                     "from D_rollo_galvanizado_f R inner join D_orden_pro_galv_enc O on O.consecutivo_orden_G = R.nro_orden " +
                     "where R.recepcionado is not null and R.fecha_recepcion = '"+ fecha_recepcion +"' and R.no_conforme is null and O.final_galv like '33%' " +
@@ -663,12 +692,37 @@ public class Conexion {
         return refeRecepcionados;
     }
 
+    public List<TrefiRecepcionadoRollosModelo> trefiRefeRecepcionados(Context context, String fecha_recepcion, String month, String year){
+        List<TrefiRecepcionadoRollosModelo> refeRecepcionados = new ArrayList<>();
+        TrefiRecepcionadoRollosModelo modelo;
+
+        try {
+            Statement st = conexionBD("PRGPRODUCCION", context).createStatement();
+            ResultSet rs = st.executeQuery("select sum(R.peso) as peso, (SELECT p.promedio from corsan.dbo.v_promedio p where codigo = O.prod_final and P.ano = "+ year +" and P.mes = "+ month +")  as promedio, (select costo_unitario from CORSAN.dbo.referencias R where codigo = O.prod_final) as costo_unitario , O.prod_final " +
+                    "from J_rollos_tref R inner join J_orden_prod_tef O on O.consecutivo = R.cod_orden " +
+                    "where R.recepcionado is not null and R.fecha_recepcion = '"+ fecha_recepcion +"' and R.no_conforme is null and O.prod_final like '33%' " +
+                    "group by O.prod_final");
+
+            while (rs.next()){
+                modelo = new TrefiRecepcionadoRollosModelo();
+                modelo.setPeso(rs.getDouble("peso"));
+                modelo.setPromedio(rs.getDouble("promedio"));
+                modelo.setCosto_unitario(rs.getDouble("costo_unitario"));
+                modelo.setReferencia(rs.getString("prod_final"));
+                refeRecepcionados.add(modelo);
+            }
+        }catch (Exception e){
+            Toast.makeText(context, e.getMessage(), Toast.LENGTH_SHORT).show();
+        }
+        return refeRecepcionados;
+    }
+
     public List<EmpRecepcionadoCajasModelo> empaRefeRecepcionados(Context context, String fecha_recepcion, String month, String year){
         List<EmpRecepcionadoCajasModelo> refeRecepcionados = new ArrayList<>();
         EmpRecepcionadoCajasModelo modelo;
 
         try {
-            Statement st = conexionBD("JJVPRGPRODUCCION", context).createStatement();
+            Statement st = conexionBD("PRGPRODUCCION", context).createStatement();
             ResultSet rs = st.executeQuery("select sum(R.CANTIDAD) as cantidad, (SELECT p.promedio from corsan.dbo.v_promedio p where codigo = REFERENCIA and P.ano = "+ year +" and P.mes = "+ month +")  as promedio, (select costo_unitario from CORSAN.dbo.referencias R where codigo = REFERENCIA) as costo_unitario , REFERENCIA " +
                     "from F_Recepcion_puntilleria R " +
                     "where R.RECEPCIONADO is not null and R.FECHA_RECEPCIONADO = '"+ fecha_recepcion +"' " +
@@ -696,7 +750,7 @@ public class Conexion {
         String id_Inirequisicion = "";
 
         try {
-            Statement st = conexionBD("JJVPRGPRODUCCION", context).createStatement();
+            Statement st = conexionBD("PRGPRODUCCION", context).createStatement();
             //ResultSet rs = st.executeQuery("SELECT (CASE WHEN MAX(id) IS NULL THEN 1 ELSE MAX(id)+1 END) as id FROM J_alambron_requisicion");
             ResultSet rs = st.executeQuery(sql);
             if (rs.next()){
@@ -713,7 +767,7 @@ public class Conexion {
         String nombreProveedor = "";
 
         try {
-            Statement st = conexionBD("JJVDMSCIERREAGOSTO", context).createStatement();
+            Statement st = conexionBD("CORSAN", context).createStatement();
             ResultSet rs = st.executeQuery(sql);
             if (rs.next()){
                 nombreProveedor = rs.getString("nombres");
@@ -728,7 +782,7 @@ public class Conexion {
         Double porcentaje = null;
 
         try {
-            Statement st = conexionBD("JJVDMSCIERREAGOSTO", context).createStatement();
+            Statement st = conexionBD("CORSAN", context).createStatement();
             ResultSet rs = st.executeQuery("SELECT porcentaje FROM J_iva_porcentaje");
             if (rs.next()){
                 porcentaje = rs.getDouble("porcentaje");
@@ -745,7 +799,7 @@ public class Conexion {
         int sw = 0;
 
         try {
-            Statement st = conexionBD("JJVDMSCIERREAGOSTO", context).createStatement();
+            Statement st = conexionBD("CORSAN", context).createStatement();
             ResultSet rs = st.executeQuery("SELECT sw FROM tipo_transacciones WHERE tipo = '" + tipo + "'");
             if (rs.next()){
                 sw = rs.getInt("sw");
@@ -761,7 +815,7 @@ public class Conexion {
         CuentasModelo modelo;
 
         try {
-            Statement st = conexionBD("JJVDMSCIERREAGOSTO", context).createStatement();
+            Statement st = conexionBD("CORSAN", context).createStatement();
             ResultSet rs = st.executeQuery(sql);
             while (rs.next()){
                 modelo = new CuentasModelo();
@@ -783,7 +837,7 @@ public class Conexion {
         LectorCodCargueModelo modelo;
 
         try {
-            Statement st = conexionBD("JJVPRGPRODUCCION", context).createStatement();
+            Statement st = conexionBD("PRGPRODUCCION", context).createStatement();
             ResultSet rs = st.executeQuery(sql);
             while (rs.next()){
 
@@ -821,7 +875,7 @@ public class Conexion {
 
 
         try {
-            Statement st = conexionBD("JJVDMSCIERREAGOSTO", context).createStatement();
+            Statement st = conexionBD("CORSAN", context).createStatement();
             ResultSet rs = st.executeQuery(sql);
 
             /*modelo.setBodega("7");
@@ -850,7 +904,7 @@ public class Conexion {
         String id_inventario = "";
 
         try {
-            Statement st = conexionBD("JJVPRGPRODUCCION", context).createStatement();
+            Statement st = conexionBD("PRGPRODUCCION", context).createStatement();
             //ResultSet rs = st.executeQuery("SELECT (CASE WHEN MAX(id) IS NULL THEN 1 ELSE MAX(id)+1 END) as id FROM J_alambron_requisicion");
             ResultSet rs = st.executeQuery(sql);
             if (rs.next()){
