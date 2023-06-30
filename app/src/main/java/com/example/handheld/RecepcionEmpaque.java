@@ -239,11 +239,11 @@ public class RecepcionEmpaque extends AppCompatActivity {
         }
 
         if (listTransactionEmp.size()>0){
-            if (ing_prod_ad.ExecuteSqlTransaction(listTransactionEmp, "PRGPRODUCCION", RecepcionEmpaque.this)){
+            if (ing_prod_ad.ExecuteSqlTransaction(listTransactionEmp, "JJVPRGPRODUCCION", RecepcionEmpaque.this)){
                 ListarefeRecepcionados = conexion.empaRefeRecepcionados(RecepcionEmpaque.this,fechaActualString, monthActualString, yearActualString);
                 numero_transaccion = Integer.valueOf(Obj_ordenprodLn.mover_consecutivo("EDEP", RecepcionEmpaque.this));
                 listTransaccionBodega = traslado_bodega(ListarefeRecepcionados, calendar, fechaActualString);
-                if (ing_prod_ad.ExecuteSqlTransaction(listTransaccionBodega, "CORSAN", RecepcionEmpaque.this)){
+                if (ing_prod_ad.ExecuteSqlTransaction(listTransaccionBodega, "JJVDMSCIERREAGOSTO", RecepcionEmpaque.this)){
                     toastAcierto("Transaccion Realizada con Exito! --" + numero_transaccion);
                 }else{
                     toastError("Problemas, No se realizó correctamente la transacción!");

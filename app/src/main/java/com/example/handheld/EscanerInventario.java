@@ -8,6 +8,8 @@ import android.content.Context;
 import android.media.AudioManager;
 import android.media.SoundPool;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.os.Vibrator;
 import android.view.Gravity;
 import android.view.KeyEvent;
@@ -19,6 +21,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListAdapter;
 import android.widget.ListView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -76,6 +79,7 @@ public class EscanerInventario extends AppCompatActivity implements AdapterView.
     //Se inicializa una instancia para hacer vibrar el celular
     Vibrator vibrator;
 
+
     @SuppressLint({"MissingInflatedId", "SetTextI18n"})
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -89,6 +93,7 @@ public class EscanerInventario extends AppCompatActivity implements AdapterView.
         txtRollosLeidos = findViewById(R.id.txtRollosLeidos);
         btnTransaGalv = findViewById(R.id.btnTransaEmp);
         btnCancelarTrans = findViewById(R.id.btnCancelarTrans);
+
 
         //Recibimos los datos desde la class PedidoInventraio
         nit_usuario = getIntent().getStringExtra("nit_usuario");
@@ -154,6 +159,7 @@ public class EscanerInventario extends AppCompatActivity implements AdapterView.
             //galvanizado que leer
             if(sleer==0 && total>0){
                 //Mostramos el mensaje para logistica
+
                 AlertDialog.Builder builder = new AlertDialog.Builder(EscanerInventario.this);
                 View mView = getLayoutInflater().inflate(R.layout.alertdialog_cedularecepciona,null);
                 final EditText txtCedulaLogistica = mView.findViewById(R.id.txtCedulaLogistica);
@@ -161,6 +167,7 @@ public class EscanerInventario extends AppCompatActivity implements AdapterView.
                 txtMrollos.setText("Se han leido: "+ leidos +" Rollos");
                 Button btnAceptar = mView.findViewById(R.id.btnAceptar);
                 Button btnCancelar = mView.findViewById(R.id.btnCancelar);
+                ProgressBar Barraprogreso = mView.findViewById(R.id.progress_bar);
                 builder.setView(mView);
                 AlertDialog alertDialog = builder.create();
                 btnAceptar.setOnClickListener(v12 -> {
@@ -176,13 +183,24 @@ public class EscanerInventario extends AppCompatActivity implements AdapterView.
                             centro = personaLogistica.getCentro();
                             //Verificamos que la persona sea de logistica
                             if (centro.equals("3500")){
-                                try {
-                                    //Iniciamos la transacción
-                                    realizarTransaccion();
-                                    alertDialog.dismiss();
-                                }catch (Exception e){
-                                    toastError(e.getMessage());
-                                }
+                                Barraprogreso.setVisibility(View.VISIBLE);
+                                Handler handler = new Handler(Looper.getMainLooper());
+                                new Thread(() -> {
+                                    try {
+                                        runOnUiThread(this::realizarTransaccion);
+                                        handler.post(() -> {
+                                            Barraprogreso.setVisibility(View.GONE);
+                                            alertDialog.dismiss();
+                                            closeTecladoMovil();
+                                        });
+                                    } catch (Exception e) {
+                                        handler.post(() -> {
+                                            toastError(e.getMessage());
+                                            Barraprogreso.setVisibility(View.GONE);
+                                        });
+                                    }
+                                }).start();
+                                closeTecladoMovil();
                             }else{
                                 if (centro.equals("")){
                                     toastError("Persona no encontrada");
@@ -214,6 +232,7 @@ public class EscanerInventario extends AppCompatActivity implements AdapterView.
                         txtMrollos.setText("Se han leido: "+ leidos +" Rollos");
                         Button btnAceptar = mView.findViewById(R.id.btnAceptar);
                         Button btnCancelar = mView.findViewById(R.id.btnCancelar);
+                        ProgressBar Barraprogreso = mView.findViewById(R.id.progress_bar);
                         builder.setView(mView);
                         AlertDialog alertDialog = builder.create();
                         btnAceptar.setOnClickListener(v12 -> {
@@ -228,12 +247,23 @@ public class EscanerInventario extends AppCompatActivity implements AdapterView.
                                     centro = personaLogistica.getCentro();
                                     //Verificamos que la persona pertenezca al centro de logistica
                                     if (centro.equals("3500")){
-                                        try {
-                                            realizarTransaccion();
-                                            alertDialog.dismiss();
-                                        }catch (Exception e){
-                                            toastError(e.getMessage());
-                                        }
+                                        Barraprogreso.setVisibility(View.VISIBLE);
+                                        Handler handler = new Handler(Looper.getMainLooper());
+                                        new Thread(() -> {
+                                            try {
+                                                runOnUiThread(this::realizarTransaccion);
+                                                handler.post(() -> {
+                                                    Barraprogreso.setVisibility(View.GONE);
+                                                    alertDialog.dismiss();
+                                                    closeTecladoMovil();
+                                                });
+                                            } catch (Exception e) {
+                                                handler.post(() -> {
+                                                    toastError(e.getMessage());
+                                                    Barraprogreso.setVisibility(View.GONE);
+                                                });
+                                            }
+                                        }).start();
                                         closeTecladoMovil();
                                     }else{
                                         if (centro.equals("")){
@@ -300,12 +330,12 @@ public class EscanerInventario extends AppCompatActivity implements AdapterView.
 
         if (listTransactionGal.size()>0){
             //Ejecutamos la consultas que llenan los campos de recepción
-            if (ing_prod_ad.ExecuteSqlTransaction(listTransactionGal, "PRGPRODUCCION", EscanerInventario.this)){
+            if (ing_prod_ad.ExecuteSqlTransaction(listTransactionGal, "JJVPRGPRODUCCION", EscanerInventario.this)){
                 ListarefeRecepcionados = conexion.galvRefeRecepcionados(EscanerInventario.this,fechaActualString, monthActualString, yearActualString);
                 numero_transaccion = Integer.valueOf(Obj_ordenprodLn.mover_consecutivo("TRB1", EscanerInventario.this));
                 listTransaccionBodega = traslado_bodega(ListarefeRecepcionados, calendar);
                 //Ejecutamos la lista de consultas para hacer la TRB1
-                if (ing_prod_ad.ExecuteSqlTransaction(listTransaccionBodega, "CORSAN", EscanerInventario.this)){
+                if (ing_prod_ad.ExecuteSqlTransaction(listTransaccionBodega, "JJVDMSCIERREAGOSTO", EscanerInventario.this)){
                     for(int u=0;u<ListaGalvRollosRecep.size();u++){
                         String nro_orden = ListaGalvRollosRecep.get(u).getNro_orden();
                         String nro_rollo = ListaGalvRollosRecep.get(u).getNro_rollo();
@@ -317,7 +347,7 @@ public class EscanerInventario extends AppCompatActivity implements AdapterView.
                             Toast.makeText(EscanerInventario.this, e.getMessage(), Toast.LENGTH_SHORT).show();
                         }
                     }
-                    if(ing_prod_ad.ExecuteSqlTransaction(listTransactionTrb1, "PRGPRODUCCION", EscanerInventario.this)){
+                    if(ing_prod_ad.ExecuteSqlTransaction(listTransactionTrb1, "JJVPRGPRODUCCION", EscanerInventario.this)){
                         consultarGalvTerminado();
                         toastAcierto("Transaccion Realizada con Exito! --" + numero_transaccion);
                     }else{
@@ -325,6 +355,7 @@ public class EscanerInventario extends AppCompatActivity implements AdapterView.
                     };
                 }else{
                     //Si la consulta falla revertimos la llenada de campos de recepcion en la base de datos
+                    /*
                     for(int i=0;i<ListaGalvRollosRecep.size();i++){
                         String nro_orden = ListaGalvRollosRecep.get(i).getNro_orden();
                         String nro_rollo = ListaGalvRollosRecep.get(i).getNro_rollo();
@@ -337,13 +368,28 @@ public class EscanerInventario extends AppCompatActivity implements AdapterView.
                         }catch (Exception e){
                             Toast.makeText(EscanerInventario.this, e.getMessage(), Toast.LENGTH_SHORT).show();
                         }
-                        ing_prod_ad.ExecuteSqlTransaction(listTransactionError,"PRGPRODUCCION",EscanerInventario.this);
-                    }
+                        ing_prod_ad.ExecuteSqlTransaction(listTransactionError,"JJVPRGPRODUCCION",EscanerInventario.this);
+                    }*/
                     toastError("Problemas, No se realizó correctamente la transacción!");
-
                 }
             }else{
-                toastError("Error al realizar la transacción!");
+                /*
+                for(int i=0;i<ListaGalvRollosRecep.size();i++){
+                    String nro_orden = ListaGalvRollosRecep.get(i).getNro_orden();
+                    String nro_rollo = ListaGalvRollosRecep.get(i).getNro_rollo();
+
+                    String sql_rollo= "UPDATE D_rollo_galvanizado_f SET recepcionado=null, nit_recepcionado=null, fecha_recepcion=null, nit_entrega=null WHERE nro_orden='"+ nro_orden +"' AND consecutivo_rollo='"+nro_rollo+"'";
+
+                    try {
+                        //Se añade el sql a la lista - esto es un
+                        listTransactionError.add(sql_rollo);
+                    }catch (Exception e){
+                        Toast.makeText(EscanerInventario.this, e.getMessage(), Toast.LENGTH_SHORT).show();
+                    }
+                    ing_prod_ad.ExecuteSqlTransaction(listTransactionError,"JJVPRGPRODUCCION",EscanerInventario.this);
+                }*/
+                toastError("Error al realizar la transacción!" +
+                        "Intentelo de nuevo");
             }
         }
     }
