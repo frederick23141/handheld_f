@@ -11,6 +11,7 @@ import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -36,6 +37,8 @@ public class MainActivity extends AppCompatActivity {
     String nombre_usuario;
     String cd;
 
+    ProgressBar progressBar;
+
     @SuppressLint({"MissingInflatedId", "SetTextI18n"})
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -46,12 +49,14 @@ public class MainActivity extends AppCompatActivity {
         cedula = findViewById(R.id.txtcedula);
         consultar = findViewById(R.id.btnBuscarPersona);
         mensaje = findViewById(R.id.txtMensaje);
+        progressBar = findViewById(R.id.progress_bar);
 
         //Se inicializa el objeto conexión
         conexion = new Conexion();
 
         //Se programa el boton consultar
         consultar.setOnClickListener(view -> {
+            progressBar.setVisibility(View.VISIBLE);
             if(validar()){
                 cd = cedula.getText().toString();
                 persona = conexion.obtenerPersona(MainActivity.this,cd );
@@ -59,8 +64,10 @@ public class MainActivity extends AppCompatActivity {
 
                 if(nombre_usuario.equals("")){
                     toastError("Persona no encontrada");
+                    progressBar.setVisibility(View.GONE);
                     cedula.setText("");
                 }else{
+                    progressBar.setVisibility(View.GONE);
                     mensaje.setText("Bienvenido " + nombre_usuario);
                     agregarTreeview();
                     consultar.setEnabled(false);
@@ -69,6 +76,7 @@ public class MainActivity extends AppCompatActivity {
 
             }else{
                 toastEscribir("Por favor escribir tu cedula");
+                progressBar.setVisibility(View.GONE);
             }
         });
     }
@@ -193,7 +201,7 @@ public class MainActivity extends AppCompatActivity {
 
         //Agregamos Grupo"Gestion Galvanizado".
         //parent.addChildren(child1);
-        root.addChild(child2);
+        //root.addChild(child2);
 
         ////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -256,35 +264,37 @@ public class MainActivity extends AppCompatActivity {
 
         ////////////////////////////////////////////////////////////////////////////////////////////
 
-        //Grupo"Logistica - Recepción"
-        MyHolder.IconTreeItem childItem5 = new MyHolder.IconTreeItem(R.drawable.ic_folder, "Logistica - Recepción");
+        //Grupo"Revisión - Calidad"
+        MyHolder.IconTreeItem childItem5 = new MyHolder.IconTreeItem(R.drawable.ic_folder, "Revisión - Calidad");
         TreeNode child5 = new TreeNode(childItem5).setViewHolder(new MyHolder(getApplicationContext(), false, R.layout.child, 25));
 
-        //SubGrupo1"Logistica - Recepción "
+        //SubGrupo1"Revisión - Calidad"
         //Enviamos el icono y el texto para el SubGrupo
         MyHolder.IconTreeItem subChildItem5_1 = new MyHolder.IconTreeItem(R.drawable.ic_folder, "Galvanizado");
         TreeNode subChild5_1 = new TreeNode(subChildItem5_1).setViewHolder(new MyHolder(getApplicationContext(), false, R.layout.child, 100));
 
         //Al darle clic a este elemento en el treeview se abrira una nueva pantalla y se enviaran unos datos
+        /* Todavia no se ha estructurado un modulo de calidad para galvanizado
         subChild5_1.setClickListener((node, value) -> {
             Intent intent = new Intent(MainActivity.this, EscanerInventario.class);
             intent.putExtra("nit_usuario", cd);
             startActivity(intent);
         });
+        */
 
-        //SubGrupo1"Logistica - Recepción "
+        //SubGrupo2"Revisión - Calidad"
         //Enviamos el icono y el texto para el SubGrupo
         MyHolder.IconTreeItem subChildItem5_2 = new MyHolder.IconTreeItem(R.drawable.ic_folder, "Trefilación");
         TreeNode subChild5_2 = new TreeNode(subChildItem5_2).setViewHolder(new MyHolder(getApplicationContext(), false, R.layout.child, 100));
 
         //Al darle clic a este elemento en el treeview se abrira una nueva pantalla y se enviaran unos datos
         subChild5_2.setClickListener((node, value) -> {
-            Intent intent = new Intent(MainActivity.this, RecepcionTerminadoTrefilacion.class);
+            Intent intent = new Intent(MainActivity.this, RevisionTerminadoTrefilacion.class);
             intent.putExtra("nit_usuario", cd);
             startActivity(intent);
         });
 
-        //SubGrupo2"Mesas Empaque"
+        //SubGrupo3"Mesas Empaque"
         //Enviamos el icono y el texto para el SubGrupo
         MyHolder.IconTreeItem subChildItem5_3 = new MyHolder.IconTreeItem(R.drawable.ic_folder, "Puntilleria");
         TreeNode subChild5_3 = new TreeNode(subChildItem5_3).setViewHolder(new MyHolder(getApplicationContext(), false, R.layout.child, 100));
@@ -297,28 +307,75 @@ public class MainActivity extends AppCompatActivity {
             startActivity(intent);
         });
 
-        //Agregamos subgrupo1"Logistica - Recepción: Galvanizado".
-        child5.addChild(subChild5_1);
+        //Agregamos subgrupo1"Revisión - Calidad: Galvanizado".
+        //child5.addChild(subChild5_1); Todavia no hay desarrollado un modulo de calidad para galvanizado
 
-        //Agregamos subgrupo2"Logistica - Recepción: Trefilación".
-        //child5.addChild(subChild5_2);
+        //Agregamos subgrupo2"Revisión - Calidad: Trefilación".
+        child5.addChild(subChild5_2);
 
-        //Agregamos subgrupo2"Mesas Empaque".
-        child5.addChild(subChild5_3);
+        //Agregamos subgrupo2"Revisión - Calidad: Mesas Empaque".
+        //child5.addChild(subChild5_3); Todavia no hay desarrollado un modulo de calidad para empaque
 
-        //Agregamos Grupo"Logistica - Recepción".
+        //Agregamos Grupo"Revisión - Calidad".
         //parent.addChildren(child1);
         root.addChild(child5);
 
         ////////////////////////////////////////////////////////////////////////////////////////////
 
-        //Grupo"Mesas Empaque"
-        MyHolder.IconTreeItem childItem6 = new MyHolder.IconTreeItem(R.drawable.ic_folder, "Mesas Empaque");
+        //Grupo"Logistica - Recepción"
+        MyHolder.IconTreeItem childItem6 = new MyHolder.IconTreeItem(R.drawable.ic_folder, "Logistica - Recepción");
         TreeNode child6 = new TreeNode(childItem6).setViewHolder(new MyHolder(getApplicationContext(), false, R.layout.child, 25));
 
-        //Agregamos Grupo"Mesas Empaque".
+        //SubGrupo1"Logistica - Recepción "
+        //Enviamos el icono y el texto para el SubGrupo
+        MyHolder.IconTreeItem subChildItem6_1 = new MyHolder.IconTreeItem(R.drawable.ic_folder, "Galvanizado");
+        TreeNode subChild6_1 = new TreeNode(subChildItem6_1).setViewHolder(new MyHolder(getApplicationContext(), false, R.layout.child, 100));
+
+        //Al darle clic a este elemento en el treeview se abrira una nueva pantalla y se enviaran unos datos
+        subChild6_1.setClickListener((node, value) -> {
+            Intent intent = new Intent(MainActivity.this, EscanerInventario.class);
+            intent.putExtra("nit_usuario", cd);
+            startActivity(intent);
+        });
+
+        //SubGrupo2"Logistica - Recepción "
+        //Enviamos el icono y el texto para el SubGrupo
+        MyHolder.IconTreeItem subChildItem6_2 = new MyHolder.IconTreeItem(R.drawable.ic_folder, "Trefilación");
+        TreeNode subChild6_2 = new TreeNode(subChildItem6_2).setViewHolder(new MyHolder(getApplicationContext(), false, R.layout.child, 100));
+
+        //Al darle clic a este elemento en el treeview se abrira una nueva pantalla y se enviaran unos datos
+        subChild6_2.setClickListener((node, value) -> {
+            Intent intent = new Intent(MainActivity.this, RecepcionTerminadoTrefilacion.class);
+            intent.putExtra("nit_usuario", cd);
+            startActivity(intent);
+        });
+
+        //SubGrupo3"Mesas Empaque"
+        //Enviamos el icono y el texto para el SubGrupo
+        MyHolder.IconTreeItem subChildItem6_3 = new MyHolder.IconTreeItem(R.drawable.ic_folder, "Puntilleria");
+        TreeNode subChild6_3 = new TreeNode(subChildItem6_3).setViewHolder(new MyHolder(getApplicationContext(), false, R.layout.child, 100));
+
+        //Al darle clic a este elemento en el treeview se abrira una nueva pantalla y se enviaran unos datos
+        subChild6_3.setClickListener((node, value) -> {
+            Intent intent = new Intent(MainActivity.this, ResumenPunti.class);
+            intent.putExtra("nit_usuario", cd);
+            intent.putExtra("nombre_usuario", nombre_usuario);
+            startActivity(intent);
+        });
+
+        //Agregamos subgrupo1"Logistica - Recepción: Galvanizado".
+        child6.addChild(subChild6_1);
+
+        //Agregamos subgrupo2"Logistica - Recepción: Trefilación".
+        child6.addChild(subChild6_2);
+
+        //Agregamos subgrupo2"Mesas Empaque".
+        //child6.addChild(subChild6_3);
+
+        //Agregamos Grupo"Logistica - Recepción".
         //parent.addChildren(child1);
-        //root.addChild(child6);
+        root.addChild(child6);
+
 
         ////////////////////////////////////////////////////////////////////////////////////////////
 

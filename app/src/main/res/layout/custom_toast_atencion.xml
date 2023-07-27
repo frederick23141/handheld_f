@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:id="@+id/ll_custom_toast_acierto"
+    android:id="@+id/ll_custom_toast_atencion"
     android:orientation="vertical"
-    android:background="@drawable/background_green"
+    android:background="@drawable/background_yellow"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
     android:gravity="center|center_horizontal"
@@ -19,12 +19,12 @@
         <ImageView
             android:layout_width="wrap_content"
             android:layout_height="70sp"
-            android:contentDescription="@string/contDescripCheck"
-            app:srcCompat="@drawable/aceptar" />
+            app:srcCompat="@drawable/advertencia"
+            android:contentDescription="@string/contDescripError" />
     </LinearLayout>
 
     <TextView
-        android:id="@+id/txtMensa"
+        android:id="@+id/txtMensajeToastAtencion"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="10dp"
@@ -32,7 +32,7 @@
         android:fontFamily="sans-serif-condensed"
         android:paddingStart="10dp"
         android:paddingEnd="10dp"
-        android:text="@string/txtMensaCheck"
+        android:text="@string/txtMensaPer"
         android:textAlignment="center"
         android:textColor="#fff"
         android:textSize="25sp"

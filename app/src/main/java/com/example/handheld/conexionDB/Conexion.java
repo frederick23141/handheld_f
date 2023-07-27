@@ -555,7 +555,7 @@ public class Conexion {
             Statement st = conexionBD("JJVPRGPRODUCCION", context).createStatement();
             ResultSet rs = st.executeQuery("SELECT R.nro_orden,R.consecutivo_rollo as nro_rollo,S.final_galv,ref.descripcion,R.peso  \n" +
                                                 "FROM D_rollo_galvanizado_f R, D_orden_pro_galv_enc S,CORSAN.dbo.referencias ref,CORSAN.dbo.V_nom_personal_Activo_con_maquila ter \n" +
-                                                "where R.nro_orden = S.consecutivo_orden_G And ref.codigo = S.final_galv and ter.nit=R.nit_operario AND R.no_conforme is null and R.anular is null and R.recepcionado is null and S.final_galv LIKE '33G%'\n" +
+                                                "where R.nro_orden = S.consecutivo_orden_G And ref.codigo = S.final_galv and ter.nit=R.nit_operario AND R.no_conforme is null and R.anular is null and R.recepcionado is null and R.trb1 is null and S.final_galv LIKE '33G%'\n" +
                                                 "order by ref.descripcion");
             while (rs.next()){
                 modelo = new GalvRecepcionModelo();
@@ -573,6 +573,85 @@ public class Conexion {
         return galvTerminado;
     }
 
+    public List<GalvRecepcionModelo> consultarGalvIncomple(Context context){
+        List<GalvRecepcionModelo> galvTerminado = new ArrayList<>();
+        GalvRecepcionModelo modelo;
+
+        try {
+            Statement st = conexionBD("JJVPRGPRODUCCION", context).createStatement();
+            ResultSet rs = st.executeQuery("SELECT R.nro_orden,R.consecutivo_rollo as nro_rollo,S.final_galv,ref.descripcion,R.peso \n" +
+                    "FROM D_rollo_galvanizado_f R, D_orden_pro_galv_enc S,CORSAN.dbo.referencias ref,CORSAN.dbo.V_nom_personal_Activo_con_maquila ter \n" +
+                    "where R.nro_orden = S.consecutivo_orden_G And ref.codigo = S.final_galv and ter.nit=R.nit_operario AND R.no_conforme is null and R.anular is null and R.recepcionado is not null and trb1 is null and S.final_galv LIKE '33G%' \n" +
+                    "order by ref.descripcion");
+            while (rs.next()){
+                modelo = new GalvRecepcionModelo();
+                modelo.setNro_orden(rs.getString("nro_orden"));
+                modelo.setNro_rollo(rs.getString("nro_rollo"));
+                modelo.setReferencia(rs.getString("final_galv"));
+                modelo.setDescripcion(rs.getString("descripcion"));
+                modelo.setPeso(String.valueOf(rs.getInt("peso")));
+                modelo.setColor("GREEN");
+                galvTerminado.add(modelo);
+            }
+        }catch (Exception e){
+            Toast.makeText(context, e.getMessage(), Toast.LENGTH_SHORT).show();
+        }
+        return galvTerminado;
+    }
+
+    public List<TrefiRecepcionModelo> consultarTrefiIncomple(Context context){
+        List<TrefiRecepcionModelo> trefiTerminado = new ArrayList<>();
+        TrefiRecepcionModelo modelo;
+
+        try {
+            Statement st = conexionBD("JJVPRGPRODUCCION", context).createStatement();
+            ResultSet rs = st.executeQuery("SELECT R.nro_orden,R.consecutivo_rollo as nro_rollo,S.final_galv,ref.descripcion,R.peso \n" +
+                    "FROM D_rollo_galvanizado_f R, D_orden_pro_galv_enc S,CORSAN.dbo.referencias ref,CORSAN.dbo.V_nom_personal_Activo_con_maquila ter \n" +
+                    "where R.nro_orden = S.consecutivo_orden_G And ref.codigo = S.final_galv and ter.nit=R.nit_operario AND R.no_conforme is null and R.anular is null and R.recepcionado is not null and trb1 is null and S.final_galv LIKE '33G%' \n" +
+                    "order by ref.descripcion");
+            while (rs.next()){
+                modelo = new TrefiRecepcionModelo();
+                modelo.setCod_orden(rs.getString("cod_orden"));
+                modelo.setId_detalle(rs.getString("id_detalle"));
+                modelo.setId_rollo(rs.getString("id_rollo"));
+                modelo.setReferencia(rs.getString("prod_final"));
+                modelo.setDescripcion(rs.getString("descripcion"));
+                modelo.setPeso(String.valueOf(rs.getInt("peso")));
+                modelo.setColor("RED");
+                trefiTerminado.add(modelo);
+            }
+        }catch (Exception e){
+            Toast.makeText(context, e.getMessage(), Toast.LENGTH_SHORT).show();
+        }
+        return trefiTerminado;
+    }
+
+    public List<TrefiRecepcionModelo> obtenerTrefiRevision(Context context){
+        List<TrefiRecepcionModelo> trefiTerminado = new ArrayList<>();
+        TrefiRecepcionModelo modelo;
+
+        try {
+            Statement st = conexionBD("JJVPRGPRODUCCION", context).createStatement();
+            ResultSet rs = st.executeQuery("select R.cod_orden,R.id_detalle,R.id_rollo, O.prod_final,Ref.descripcion, R.peso\n" +
+                    "from J_rollos_tref R inner join J_orden_prod_tef O on R.cod_orden = O.consecutivo inner join CORSAN.dbo.referencias Ref on O.prod_final = Ref.codigo\n" +
+                    "where O.prod_final like '33%' and R.recepcionado is null and R.id_revision is null and R.anulado is null and R.no_conforme is null  and R.motivo is null and R.traslado is null and\n" +
+                    "R.saga is null and R.bobina is null and R.scla is null and R.destino is null and R.srec is null and R.scal is null and R.scae is null and R.sar is null and R.sav is null");
+            while (rs.next()){
+                modelo = new TrefiRecepcionModelo();
+                modelo.setCod_orden(rs.getString("cod_orden"));
+                modelo.setId_detalle(rs.getString("id_detalle"));
+                modelo.setId_rollo(rs.getString("id_rollo"));
+                modelo.setReferencia(rs.getString("prod_final"));
+                modelo.setDescripcion(rs.getString("descripcion"));
+                modelo.setPeso(String.valueOf(rs.getInt("peso")));
+                modelo.setColor("RED");
+                trefiTerminado.add(modelo);
+            }
+        }catch (Exception e){
+            Toast.makeText(context, e.getMessage(), Toast.LENGTH_SHORT).show();
+        }
+        return trefiTerminado;
+    }
     public List<TrefiRecepcionModelo> obtenerTrefiTerminado(Context context){
         List<TrefiRecepcionModelo> trefiTerminado = new ArrayList<>();
         TrefiRecepcionModelo modelo;
@@ -581,7 +660,7 @@ public class Conexion {
             Statement st = conexionBD("JJVPRGPRODUCCION", context).createStatement();
             ResultSet rs = st.executeQuery("select R.cod_orden,R.id_detalle,R.id_rollo, O.prod_final,Ref.descripcion, R.peso\n" +
                     "from J_rollos_tref R inner join J_orden_prod_tef O on R.cod_orden = O.consecutivo inner join CORSAN.dbo.referencias Ref on O.prod_final = Ref.codigo\n" +
-                    "where O.prod_final like '33%' and R.recepcionado is null and R.anulado is null and R.no_conforme is null  and R.motivo is null and R.traslado is null and\n" +
+                    "where O.prod_final like '33%' and R.recepcionado is null and R.id_revision is not null and R.anulado is null and R.no_conforme is null  and R.motivo is null and R.traslado is null and\n" +
                     "R.saga is null and R.bobina is null and R.scla is null and R.destino is null and R.srec is null and R.scal is null and R.scae is null and R.sar is null and R.sav is null");
             while (rs.next()){
                 modelo = new TrefiRecepcionModelo();
@@ -701,6 +780,31 @@ public class Conexion {
             ResultSet rs = st.executeQuery("select sum(R.peso) as peso, (SELECT p.promedio from corsan.dbo.v_promedio p where codigo = O.prod_final and P.ano = "+ year +" and P.mes = "+ month +")  as promedio, (select costo_unitario from CORSAN.dbo.referencias R where codigo = O.prod_final) as costo_unitario , O.prod_final " +
                     "from J_rollos_tref R inner join J_orden_prod_tef O on O.consecutivo = R.cod_orden " +
                     "where R.recepcionado is not null and R.fecha_recepcion = '"+ fecha_recepcion +"' and R.no_conforme is null and O.prod_final like '33%' " +
+                    "group by O.prod_final");
+
+            while (rs.next()){
+                modelo = new TrefiRecepcionadoRollosModelo();
+                modelo.setPeso(rs.getDouble("peso"));
+                modelo.setPromedio(rs.getDouble("promedio"));
+                modelo.setCosto_unitario(rs.getDouble("costo_unitario"));
+                modelo.setReferencia(rs.getString("prod_final"));
+                refeRecepcionados.add(modelo);
+            }
+        }catch (Exception e){
+            Toast.makeText(context, e.getMessage(), Toast.LENGTH_SHORT).show();
+        }
+        return refeRecepcionados;
+    }
+
+    public List<TrefiRecepcionadoRollosModelo> trefiRefeRevisados(Context context, Integer numero_revision, String month, String year){
+        List<TrefiRecepcionadoRollosModelo> refeRecepcionados = new ArrayList<>();
+        TrefiRecepcionadoRollosModelo modelo;
+
+        try {
+            Statement st = conexionBD("JJVPRGPRODUCCION", context).createStatement();
+            ResultSet rs = st.executeQuery("select sum(R.peso) as peso, (SELECT p.promedio from corsan.dbo.v_promedio p where codigo = O.prod_final and P.ano = "+ year +" and P.mes = "+ month +")  as promedio, (select costo_unitario from CORSAN.dbo.referencias R where codigo = O.prod_final) as costo_unitario , O.prod_final " +
+                    "from J_rollos_tref R inner join J_orden_prod_tef O on O.consecutivo = R.cod_orden " +
+                    "where R.recepcionado is null and R.id_revision = '"+ numero_revision.toString() +"' and R.no_conforme is null and O.prod_final like '33%' " +
                     "group by O.prod_final");
 
             while (rs.next()){
@@ -916,7 +1020,25 @@ public class Conexion {
         return id_inventario;
     }
 
+    ///////////////////////////////////////////////////////////////////////////////////////////////
+    ///Obtener datos para revision calidad
+    ///////////////////////////////////////////////////////////////////////////////////////////////
 
+    public Integer obtenerIdRevision(Context context, String sql){
+        int id = 0;
+
+        try {
+            Statement st = conexionBD("JJVPRGPRODUCCION", context).createStatement();
+            ResultSet rs = st.executeQuery(sql);
+            if (rs.next()){
+                id = Integer.parseInt(rs.getString("id_revision"));
+            }
+
+        }catch (Exception e){
+            Toast.makeText(context, e.getMessage(), Toast.LENGTH_SHORT).show();
+        }
+        return id;
+    }
 
 
 

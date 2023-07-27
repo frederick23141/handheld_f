@@ -16,7 +16,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
 public class Ing_prod_ad {
-    /*
+    /* Se comenta el codigo original sin limite de tiempo
     public Boolean ExecuteSqlTransaction(List<Object> listSql , String db, Context context) {
         boolean resp = false;
         String ip="10.10.10.246", port="1433", username = "Practicante.sistemas", password = "+Psis.*";
@@ -41,6 +41,7 @@ public class Ing_prod_ad {
         return resp;
 
     }*/
+    //Transaccion con limite de tiempo - 1 minuto
     public Boolean ExecuteSqlTransaction(List<Object> listSql , String db, Context context) {
         boolean resp = false;
         String ip="10.10.10.246", port="1433", username = "Practicante.sistemas", password = "+Psis.*";
@@ -67,7 +68,7 @@ public class Ing_prod_ad {
             }
         });
 
-        int timeoutSeconds = 60; // Establecer el tiempo de espera en 1 minuto y medio (90 segundos)
+        int timeoutSeconds = 60; // Establecer el tiempo de espera en 1 minuto (60 segundos)
         try {
             resp = future.get(timeoutSeconds, TimeUnit.SECONDS);
         } catch (TimeoutException e) {
