@@ -24,6 +24,7 @@
                 android:paddingTop="8dp"
                 android:text="@string/txtMovimientosPedido"
                 android:textAlignment="center"
+                android:textColor="#FFFFFF"
                 android:textSize="20sp"
                 android:textStyle="bold" />
 

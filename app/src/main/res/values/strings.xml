@@ -41,6 +41,13 @@
     <string name="txtTRollosLeidos">Total Leidos: </string>
     <string name="btnTransaGalv">MOVER ROLLOS</string>
 
+    //Strings Utilizados en el layout "activity_revision_terminado_trefilacion"
+    <string name="txtTCTrefi">REVISION CALIDAD TREFILACIÓN</string>
+    <string name="btnRechazado">RECHAZADO</string>
+    <string name="btnAprobado">APROBADO</string>
+
+    <string name="txtTRGalva">RECEPCIÓN LOGIST GALVANIZADO</string>
+
     //Strings Utilizados en el layout "child"
     <string name="contentDescripcionChild">Item lista</string>
     <string name="text">List Item</string>

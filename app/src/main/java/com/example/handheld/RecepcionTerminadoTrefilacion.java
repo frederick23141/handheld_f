@@ -8,6 +8,8 @@ import android.content.Context;
 import android.media.AudioManager;
 import android.media.SoundPool;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.os.Vibrator;
 import android.view.Gravity;
 import android.view.KeyEvent;
@@ -19,16 +21,15 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListAdapter;
 import android.widget.ListView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.handheld.ClasesOperativas.Ing_prod_ad;
 import com.example.handheld.ClasesOperativas.ObjTraslado_bodLn;
 import com.example.handheld.ClasesOperativas.Obj_ordenprodLn;
-import com.example.handheld.atv.holder.adapters.listGalvTerminadoAdapter;
 import com.example.handheld.atv.holder.adapters.listTrefiTerminadoAdapter;
 import com.example.handheld.conexionDB.Conexion;
-import com.example.handheld.modelos.GalvRecepcionadoRollosModelo;
 import com.example.handheld.modelos.PersonaModelo;
 import com.example.handheld.modelos.TrefiRecepcionModelo;
 import com.example.handheld.modelos.TrefiRecepcionadoRollosModelo;
@@ -77,6 +78,7 @@ public class RecepcionTerminadoTrefilacion extends AppCompatActivity implements 
     //Se inicializa una instancia para hacer vibrar el celular
     Vibrator vibrator;
 
+    @SuppressLint("SetTextI18n")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -154,6 +156,7 @@ public class RecepcionTerminadoTrefilacion extends AppCompatActivity implements 
             //galvanizado que leer
             if(sleer==0 && total>0){
                 //Mostramos el mensaje para logistica
+
                 AlertDialog.Builder builder = new AlertDialog.Builder(RecepcionTerminadoTrefilacion.this);
                 View mView = getLayoutInflater().inflate(R.layout.alertdialog_cedularecepciona,null);
                 final EditText txtCedulaLogistica = mView.findViewById(R.id.txtCedulaLogistica);
@@ -161,6 +164,7 @@ public class RecepcionTerminadoTrefilacion extends AppCompatActivity implements 
                 txtMrollos.setText("Se han leido: "+ leidos +" Rollos");
                 Button btnAceptar = mView.findViewById(R.id.btnAceptar);
                 Button btnCancelar = mView.findViewById(R.id.btnCancelar);
+                ProgressBar Barraprogreso = mView.findViewById(R.id.progress_bar);
                 builder.setView(mView);
                 AlertDialog alertDialog = builder.create();
                 btnAceptar.setOnClickListener(v12 -> {
@@ -176,13 +180,24 @@ public class RecepcionTerminadoTrefilacion extends AppCompatActivity implements 
                             centro = personaLogistica.getCentro();
                             //Verificamos que la persona sea de logistica
                             if (centro.equals("3500")){
-                                try {
-                                    //Iniciamos la transacción
-                                    realizarTransaccion();
-                                    alertDialog.dismiss();
-                                }catch (Exception e){
-                                    toastError(e.getMessage());
-                                }
+                                Barraprogreso.setVisibility(View.VISIBLE);
+                                Handler handler = new Handler(Looper.getMainLooper());
+                                new Thread(() -> {
+                                    try {
+                                        runOnUiThread(this::realizarTransaccion);
+                                        handler.post(() -> {
+                                            Barraprogreso.setVisibility(View.GONE);
+                                            alertDialog.dismiss();
+                                            closeTecladoMovil();
+                                        });
+                                    } catch (Exception e) {
+                                        handler.post(() -> {
+                                            toastError(e.getMessage());
+                                            Barraprogreso.setVisibility(View.GONE);
+                                        });
+                                    }
+                                }).start();
+                                closeTecladoMovil();
                             }else{
                                 if (centro.equals("")){
                                     toastError("Persona no encontrada");
@@ -214,6 +229,7 @@ public class RecepcionTerminadoTrefilacion extends AppCompatActivity implements 
                         txtMrollos.setText("Se han leido: "+ leidos +" Rollos");
                         Button btnAceptar = mView.findViewById(R.id.btnAceptar);
                         Button btnCancelar = mView.findViewById(R.id.btnCancelar);
+                        ProgressBar Barraprogreso = mView.findViewById(R.id.progress_bar);
                         builder.setView(mView);
                         AlertDialog alertDialog = builder.create();
                         btnAceptar.setOnClickListener(v12 -> {
@@ -228,12 +244,23 @@ public class RecepcionTerminadoTrefilacion extends AppCompatActivity implements 
                                     centro = personaLogistica.getCentro();
                                     //Verificamos que la persona pertenezca al centro de logistica
                                     if (centro.equals("3500")){
-                                        try {
-                                            realizarTransaccion();
-                                            alertDialog.dismiss();
-                                        }catch (Exception e){
-                                            toastError(e.getMessage());
-                                        }
+                                        Barraprogreso.setVisibility(View.VISIBLE);
+                                        Handler handler = new Handler(Looper.getMainLooper());
+                                        new Thread(() -> {
+                                            try {
+                                                runOnUiThread(this::realizarTransaccion);
+                                                handler.post(() -> {
+                                                    Barraprogreso.setVisibility(View.GONE);
+                                                    alertDialog.dismiss();
+                                                    closeTecladoMovil();
+                                                });
+                                            } catch (Exception e) {
+                                                handler.post(() -> {
+                                                    toastError(e.getMessage());
+                                                    Barraprogreso.setVisibility(View.GONE);
+                                                });
+                                            }
+                                        }).start();
                                         closeTecladoMovil();
                                     }else{
                                         if (centro.equals("")){
@@ -327,6 +354,7 @@ public class RecepcionTerminadoTrefilacion extends AppCompatActivity implements 
                     };
                 }else{
                     //Si la consulta falla revertimos la llenada de campos de recepcion en la base de datos
+                    /*
                     for(int i=0;i<ListaTrefiRollosRecep.size();i++){
                         String cod_orden = ListaTrefiRollosRecep.get(i).getCod_orden();
                         String id_detalle = ListaTrefiRollosRecep.get(i).getId_detalle();
@@ -341,12 +369,14 @@ public class RecepcionTerminadoTrefilacion extends AppCompatActivity implements 
                             Toast.makeText(RecepcionTerminadoTrefilacion.this, e.getMessage(), Toast.LENGTH_SHORT).show();
                         }
                         ing_prod_ad.ExecuteSqlTransaction(listTransactionError,"JJVPRGPRODUCCION",RecepcionTerminadoTrefilacion.this);
-                    }
-                    toastError("Problemas, No se realizó correctamente la transacción!");
+                    }*/
+                    toastError("Error al realizar la transacción!" +
+                            "Intentelo de nuevo");
 
                 }
             }else{
-                toastError("Error al realizar la transacción!");
+                toastError("Error al realizar la transacción!" +
+                        "Intentelo de nuevo");
             }
         }
     }
@@ -411,6 +441,7 @@ public class RecepcionTerminadoTrefilacion extends AppCompatActivity implements 
             if(consecutivo.equals(codigoList)){
                 encontrado = true;
                 position = i;
+                break;
             }
         }
         //Si el rollos es encontrado o no se muestra mensaje

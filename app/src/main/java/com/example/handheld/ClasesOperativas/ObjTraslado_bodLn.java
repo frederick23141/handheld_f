@@ -276,6 +276,8 @@ public class ObjTraslado_bodLn {
             Toast.makeText(context, e.getMessage(), Toast.LENGTH_SHORT).show();
         }
 
+        seq = 0;
+
         //For para ingresar a la lista todos los detalles de cada referencia
         for(int b=0; b<listInfRerencias.size();b++){
             String cod = listInfRerencias.get(b).getReferencia().trim();
@@ -292,7 +294,7 @@ public class ObjTraslado_bodLn {
 
             //'******************* ----------Se adiciona la salida
 
-            seq = 1;
+            seq = seq + 1;
             swDoc_lin = 16;
 
             Double iva = conexion.obtenerIvaReferencia(context,cod);
@@ -301,7 +303,7 @@ public class ObjTraslado_bodLn {
                     "valor_unitario,porcentaje_descuento,costo_unitario,adicional,vendedor,bodega,und," +
                     "cantidad_und,cantidad_pedida,maneja_inventario,costo_unitario_sin,cantidad_dos) " +
                     "VALUES(" + swDoc_lin + ",'" + tipo + "'," + num + ",'" + cod + "'," + seq + "," +
-                    "'" + sFecha + "'," + nit + "," + peso + ","+ iva +"," + costo_kilo + ",0," + costo_kilo + "," +
+                    "'" + sFecha + "'," + nit + "," + peso + ","+ iva +",0,0," + costo_kilo + "," +
                     "'" + notas + "',0," + bod_orig + ",'UND',1,0,'S',0.0000000000000000,1) ";
 
             try {
@@ -318,7 +320,7 @@ public class ObjTraslado_bodLn {
 
 
             int valor_unit = 0;
-            seq = 2;
+            seq = seq + 1;
             swDoc_lin = 12;
             sql = "INSERT INTO documentos_lin(sw,tipo,numero,codigo,seq,fec,nit,cantidad,porcentaje_iva,valor_unitario,porcentaje_descuento ," +
                     "costo_unitario,adicional,vendedor,bodega,und,cantidad_und,cantidad_pedida,maneja_inventario,costo_unitario_sin,cantidad_dos) " +
@@ -455,6 +457,8 @@ public class ObjTraslado_bodLn {
             Toast.makeText(context, e.getMessage(), Toast.LENGTH_SHORT).show();
         }
 
+        seq = 0;
+
         //For para ingresar a la lista todos los detalles de cada referencia
         for(int b=0; b<listInfRerencias.size();b++){
             String cod = listInfRerencias.get(b).getReferencia().trim();
@@ -471,7 +475,7 @@ public class ObjTraslado_bodLn {
 
             //'******************* ----------Se adiciona la salida
 
-            seq = 1;
+            seq = seq + 1;
             swDoc_lin = 16;
 
             Double iva = conexion.obtenerIvaReferencia(context,cod);
@@ -497,7 +501,7 @@ public class ObjTraslado_bodLn {
 
 
             int valor_unit = 0;
-            seq = 2;
+            seq = seq + 1;
             swDoc_lin = 12;
             sql = "INSERT INTO documentos_lin(sw,tipo,numero,codigo,seq,fec,nit,cantidad,porcentaje_iva,valor_unitario,porcentaje_descuento ," +
                     "costo_unitario,adicional,vendedor,bodega,und,cantidad_und,cantidad_pedida,maneja_inventario,costo_unitario_sin,cantidad_dos) " +
