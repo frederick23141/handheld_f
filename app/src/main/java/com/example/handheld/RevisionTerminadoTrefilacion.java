@@ -90,6 +90,8 @@ public class RevisionTerminadoTrefilacion extends AppCompatActivity implements A
     ArrayList<String> listaRechazos;
     ArrayList<String> listaTrefiRechazos;
 
+    Integer id_revision;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -588,22 +590,31 @@ public class RevisionTerminadoTrefilacion extends AppCompatActivity implements A
         String monthActualString = formatoMonth.format(fechaActual);
         String yearActualString = formatoYear.format(fechaActual);
 
-        String sql_revision= "INSERT INTO jd_revision_calidad(fecha_hora,revisor,estado,defecto,tipo_transa)VALUES('" + fechaActualString + "','" + personaCalidad.getNit() + "','R','" + motivo + "','TRB1')";
+        if (incompleta=false){
+            String sql_revision= "INSERT INTO jd_revision_calidad(fecha_hora,revisor,estado,defecto,tipo_transa)VALUES('" + fechaActualString + "','" + personaCalidad.getNit() + "','R','" + motivo + "','TRB1')";
 
-        try {
-            //Se ejecuta el sql_revision en la base de datos
-            paso = objOperacionesDb.ejecutarInsertJjprgproduccion(sql_revision,RevisionTerminadoTrefilacion.this);
-        }catch (Exception e){
-            Toast.makeText(RevisionTerminadoTrefilacion.this, e.getMessage(), Toast.LENGTH_SHORT).show();
+            try {
+                //Se ejecuta el sql_revision en la base de datos
+                paso = objOperacionesDb.ejecutarInsertJjprgproduccion(sql_revision,RevisionTerminadoTrefilacion.this);
+            }catch (Exception e){
+                Toast.makeText(RevisionTerminadoTrefilacion.this, e.getMessage(), Toast.LENGTH_SHORT).show();
+            }
+        }else{
+            paso=1;
         }
 
         if (paso==1){
             //se adicionan los campos recepcionado, nit_recepcionado y fecha_recepcionado a la tabla
             for(int i=0;i<ListaTrefiRollosRecep.size();i++){
+                String obtenerId;
                 String cod_orden = ListaTrefiRollosRecep.get(i).getCod_orden();
                 String id_detalle = ListaTrefiRollosRecep.get(i).getId_detalle();
                 String id_rollo = ListaTrefiRollosRecep.get(i).getId_rollo();
-                String obtenerId = "select id_revision from jd_revision_calidad where fecha_hora='" + fechaActualString + "'";
+                if(incompleta=false){
+                    obtenerId = "select id_revision from jd_revision_calidad where fecha_hora='" + fechaActualString + "'";
+                }else{
+                    obtenerId = "select id_revision from jd_revision_calidad where id_revision='" + id_revision + "'";
+                }
                 numero_revision = conexion.obtenerIdRevision(RevisionTerminadoTrefilacion.this, obtenerId );
                 String sql_rollo= "UPDATE J_rollos_tref SET id_revision="+ numero_revision +" WHERE cod_orden='"+ cod_orden +"' AND id_detalle='"+id_detalle+"' AND id_rollo='"+id_rollo+"'";
 
@@ -634,9 +645,11 @@ public class RevisionTerminadoTrefilacion extends AppCompatActivity implements A
                         if(ing_prod_ad.ExecuteSqlTransaction(listTransactionTrb1, "JJVPRGPRODUCCION", RevisionTerminadoTrefilacion.this)){
                             consultarTrefiTerminado();
                             incompleta = false;
+                            btnAprobado.setEnabled(true);
                             toastAcierto("Transaccion Realizada con Exito! --" + numero_transaccion);
                         }else{
                             toastError("Problemas, No se realizó correctamente la transacción!");
+                            btnAprobado.setEnabled(false);
                             incompleta =  true;
                         };
                     }else{
@@ -658,16 +671,21 @@ public class RevisionTerminadoTrefilacion extends AppCompatActivity implements A
                 ing_prod_ad.ExecuteSqlTransaction(listTransactionError,"JJVPRGPRODUCCION",RecepcionTerminadoTrefilacion.this);
             }*/
                         incompleta =  true;
+                        btnAprobado.setEnabled(false);
                         toastError("Error al realizar la transacción!" +
                                 "Intentelo de nuevo");
 
                     }
                 }else{
+                    btnAprobado.setEnabled(false);
+                    incompleta =  true;
                     toastError("Error al realizar la revision!" +
                             "Intentelo de nuevo");
                 }
             }
         }else{
+            btnAprobado.setEnabled(false);
+            incompleta =  true;
             toastError("Error al realizar la revision!" +
                     "Intentelo de nuevo");
         }
@@ -697,9 +715,9 @@ public class RevisionTerminadoTrefilacion extends AppCompatActivity implements A
         ListaTrefiRollosRecep = new ArrayList<>();
 
         //Consultamos si hay rollos con transacciones incompletas
-        ListaTrefiRollosRecep = conexion.consultarTrefiIncomple(getApplication());
+        id_revision = conexion.consultarReviTrefiIncomple(getApplication());
 
-        if (ListaTrefiRollosRecep.isEmpty()){
+        if (id_revision.equals(0)){
             /////////////////////////////////////////////////////////////////////////////////////////////
             //Llamamos al metodo para consultar los rollos de galvanizados listos para recoger
             consultarTrefiTerminado();
@@ -707,11 +725,15 @@ public class RevisionTerminadoTrefilacion extends AppCompatActivity implements A
             toastAtencion("Transacción incompleta \n" +
                     "Por favor terminarla");
             incompleta = true;
+            btnAprobado.setEnabled(false);
+
+            ListaTrefiRollosRecep = conexion.obtenerTrefiRevision(getApplication());
+
             //Consultamos los rollos de producción que no se han recepcionado en la base de datos
-            ListaTrefiRevisado = conexion.obtenerTrefiTerminado(getApplication());
+            ListaTrefiRevisado = conexion.obtenerReviTrefiTerminado(getApplication(), id_revision);
 
             //Enviamos la lista vacia de rollos escaneados al listview
-            TrefiTerminadoAdapter = new listTrefiTerminadoAdapter(RevisionTerminadoTrefilacion.this,R.layout.item_row_galvterminado,ListaTrefiRollosRecep);
+            TrefiTerminadoAdapter = new listTrefiTerminadoAdapter(RevisionTerminadoTrefilacion.this,R.layout.item_row_galvterminado,ListaTrefiRevisado);
             listviewTrefiTerminado.setAdapter(TrefiTerminadoAdapter);
 
             //Enviamos la cantidad de rollos de producción que no se han recepcionado al TextView

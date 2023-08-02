@@ -599,6 +599,21 @@ public class Conexion {
         return galvTerminado;
     }
 
+    public Integer consultarReviTrefiIncomple(Context context){
+        int id_revision = 0;
+
+        try {
+            Statement st = conexionBD("JJVPRGPRODUCCION", context).createStatement();
+            ResultSet rs = st.executeQuery("select id_revision from jd_revision_calidad where estado='R' and num_transa is null");
+            if(rs.next()){
+                id_revision = rs.getInt("id_revision");
+            }
+        }catch (Exception e){
+            Toast.makeText(context, e.getMessage(), Toast.LENGTH_SHORT).show();
+        }
+        return id_revision;
+    }
+
     public List<TrefiRecepcionModelo> consultarTrefiIncomple(Context context){
         List<TrefiRecepcionModelo> trefiTerminado = new ArrayList<>();
         TrefiRecepcionModelo modelo;
@@ -652,6 +667,34 @@ public class Conexion {
         }
         return trefiTerminado;
     }
+
+    public List<TrefiRecepcionModelo> obtenerReviTrefiTerminado(Context context, Integer id_revision){
+        List<TrefiRecepcionModelo> trefiTerminado = new ArrayList<>();
+        TrefiRecepcionModelo modelo;
+
+        try {
+            Statement st = conexionBD("JJVPRGPRODUCCION", context).createStatement();
+            ResultSet rs = st.executeQuery("select R.cod_orden,R.id_detalle,R.id_rollo, O.prod_final,Ref.descripcion, R.peso\n" +
+                    "from J_rollos_tref R inner join J_orden_prod_tef O on R.cod_orden = O.consecutivo inner join CORSAN.dbo.referencias Ref on O.prod_final = Ref.codigo\n" +
+                    "where O.prod_final like '33%' and R.recepcionado is null and R.id_revision = " + id_revision + " and R.anulado is null and R.no_conforme is null  and R.motivo is null and R.traslado is null and\n" +
+                    "R.saga is null and R.bobina is null and R.scla is null and R.destino is null and R.srec is null and R.scal is null and R.scae is null and R.sar is null and R.sav is null");
+            while (rs.next()){
+                modelo = new TrefiRecepcionModelo();
+                modelo.setCod_orden(rs.getString("cod_orden"));
+                modelo.setId_detalle(rs.getString("id_detalle"));
+                modelo.setId_rollo(rs.getString("id_rollo"));
+                modelo.setReferencia(rs.getString("prod_final"));
+                modelo.setDescripcion(rs.getString("descripcion"));
+                modelo.setPeso(String.valueOf(rs.getInt("peso")));
+                modelo.setColor("RED");
+                trefiTerminado.add(modelo);
+            }
+        }catch (Exception e){
+            Toast.makeText(context, e.getMessage(), Toast.LENGTH_SHORT).show();
+        }
+        return trefiTerminado;
+    }
+
     public List<TrefiRecepcionModelo> obtenerTrefiTerminado(Context context){
         List<TrefiRecepcionModelo> trefiTerminado = new ArrayList<>();
         TrefiRecepcionModelo modelo;
