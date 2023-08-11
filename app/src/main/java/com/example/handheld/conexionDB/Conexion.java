@@ -686,7 +686,7 @@ public class Conexion {
                 modelo.setReferencia(rs.getString("prod_final"));
                 modelo.setDescripcion(rs.getString("descripcion"));
                 modelo.setPeso(String.valueOf(rs.getInt("peso")));
-                modelo.setColor("RED");
+                modelo.setColor("GREEN");
                 trefiTerminado.add(modelo);
             }
         }catch (Exception e){
@@ -702,9 +702,9 @@ public class Conexion {
         try {
             Statement st = conexionBD("JJVPRGPRODUCCION", context).createStatement();
             ResultSet rs = st.executeQuery("select R.cod_orden,R.id_detalle,R.id_rollo, O.prod_final,Ref.descripcion, R.peso\n" +
-                    "from J_rollos_tref R inner join J_orden_prod_tef O on R.cod_orden = O.consecutivo inner join CORSAN.dbo.referencias Ref on O.prod_final = Ref.codigo\n" +
+                    "from J_rollos_tref R inner join J_orden_prod_tef O on R.cod_orden = O.consecutivo inner join CORSAN.dbo.referencias Ref on O.prod_final = Ref.codigo inner join jd_revision_calidad Rev on R.id_revision = Rev.id_revision\n" +
                     "where O.prod_final like '33%' and R.recepcionado is null and R.id_revision is not null and R.anulado is null and R.no_conforme is null  and R.motivo is null and R.traslado is null and\n" +
-                    "R.saga is null and R.bobina is null and R.scla is null and R.destino is null and R.srec is null and R.scal is null and R.scae is null and R.sar is null and R.sav is null");
+                    "R.saga is null and R.bobina is null and R.scla is null and R.destino is null and R.srec is null and R.scal is null and R.scae is null and R.sar is null and R.sav is null and Rev.estado='A'");
             while (rs.next()){
                 modelo = new TrefiRecepcionModelo();
                 modelo.setCod_orden(rs.getString("cod_orden"));
@@ -1074,7 +1074,7 @@ public class Conexion {
             Statement st = conexionBD("JJVPRGPRODUCCION", context).createStatement();
             ResultSet rs = st.executeQuery(sql);
             if (rs.next()){
-                id = Integer.parseInt(rs.getString("id_revision"));
+                id = rs.getInt("id_revision");
             }
 
         }catch (Exception e){

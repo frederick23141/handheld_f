@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Fondo del Spinner -->
+    <item android:drawable="@android:drawable/btn_dropdown" />
+    <!-- Borde del Spinner -->
+    <item>
+        <shape android:shape="rectangle">
+        </shape>
+    </item>
+</layer-list>

@@ -1,5 +1,8 @@
 package com.example.handheld;
 
+import static com.example.handheld.R.id.editTraccion;
+import static com.example.handheld.R.id.txtCedulaLogistica;
+
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -45,7 +48,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
-public class RevisionTerminadoTrefilacion extends AppCompatActivity implements AdapterView.OnItemClickListener{
+public class RevisionTerminadoTrefilacion extends AppCompatActivity{
 
     //se declaran las variables de los elementos del Layout
     EditText codigoTrefi;
@@ -58,7 +61,7 @@ public class RevisionTerminadoTrefilacion extends AppCompatActivity implements A
 
     //Se declaran los elementos necesarios para el list view
     ListView listviewTrefiTerminado;
-    List<TrefiRecepcionModelo> ListaTrefiRevisado= new ArrayList<>();
+    List<TrefiRecepcionModelo> ListaTrefiRevisado;
     List<TrefiRecepcionModelo> ListaTrefiRollosRecep;
     ListAdapter TrefiTerminadoAdapter;
     TrefiRecepcionModelo trefiRecepcionModelo;
@@ -113,7 +116,6 @@ public class RevisionTerminadoTrefilacion extends AppCompatActivity implements A
 
         //Definimos los elementos necesarios para el list view
         listviewTrefiTerminado = findViewById(R.id.listviewTrefiTerminado);
-        listviewTrefiTerminado.setOnItemClickListener(this); //Determinamos a que elemento va dirigido el OnItemClick
         trefiRecepcionModelo = new TrefiRecepcionModelo();
 
         //Se Define los varibles para el sonido de error
@@ -178,63 +180,69 @@ public class RevisionTerminadoTrefilacion extends AppCompatActivity implements A
                 //Mostramos el mensaje para logistica
 
                 AlertDialog.Builder builder = new AlertDialog.Builder(RevisionTerminadoTrefilacion.this);
-                View mView = getLayoutInflater().inflate(R.layout.alertdialog_cedularecepciona,null);
-                final EditText txtCedulaCalidad = mView.findViewById(R.id.txtCedulaLogistica);
+                View mView = getLayoutInflater().inflate(R.layout.alertdialog_aprobado,null);
+                @SuppressLint({"MissingInflatedId", "LocalSuppress"}) final EditText txtCedulaCalidad = mView.findViewById(txtCedulaLogistica);
                 txtCedulaCalidad.setHint("Cedula Calidad");
-                TextView textView6 = mView.findViewById(R.id.textView6);
+                @SuppressLint({"MissingInflatedId", "LocalSuppress"}) TextView textView6 = mView.findViewById(R.id.textView6);
                 textView6.setText("Ingrese la cedula persona calidad");
-                TextView txtMrollos = mView.findViewById(R.id.txtMrollos);
+                @SuppressLint({"MissingInflatedId", "LocalSuppress"}) TextView txtMrollos = mView.findViewById(R.id.txtMrollos);
                 txtMrollos.setText("Se han leido: "+ leidos +" Rollos");
-                Button btnAceptar = mView.findViewById(R.id.btnAceptar);
-                Button btnCancelar = mView.findViewById(R.id.btnCancelar);
-                ProgressBar Barraprogreso = mView.findViewById(R.id.progress_bar);
+                @SuppressLint({"MissingInflatedId", "LocalSuppress"}) Button btnAceptar = mView.findViewById(R.id.btnAceptar);
+                @SuppressLint({"MissingInflatedId", "LocalSuppress"}) Button btnCancelar = mView.findViewById(R.id.btnCancelar);
+                @SuppressLint({"MissingInflatedId", "LocalSuppress"}) ProgressBar Barraprogreso = mView.findViewById(R.id.progress_bar);
+                @SuppressLint({"MissingInflatedId", "LocalSuppress"}) EditText editTraccion = mView.findViewById(R.id.editTraccion);
                 builder.setView(mView);
                 AlertDialog alertDialog = builder.create();
                 btnAceptar.setOnClickListener(v12 -> {
                     String CeLog = txtCedulaCalidad.getText().toString().trim();
-                    if (CeLog.equals("")){
-                        toastError("Ingresar la cedula de la persona que recepciona");
+                    if (editTraccion.getText().toString().equals("")){
+                        toastError("Por favor ingresar tracción");
                     }else{
-                        if(CeLog.equals(nit_usuario)){
-                            txtCedulaCalidad.setText("");
-                            toastError("La Cedula de la persona que recepciona no puede ser igual al de la persona que entrega");
+                        if (CeLog.equals("")){
+                            toastError("Ingresar la cedula de la persona que recepciona");
                         }else{
-                            //Verificamos el numero de documentos de la persona en la base da datos
-                            personaCalidad = conexion.obtenerPersona(RevisionTerminadoTrefilacion.this,CeLog );
-                            centro = personaCalidad.getCentro();
-                            //Verificamos que la persona sea de calidad
-                            if (centro.equals("4110")){
-                                Barraprogreso.setVisibility(View.VISIBLE);
-                                Handler handler = new Handler(Looper.getMainLooper());
-                                new Thread(() -> {
-                                    try {
-                                        runOnUiThread(() -> {
-                                            try {
-                                                realizarRevision();
-                                            } catch (SQLException e) {
-                                                throw new RuntimeException(e);
-                                            }
-                                        });
-                                        handler.post(() -> {
-                                            Barraprogreso.setVisibility(View.GONE);
-                                            alertDialog.dismiss();
-                                            closeTecladoMovil();
-                                        });
-                                    } catch (Exception e) {
-                                        handler.post(() -> {
-                                            toastError(e.getMessage());
-                                            Barraprogreso.setVisibility(View.GONE);
-                                        });
-                                    }
-                                }).start();
-                                closeTecladoMovil();
+                            if(CeLog.equals(nit_usuario)){
+                                txtCedulaCalidad.setText("");
+                                toastError("La Cedula de la persona que recepciona no puede ser igual al de la persona que entrega");
                             }else{
-                                if (centro.equals("")){
-                                    txtCedulaCalidad.setText("");
-                                    toastError("Persona no encontrada");
+                                //Verificamos el numero de documentos de la persona en la base da datos
+                                personaCalidad = conexion.obtenerPersona(RevisionTerminadoTrefilacion.this,CeLog );
+                                centro = personaCalidad.getCentro();
+                                //Verificamos que la persona sea de calidad
+                                if (centro.equals("4110")){
+                                    motivo = "Tracción: " + editTraccion.getText().toString();
+                                    Barraprogreso.setVisibility(View.VISIBLE);
+                                    Handler handler = new Handler(Looper.getMainLooper());
+                                    new Thread(() -> {
+                                        try {
+                                            runOnUiThread(() -> {
+                                                try {
+                                                    realizarRevision();
+                                                } catch (SQLException e) {
+                                                    throw new RuntimeException(e);
+                                                }
+                                            });
+                                            handler.post(() -> {
+                                                Barraprogreso.setVisibility(View.GONE);
+                                                alertDialog.dismiss();
+                                                closeTecladoMovil();
+                                            });
+                                        } catch (Exception e) {
+                                            handler.post(() -> {
+                                                toastError(e.getMessage());
+                                                Barraprogreso.setVisibility(View.GONE);
+                                            });
+                                        }
+                                    }).start();
+                                    closeTecladoMovil();
                                 }else{
-                                    txtCedulaCalidad.setText("");
-                                    toastError("La cedula ingresada no pertenece a calidad!");
+                                    if (centro.equals("")){
+                                        txtCedulaCalidad.setText("");
+                                        toastError("Persona no encontrada");
+                                    }else{
+                                        txtCedulaCalidad.setText("");
+                                        toastError("La cedula ingresada no pertenece a calidad!");
+                                    }
                                 }
                             }
                         }
@@ -253,64 +261,69 @@ public class RevisionTerminadoTrefilacion extends AppCompatActivity implements A
                         AudioError();
                     }
                     else{
-
                         AlertDialog.Builder builder = new AlertDialog.Builder(RevisionTerminadoTrefilacion.this);
-                        View mView = getLayoutInflater().inflate(R.layout.alertdialog_cedularecepciona,null);
-                        final EditText txtCedulaCalidad = mView.findViewById(R.id.txtCedulaLogistica);
+                        View mView = getLayoutInflater().inflate(R.layout.alertdialog_aprobado,null);
+                        @SuppressLint({"MissingInflatedId", "LocalSuppress"}) final EditText txtCedulaCalidad = mView.findViewById(txtCedulaLogistica);
                         txtCedulaCalidad.setHint("Cedula Calidad");
-                        TextView textView6 = mView.findViewById(R.id.textView6);
+                        @SuppressLint({"MissingInflatedId", "LocalSuppress"}) TextView textView6 = mView.findViewById(R.id.textView6);
                         textView6.setText("Ingrese la cedula persona calidad");
-                        TextView txtMrollos = mView.findViewById(R.id.txtMrollos);
+                        @SuppressLint({"MissingInflatedId", "LocalSuppress"}) TextView txtMrollos = mView.findViewById(R.id.txtMrollos);
                         txtMrollos.setText("Se han leido: "+ leidos +" Rollos");
-                        Button btnAceptar = mView.findViewById(R.id.btnAceptar);
-                        Button btnCancelar = mView.findViewById(R.id.btnCancelar);
-                        ProgressBar Barraprogreso = mView.findViewById(R.id.progress_bar);
+                        @SuppressLint({"MissingInflatedId", "LocalSuppress"}) Button btnAceptar = mView.findViewById(R.id.btnAceptar);
+                        @SuppressLint({"MissingInflatedId", "LocalSuppress"}) Button btnCancelar = mView.findViewById(R.id.btnCancelar);
+                        @SuppressLint({"MissingInflatedId", "LocalSuppress"}) ProgressBar Barraprogreso = mView.findViewById(R.id.progress_bar);
+                        @SuppressLint({"MissingInflatedId", "LocalSuppress"}) EditText editTraccion = mView.findViewById(R.id.editTraccion);
                         builder.setView(mView);
                         AlertDialog alertDialog = builder.create();
                         btnAceptar.setOnClickListener(v12 -> {
                             String CeLog = txtCedulaCalidad.getText().toString().trim();
-                            if (CeLog.equals("")){
-                                toastError("Ingresar la cedula de la persona que recepciona");
-                            }else{
-                                if(CeLog.equals(nit_usuario)){
-                                    txtCedulaCalidad.setText("");
-                                    toastError("La Cedula de la persona que recepciona no puede ser igual al de la persona que entrega");
+                            if (editTraccion.getText().toString().equals("")){
+                                toastError("Por favor ingresar tracción");
+                            }else {
+                                if (CeLog.equals("")){
+                                    toastError("Ingresar la cedula de la persona que recepciona");
                                 }else{
-                                    personaCalidad = conexion.obtenerPersona(RevisionTerminadoTrefilacion.this,CeLog );
-                                    centro = personaCalidad.getCentro();
-                                    //Verificamos que la persona pertenezca al centro de logistica
-                                    if (centro.equals("4110")){
-                                        Barraprogreso.setVisibility(View.VISIBLE);
-                                        Handler handler = new Handler(Looper.getMainLooper());
-                                        new Thread(() -> {
-                                            try {
-                                                runOnUiThread(() -> {
-                                                    try {
-                                                        realizarRevision();
-                                                    } catch (SQLException e) {
-                                                        throw new RuntimeException(e);
-                                                    }
-                                                });
-                                                handler.post(() -> {
-                                                    Barraprogreso.setVisibility(View.GONE);
-                                                    alertDialog.dismiss();
-                                                    closeTecladoMovil();
-                                                });
-                                            } catch (Exception e) {
-                                                handler.post(() -> {
-                                                    toastError(e.getMessage());
-                                                    Barraprogreso.setVisibility(View.GONE);
-                                                });
-                                            }
-                                        }).start();
-                                        closeTecladoMovil();
+                                    if(CeLog.equals(nit_usuario)){
+                                        txtCedulaCalidad.setText("");
+                                        toastError("La Cedula de la persona que recepciona no puede ser igual al de la persona que entrega");
                                     }else{
-                                        if (centro.equals("")){
-                                            txtCedulaCalidad.setText("");
-                                            toastError("Persona no encontrada");
+                                        personaCalidad = conexion.obtenerPersona(RevisionTerminadoTrefilacion.this,CeLog );
+                                        centro = personaCalidad.getCentro();
+                                        //Verificamos que la persona pertenezca al centro de logistica
+                                        if (centro.equals("4110")){
+                                            motivo = "Tracción: " + editTraccion.getText().toString();
+                                            Barraprogreso.setVisibility(View.VISIBLE);
+                                            Handler handler = new Handler(Looper.getMainLooper());
+                                            new Thread(() -> {
+                                                try {
+                                                    runOnUiThread(() -> {
+                                                        try {
+                                                            realizarRevision();
+                                                        } catch (SQLException e) {
+                                                            throw new RuntimeException(e);
+                                                        }
+                                                    });
+                                                    handler.post(() -> {
+                                                        Barraprogreso.setVisibility(View.GONE);
+                                                        alertDialog.dismiss();
+                                                        closeTecladoMovil();
+                                                    });
+                                                } catch (Exception e) {
+                                                    handler.post(() -> {
+                                                        toastError(e.getMessage());
+                                                        Barraprogreso.setVisibility(View.GONE);
+                                                    });
+                                                }
+                                            }).start();
+                                            closeTecladoMovil();
                                         }else{
-                                            txtCedulaCalidad.setText("");
-                                            toastError("La cedula ingresada no pertenece a calidad!");
+                                            if (centro.equals("")){
+                                                txtCedulaCalidad.setText("");
+                                                toastError("Persona no encontrada");
+                                            }else{
+                                                txtCedulaCalidad.setText("");
+                                                toastError("La cedula ingresada no pertenece a calidad!");
+                                            }
                                         }
                                     }
                                 }
@@ -327,163 +340,12 @@ public class RevisionTerminadoTrefilacion extends AppCompatActivity implements A
 
         /////////////////////////////////////////////////////////////////////////////////////////////
         //Se programa para que al presionar el boton inicie el proceso de transacción
-        btnRechazado.setOnClickListener(v -> {
-            int sleer = Integer.parseInt(txtTotalSinLeer.getText().toString());
-            int total = Integer.parseInt(txtTotal.getText().toString());
-            int leidos = (total - sleer);
-            //Verificamos que la cantidad de rollos sin leer sea 0 y si hubiera produccion en
-            //galvanizado que leer
-            if(sleer==0 && total>0){
-                //Mostramos el mensaje para logistica
-
-                AlertDialog.Builder builder = new AlertDialog.Builder(RevisionTerminadoTrefilacion.this);
-                View mView = getLayoutInflater().inflate(R.layout.alertdialog_rechazado,null);
-                final EditText txtCedulaLogistica = mView.findViewById(R.id.txtCedulaLogistica);
-                Spinner spinnerRechazo = mView.findViewById(R.id.spinnerRechazo);
-                listaTrefiRechazos = llenarlistaspinner();
-                ArrayAdapter<CharSequence> adapter = new ArrayAdapter(RevisionTerminadoTrefilacion.this, android.R.layout.simple_spinner_item, listaTrefiRechazos);
-                spinnerRechazo.setAdapter(adapter);
-                TextView txtMrollos = mView.findViewById(R.id.txtMrollos);
-                txtMrollos.setText("Se han leido: "+ leidos +" Rollos");
-                Button btnAceptar = mView.findViewById(R.id.btnAceptar);
-                Button btnCancelar = mView.findViewById(R.id.btnCancelar);
-                ProgressBar Barraprogreso = mView.findViewById(R.id.progress_bar);
-                builder.setView(mView);
-                AlertDialog alertDialog = builder.create();
-                btnAceptar.setOnClickListener(v12 -> {
-                    if(!spinnerRechazo.getSelectedItem().equals("Seleccione motivo rechazo")){
-                        String CeLog = txtCedulaLogistica.getText().toString().trim();
-                        if (CeLog.equals("")){
-                            toastError("Ingresar la cedula de la persona que recepciona");
-                        }else{
-                            if(CeLog.equals(nit_usuario)){
-                                txtCedulaLogistica.setText("");
-                                toastError("La Cedula de la persona que recepciona no puede ser igual al de la persona que entrega");
-                            }else{
-                                //Verificamos el numero de documentos de la persona en la base da datos
-                                personaCalidad = conexion.obtenerPersona(RevisionTerminadoTrefilacion.this,CeLog );
-                                centro = personaCalidad.getCentro();
-                                //Verificamos que la persona sea de logistica
-                                if (centro.equals("4110")){
-                                    Barraprogreso.setVisibility(View.VISIBLE);
-                                    Handler handler = new Handler(Looper.getMainLooper());
-                                    new Thread(() -> {
-                                        try {
-                                            runOnUiThread(this::realizarTransaccion);
-                                            handler.post(() -> {
-                                                Barraprogreso.setVisibility(View.GONE);
-                                                alertDialog.dismiss();
-                                                closeTecladoMovil();
-                                            });
-                                        } catch (Exception e) {
-                                            handler.post(() -> {
-                                                toastError(e.getMessage());
-                                                Barraprogreso.setVisibility(View.GONE);
-                                            });
-                                        }
-                                    }).start();
-                                    closeTecladoMovil();
-                                }else{
-                                    if (centro.equals("")){
-                                        txtCedulaLogistica.setText("");
-                                        toastError("Persona no encontrada");
-                                    }else{
-                                        txtCedulaLogistica.setText("");
-                                        toastError("La cedula ingresada no pertenece a calidad!");
-                                    }
-                                }
-                            }
-                        }
-                    }else{
-                        toastError("Seleccione motivo rechazo");
-                    }
-                });
-                btnCancelar.setOnClickListener(v1 -> alertDialog.dismiss());
-                alertDialog.setCancelable(false);
-                alertDialog.show();
-            }else{
-                if(sleer==0 && total==0){
-                    toastError("No hay rollos por leer");
-                    AudioError();
-                }else{
-                    if (total == sleer){
-                        toastError("No se ha leido ningun rollo");
-                        AudioError();
-                    }
-                    else{
-
-                        AlertDialog.Builder builder = new AlertDialog.Builder(RevisionTerminadoTrefilacion.this);
-                        View mView = getLayoutInflater().inflate(R.layout.alertdialog_rechazado,null);
-                        final EditText txtCedulaLogistica = mView.findViewById(R.id.txtCedulaLogistica);
-                        Spinner spinnerRechazo = mView.findViewById(R.id.spinnerRechazo);
-                        listaTrefiRechazos = llenarlistaspinner();
-                        ArrayAdapter<CharSequence> adapter = new ArrayAdapter(RevisionTerminadoTrefilacion.this, android.R.layout.simple_spinner_dropdown_item, listaTrefiRechazos);
-                        spinnerRechazo.setAdapter(adapter);
-                        TextView txtMrollos = mView.findViewById(R.id.txtMrollos);
-                        txtMrollos.setText("Se han leido: "+ leidos +" Rollos");
-                        Button btnAceptar = mView.findViewById(R.id.btnAceptar);
-                        Button btnCancelar = mView.findViewById(R.id.btnCancelar);
-                        ProgressBar Barraprogreso = mView.findViewById(R.id.progress_bar);
-                        builder.setView(mView);
-                        AlertDialog alertDialog = builder.create();
-                        btnAceptar.setOnClickListener(v12 -> {
-                            if(!spinnerRechazo.getSelectedItem().equals("Seleccione motivo rechazo")){
-                                motivo = spinnerRechazo.getSelectedItem().toString();
-                                String CeLog = txtCedulaLogistica.getText().toString().trim();
-                                if (CeLog.equals("")){
-                                    toastError("Ingresar la cedula de la persona que recepciona");
-                                }else{
-                                    if(CeLog.equals(nit_usuario)){
-                                        txtCedulaLogistica.setText("");
-                                        toastError("La Cedula de la persona que recepciona no puede ser igual al de la persona que entrega");
-                                    }else{
-                                        personaCalidad = conexion.obtenerPersona(RevisionTerminadoTrefilacion.this,CeLog );
-                                        centro = personaCalidad.getCentro();
-                                        //Verificamos que la persona pertenezca al centro de logistica
-                                        if (centro.equals("4110")){
-                                            Barraprogreso.setVisibility(View.VISIBLE);
-                                            Handler handler = new Handler(Looper.getMainLooper());
-                                            new Thread(() -> {
-                                                try {
-                                                    runOnUiThread(this::realizarTransaccion);
-                                                    handler.post(() -> {
-                                                        Barraprogreso.setVisibility(View.GONE);
-                                                        alertDialog.dismiss();
-                                                        closeTecladoMovil();
-                                                    });
-                                                } catch (Exception e) {
-                                                    handler.post(() -> {
-                                                        toastError(e.getMessage());
-                                                        Barraprogreso.setVisibility(View.GONE);
-                                                    });
-                                                }
-                                            }).start();
-                                            closeTecladoMovil();
-                                        }else{
-                                            if (centro.equals("")){
-                                                txtCedulaLogistica.setText("");
-                                                toastError("Persona no encontrada");
-                                            }else{
-                                                txtCedulaLogistica.setText("");
-                                                toastError("La cedula ingresada no pertenece a calidad!");
-                                            }
-                                        }
-                                    }
-                                }
-                            }else{
-                                toastError("Seleccione motivo rechazo");
-                            }
-                        });
-                        btnCancelar.setOnClickListener(v1 -> alertDialog.dismiss());
-                        alertDialog.setCancelable(false);
-                        alertDialog.show();
-
-                    }
-                }
-            }
-        });
+        btnRechazado.setOnClickListener(this::onClick);
 
     }
+
+    // Crear un objeto OnItemSelectedListener
+
 
     private void realizarRevision() throws SQLException {
         Integer paso = 0;
@@ -502,7 +364,7 @@ public class RevisionTerminadoTrefilacion extends AppCompatActivity implements A
         // Convierte la fecha actual en un String con el formato definido
         String fechaActualString = formatoFecha.format(fechaActual);
 
-        String sql_revision= "INSERT INTO jd_revision_calidad(fecha_hora,revisor,estado)VALUES('" + fechaActualString + "','" + personaCalidad.getNit() + "','A')";
+        String sql_revision= "INSERT INTO jd_revision_calidad(fecha_hora,revisor,estado,defecto)VALUES('" + fechaActualString + "','" + personaCalidad.getNit() + "','A','" + motivo + "')";
 
         try {
             //Se ejecuta el sql_revision en la base de datos
@@ -512,7 +374,7 @@ public class RevisionTerminadoTrefilacion extends AppCompatActivity implements A
         }
 
         if (paso==1){
-            //se adicionan los campos recepcionado, nit_recepcionado y fecha_recepcionado a la tabla
+            //se adicionan los campos recepcionado, nit_recepcionado y fecha_recepcionado a la tabla.
             for(int i=0;i<ListaTrefiRollosRecep.size();i++){
                 String cod_orden = ListaTrefiRollosRecep.get(i).getCod_orden();
                 String id_detalle = ListaTrefiRollosRecep.get(i).getId_detalle();
@@ -590,12 +452,12 @@ public class RevisionTerminadoTrefilacion extends AppCompatActivity implements A
         String monthActualString = formatoMonth.format(fechaActual);
         String yearActualString = formatoYear.format(fechaActual);
 
-        if (incompleta=false){
-            String sql_revision= "INSERT INTO jd_revision_calidad(fecha_hora,revisor,estado,defecto,tipo_transa)VALUES('" + fechaActualString + "','" + personaCalidad.getNit() + "','R','" + motivo + "','TRB1')";
+        if (!incompleta){
+            String sql_revisionTransa= "INSERT INTO jd_revision_calidad(fecha_hora,revisor,estado,defecto,tipo_transa)VALUES('" + fechaActualString + "','" + personaCalidad.getNit() + "','R','" + motivo + "','TRB1')";
 
             try {
                 //Se ejecuta el sql_revision en la base de datos
-                paso = objOperacionesDb.ejecutarInsertJjprgproduccion(sql_revision,RevisionTerminadoTrefilacion.this);
+                paso = objOperacionesDb.ejecutarInsertJjprgproduccion(sql_revisionTransa,RevisionTerminadoTrefilacion.this);
             }catch (Exception e){
                 Toast.makeText(RevisionTerminadoTrefilacion.this, e.getMessage(), Toast.LENGTH_SHORT).show();
             }
@@ -610,7 +472,7 @@ public class RevisionTerminadoTrefilacion extends AppCompatActivity implements A
                 String cod_orden = ListaTrefiRollosRecep.get(i).getCod_orden();
                 String id_detalle = ListaTrefiRollosRecep.get(i).getId_detalle();
                 String id_rollo = ListaTrefiRollosRecep.get(i).getId_rollo();
-                if(incompleta=false){
+                if(!incompleta){
                     obtenerId = "select id_revision from jd_revision_calidad where fecha_hora='" + fechaActualString + "'";
                 }else{
                     obtenerId = "select id_revision from jd_revision_calidad where id_revision='" + id_revision + "'";
@@ -713,27 +575,26 @@ public class RevisionTerminadoTrefilacion extends AppCompatActivity implements A
         conexion = new Conexion();
         //Inicializamos la lista de los rollos escaneados
         ListaTrefiRollosRecep = new ArrayList<>();
+        ListaTrefiRevisado = new ArrayList<>();
 
         //Consultamos si hay rollos con transacciones incompletas
-        id_revision = conexion.consultarReviTrefiIncomple(getApplication());
+        id_revision = conexion.consultarReviTrefiIncomple(RevisionTerminadoTrefilacion.this);
 
         if (id_revision.equals(0)){
             /////////////////////////////////////////////////////////////////////////////////////////////
             //Llamamos al metodo para consultar los rollos de galvanizados listos para recoger
             consultarTrefiTerminado();
         }else{
-            toastAtencion("Transacción incompleta \n" +
-                    "Por favor terminarla");
             incompleta = true;
             btnAprobado.setEnabled(false);
 
-            ListaTrefiRollosRecep = conexion.obtenerTrefiRevision(getApplication());
+            ListaTrefiRollosRecep = conexion.obtenerReviTrefiTerminado(RevisionTerminadoTrefilacion.this, id_revision);
 
             //Consultamos los rollos de producción que no se han recepcionado en la base de datos
-            ListaTrefiRevisado = conexion.obtenerReviTrefiTerminado(getApplication(), id_revision);
+            ListaTrefiRevisado = conexion.obtenerTrefiRevision(RevisionTerminadoTrefilacion.this);
 
             //Enviamos la lista vacia de rollos escaneados al listview
-            TrefiTerminadoAdapter = new listTrefiTerminadoAdapter(RevisionTerminadoTrefilacion.this,R.layout.item_row_galvterminado,ListaTrefiRevisado);
+            TrefiTerminadoAdapter = new listTrefiTerminadoAdapter(RevisionTerminadoTrefilacion.this,R.layout.item_row_trefiterminado,ListaTrefiRollosRecep);
             listviewTrefiTerminado.setAdapter(TrefiTerminadoAdapter);
 
             //Enviamos la cantidad de rollos de producción que no se han recepcionado al TextView
@@ -743,6 +604,9 @@ public class RevisionTerminadoTrefilacion extends AppCompatActivity implements A
             //Contamos los rollos leidos y sin leer para mostrarlos en los TextView
             contarSinLeer();
             contarLeidos();
+
+            toastAtencion("Transacción incompleta \n" +
+                    "Por favor terminarla");
         }
     }
 
@@ -898,10 +762,6 @@ public class RevisionTerminadoTrefilacion extends AppCompatActivity implements A
     }
 
     /////////////////////////////////////////////////////////////////////////////////////////////
-    @Override
-    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-
-    }
 
     //METODO PARA CERRAR LA APLICACION
     @SuppressLint("")
@@ -960,6 +820,254 @@ public class RevisionTerminadoTrefilacion extends AppCompatActivity implements A
     public void AudioError(){
         sp.play(sonido_de_Reproduccion,100,100,1,0,0);
         vibrator.vibrate(2000);
+    }
+
+    private void onClick(View v) {
+        int sleer = Integer.parseInt(txtTotalSinLeer.getText().toString());
+        int total = Integer.parseInt(txtTotal.getText().toString());
+        int leidos = (total - sleer);
+        //Verificamos que la cantidad de rollos sin leer sea 0 y si hubiera produccion en
+        //galvanizado que leer
+        if (sleer == 0 && total > 0) {
+            //Mostramos el mensaje para logistica
+
+            AlertDialog.Builder builder = new AlertDialog.Builder(RevisionTerminadoTrefilacion.this);
+            View mView = getLayoutInflater().inflate(R.layout.alertdialog_rechazado, null);
+            @SuppressLint("CutPasteId") final EditText txtCedulaLogistica = mView.findViewById(R.id.txtCedulaLogistica);
+            Spinner spinnerRechazo = mView.findViewById(R.id.spinnerRechazo);
+            listaTrefiRechazos = llenarlistaspinner();
+            ArrayAdapter<CharSequence> adapter = new ArrayAdapter(RevisionTerminadoTrefilacion.this, android.R.layout.simple_spinner_item, listaTrefiRechazos);
+            spinnerRechazo.setAdapter(adapter);
+            spinnerRechazo.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+                @Override
+                public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                    String selectedOption = parent.getItemAtPosition(position).toString();
+                    toastAcierto(selectedOption);
+                    actualizarAlertDialog(selectedOption, mView);
+                }
+
+                @Override
+                public void onNothingSelected(AdapterView<?> parent) {
+                }
+
+            });
+            TextView txtMrollos = mView.findViewById(R.id.txtMrollos);
+            txtMrollos.setText("Se han leido: " + leidos + " Rollos");
+            Button btnAceptar = mView.findViewById(R.id.btnAceptar);
+            Button btnCancelar = mView.findViewById(R.id.btnCancelar);
+            ProgressBar Barraprogreso = mView.findViewById(R.id.progress_bar);
+            builder.setView(mView);
+            AlertDialog alertDialog = builder.create();
+            btnAceptar.setOnClickListener(v12 -> {
+                if (!spinnerRechazo.getSelectedItem().equals("Seleccione motivo rechazo")) {
+                    String CeLog = txtCedulaLogistica.getText().toString().trim();
+                    if (CeLog.equals("")) {
+                        toastError("Ingresar la cedula de la persona que recepciona");
+                    } else {
+                        if (CeLog.equals(nit_usuario)) {
+                            txtCedulaLogistica.setText("");
+                            toastError("La Cedula de la persona que recepciona no puede ser igual al de la persona que entrega");
+                        } else {
+                            //Verificamos el numero de documentos de la persona en la base da datos
+                            personaCalidad = conexion.obtenerPersona(RevisionTerminadoTrefilacion.this, CeLog);
+                            centro = personaCalidad.getCentro();
+                            //Verificamos que la persona sea de logistica
+                            if (centro.equals("4110")) {
+                                Barraprogreso.setVisibility(View.VISIBLE);
+                                Handler handler = new Handler(Looper.getMainLooper());
+                                new Thread(() -> {
+                                    try {
+                                        runOnUiThread(this::realizarTransaccion);
+                                        handler.post(() -> {
+                                            Barraprogreso.setVisibility(View.GONE);
+                                            alertDialog.dismiss();
+                                            closeTecladoMovil();
+                                        });
+                                    } catch (Exception e) {
+                                        handler.post(() -> {
+                                            toastError(e.getMessage());
+                                            Barraprogreso.setVisibility(View.GONE);
+                                        });
+                                    }
+                                }).start();
+                                closeTecladoMovil();
+                            } else {
+                                if (centro.equals("")) {
+                                    txtCedulaLogistica.setText("");
+                                    toastError("Persona no encontrada");
+                                } else {
+                                    txtCedulaLogistica.setText("");
+                                    toastError("La cedula ingresada no pertenece a calidad!");
+                                }
+                            }
+                        }
+                    }
+                } else {
+                    toastError("Seleccione motivo rechazo");
+                }
+            });
+            btnCancelar.setOnClickListener(v1 -> alertDialog.dismiss());
+            alertDialog.setCancelable(false);
+            alertDialog.show();
+        } else {
+            if (sleer == 0 && total == 0) {
+                toastError("No hay rollos por leer");
+                AudioError();
+            } else {
+                if (total == sleer) {
+                    toastError("No se ha leido ningun rollo");
+                    AudioError();
+                } else {
+
+                    AlertDialog.Builder builder = new AlertDialog.Builder(RevisionTerminadoTrefilacion.this);
+                    View mView = getLayoutInflater().inflate(R.layout.alertdialog_rechazado, null);
+                    final EditText txtCedulaLogistica = mView.findViewById(R.id.txtCedulaLogistica);
+                    TextView txtTraccion = mView.findViewById(R.id.txtTraccion);
+                    EditText editTraccion = mView.findViewById(R.id.editTraccion);
+                    Spinner spinnerRechazo = mView.findViewById(R.id.spinnerRechazo);
+                    listaTrefiRechazos = llenarlistaspinner();
+                    ArrayAdapter<CharSequence> adapter = new ArrayAdapter(RevisionTerminadoTrefilacion.this, android.R.layout.simple_spinner_dropdown_item, listaTrefiRechazos);
+                    spinnerRechazo.setAdapter(adapter);
+                    spinnerRechazo.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+                        @Override
+                        public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                            String selectedOption = parent.getItemAtPosition(position).toString();
+                            actualizarAlertDialog(selectedOption, mView);
+                        }
+
+                        @Override
+                        public void onNothingSelected(AdapterView<?> parent) {
+                        }
+
+                    });
+                    TextView txtMrollos = mView.findViewById(R.id.txtMrollos);
+                    txtMrollos.setText("Se han leido: " + leidos + " Rollos");
+                    Button btnAceptar = mView.findViewById(R.id.btnAceptar);
+                    Button btnCancelar = mView.findViewById(R.id.btnCancelar);
+                    ProgressBar Barraprogreso = mView.findViewById(R.id.progress_bar);
+                    builder.setView(mView);
+                    AlertDialog alertDialog = builder.create();
+                    btnAceptar.setOnClickListener(v12 -> {
+                        if (!spinnerRechazo.getSelectedItem().equals("Seleccione motivo rechazo")) {
+                            motivo = spinnerRechazo.getSelectedItem().toString();
+                            String CeLog = txtCedulaLogistica.getText().toString().trim();
+                            if(motivo.equals("Baja/Alta tracción")){
+                                if(editTraccion.getText().toString().equals("")){
+                                    toastError("Por favor ingresar tracción");
+                                }else if (CeLog.equals("")) {
+                                    toastError("Ingresar la cedula de la persona que recepciona");
+                                } else {
+                                    if (CeLog.equals(nit_usuario)) {
+                                        txtCedulaLogistica.setText("");
+                                        toastError("La Cedula de la persona que recepciona no puede ser igual al de la persona que entrega");
+                                    } else {
+                                        personaCalidad = conexion.obtenerPersona(RevisionTerminadoTrefilacion.this, CeLog);
+                                        centro = personaCalidad.getCentro();
+                                        //Verificamos que la persona pertenezca al centro de logistica
+                                        if (centro.equals("4110")) {
+                                            motivo = motivo + " - "+ editTraccion.getText();
+                                            Barraprogreso.setVisibility(View.VISIBLE);
+                                            Handler handler = new Handler(Looper.getMainLooper());
+                                            new Thread(() -> {
+                                                try {
+                                                    runOnUiThread(this::realizarTransaccion);
+                                                    handler.post(() -> {
+                                                        Barraprogreso.setVisibility(View.GONE);
+                                                        alertDialog.dismiss();
+                                                        closeTecladoMovil();
+                                                    });
+                                                } catch (Exception e) {
+                                                    handler.post(() -> {
+                                                        toastError(e.getMessage());
+                                                        Barraprogreso.setVisibility(View.GONE);
+                                                    });
+                                                }
+                                            }).start();
+                                            closeTecladoMovil();
+                                        } else {
+                                            if (centro.equals("")) {
+                                                txtCedulaLogistica.setText("");
+                                                toastError("Persona no encontrada");
+                                            } else {
+                                                txtCedulaLogistica.setText("");
+                                                toastError("La cedula ingresada no pertenece a calidad!");
+                                            }
+                                        }
+                                    }
+                                }
+                            }else{
+                            if (CeLog.equals("")) {
+                                toastError("Ingresar la cedula de la persona que recepciona");
+                            } else {
+                                if (CeLog.equals(nit_usuario)) {
+                                    txtCedulaLogistica.setText("");
+                                    toastError("La Cedula de la persona que recepciona no puede ser igual al de la persona que entrega");
+                                } else {
+                                    personaCalidad = conexion.obtenerPersona(RevisionTerminadoTrefilacion.this, CeLog);
+                                    centro = personaCalidad.getCentro();
+                                    //Verificamos que la persona pertenezca al centro de logistica
+                                    if (centro.equals("4110")) {
+                                        Barraprogreso.setVisibility(View.VISIBLE);
+                                        Handler handler = new Handler(Looper.getMainLooper());
+                                        new Thread(() -> {
+                                            try {
+                                                runOnUiThread(this::realizarTransaccion);
+                                                handler.post(() -> {
+                                                    Barraprogreso.setVisibility(View.GONE);
+                                                    alertDialog.dismiss();
+                                                    closeTecladoMovil();
+                                                });
+                                            } catch (Exception e) {
+                                                handler.post(() -> {
+                                                    toastError(e.getMessage());
+                                                    Barraprogreso.setVisibility(View.GONE);
+                                                });
+                                            }
+                                        }).start();
+                                        closeTecladoMovil();
+                                    } else {
+                                        if (centro.equals("")) {
+                                            txtCedulaLogistica.setText("");
+                                            toastError("Persona no encontrada");
+                                        } else {
+                                            txtCedulaLogistica.setText("");
+                                            toastError("La cedula ingresada no pertenece a calidad!");
+                                        }
+                                    }
+                                }
+                            }
+                        }}else {
+                            toastError("Seleccione motivo rechazo");
+                        }
+                    });
+                    btnCancelar.setOnClickListener(v1 -> alertDialog.dismiss());
+                    alertDialog.setCancelable(false);
+                    alertDialog.show();
+                }
+            }
+        }
+    }
+    private void actualizarAlertDialog(String selectedOption, View mView){
+        TextView txtTraccion = mView.findViewById(R.id.txtTraccion);
+        EditText editTraccion = mView.findViewById(R.id.editTraccion);
+        switch (selectedOption) {
+            case "Baja/Alta tracción":
+                txtTraccion.setVisibility(View.VISIBLE);
+                editTraccion.setVisibility(View.VISIBLE);
+                break;
+            case "Seleccione motivo rechazo":
+            case "Poroso":
+            case "Piel de naranja":
+            case "Daño por montacarga":
+            case "Rayado":
+            case "Tallado":
+            case "Oxidación":
+            default:
+                txtTraccion.setVisibility(View.GONE);
+                editTraccion.setVisibility(View.GONE);
+                editTraccion.setText("");
+                break;
+        }
     }
 
 }

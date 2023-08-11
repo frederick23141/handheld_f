@@ -186,15 +186,22 @@ public class Escaner extends AppCompatActivity implements AdapterView.OnItemClic
 
         //Se programa para que al presionar enter en el edit text haga el proceso
         etCodigo.setOnKeyListener((v, keyCode, event) -> {
-
-            if (!yaentre && keyCode == KeyEvent.KEYCODE_ENTER) {
-                if(etCodigo.getText().equals("")){
-                    toastError("Por favor escribir o escanear el codigo de barras");
+            if (keyCode == KeyEvent.KEYCODE_ENTER) {
+                if(!yaentre){
+                    if(etCodigo.getText().toString().equals("")){
+                        toastError("Por favor escribir o escanear el codigo de barras");
+                    }else{
+                        //Ocultamos el teclado de la pantalla
+                        codigoIngresado();
+                        yaentre = true;
+                        closeTecladoMovil();
+                    }
+                    return true;
                 }else{
-                    closeTecladoMovil();
-                    codigoIngresado();
+                    //Cargamos de nuevo las varibles y cambiamos "yaentre" a 1 ó 0
+                    cargarNuevo();
                 }
-                return true;
+                return false;
             }
             return false;
         });
@@ -564,6 +571,17 @@ public class Escaner extends AppCompatActivity implements AdapterView.OnItemClic
 
         EscanerAdapter = new listescanerAdapter(Escaner.this,R.layout.item_row_escaner,ListaEscaner);
         listviewEscaner.setAdapter(EscanerAdapter);
+    }
+
+    /////////////////////////////////////////////////////////////////////////////////////////////
+    //Metodo que borra el codigo del EditText y cambia la variable "yaentre"
+    private void cargarNuevo() {
+        if (!yaentre){
+            yaentre = true;
+        }else{
+            yaentre = false;
+            etCodigo.requestFocus();
+        }
     }
 
     @SuppressLint("SetTextI18n")
