@@ -1,0 +1,99 @@
+<resources>
+    <string name="app_name">handheld</string>
+
+    //Strings Utilizados en el layout "activity_escaner"
+    <string name="txtLector">LECTOR HANDHELD</string>
+    <string name="txtTtipo">Tipo:</string>
+    <string name="txtKilos">Kilos:</string>
+    <string name="btnSalida">Salir</string>
+    <string name="txtMovimientos">Movimientos: </string>
+    <string name="txtIngMovimientos">0</string>
+    <string name="tLblCodigo">lblCodigo:</string>
+    <string name="lblCodigo">lblCodigo</string>
+    <string name="tLblDescripcion">lblDescripcion:</string>
+    <string name="lblDescripcion">lblDescripción</string>
+    <string name="btnTransaccion">TRANSACCION</string>
+
+    //Strings Utilizados en el layout "activity_main"
+    <string name="txtMovimientosMain">TRASLADOS DE BODEGA</string>
+    <string name="tTxtcedula">Cedula: </string>
+    <string name="txtcedula">Ingresar Cedula</string>
+    <string name="contentDescripcionImg">Boton buscar cedula</string>
+
+    //Strings Utilizados en el layout "activity_pedido"
+    <string name="txtMovimientosPedido">PEDIDO</string>
+    <string name="btnActualizar">Actualizar Consulta</string>
+    <string name="btnSalir">Salir</string>
+
+    //Strings Utilizados en el layout "activity_pedido_inventario"
+    <string name="tProducTerminado">RECEPCION PRODUCTO TERMINADO</string>
+    <string name="txtArea">Area a hacer la recepción:</string>
+    <string name="txtTfechaInicio">Fecha_Inicio</string>
+    <string name="txtTFechaFin">Fecha_Final</string>
+    <string name="txtTHoraInicio">Hora_Inicio</string>
+    <string name="txtTHoraFin">Hora_Final</string>
+    <string name="btn_Iniciar_proceso">Iniciar proceso</string>
+
+    //Strings Utilizados en el layout "activity_escaner_inventario"
+    <string name="txtTNoleidos">Total No Leidos: </string>
+    <string name="inicia0">0</string>
+    <string name="txtTRollos">Total Rollos: </string>
+    <string name="txtTRollosLeidos">Total Leidos: </string>
+    <string name="btnTransaGalv">MOVER ROLLOS</string>
+
+    //Strings Utilizados en el layout "activity_revision_terminado_trefilacion"
+    <string name="txtTCTrefi">REVISION CALIDAD TREFILACIÓN</string>
+    <string name="btnRechazado">RECHAZADO</string>
+    <string name="btnAprobado">APROBADO</string>
+
+    <string name="txtTRGalva">RECEPCIÓN LOGIST GALVANIZADO</string>
+
+    //Strings Utilizados en el layout "child"
+    <string name="contentDescripcionChild">Item lista</string>
+    <string name="text">List Item</string>
+
+    //Strings Utilizados en los layouts "toast"
+    <string name="contDescripCheck">Icono check</string>
+    <string name="contDescripError">Icono error</string>
+    <string name="txtMensaCheck">Se realizo correctamente!</string>
+    <string name="txtMensaAct">Actualizado</string>
+    <string name="txtMensaCedula">Por favor escribir tu cedula</string>
+    <string name="txtMensaPer">Persona no encontrada</string>
+
+    //Strings Utilizados en los layouts "items_row"
+    <string name="contDescripRollo">Icono rollo</string>
+    <string name="txt_tnumero">Número:</string>
+    <string name="txt_tPeso">Peso:</string>
+    <string name="txt_tEstado">Est_Mue:</string>
+    <string name="txt_tTipo">Tipo:</string>
+    <string name="txt_tDetalle">Detalle:</string>
+    <string name="txt_tNit">Nit_prov:</string>
+    <string name="txt_tnum_trans">Num transa:</string>
+    <string name="txt_tNumImport">Num Import:</string>
+    <string name="txt_tCost">Cost_unit:</string>
+    <string name="txt_tcodigo">Código:</string>
+    <string name="txt_tNumRollo">Num_rollo:</string>
+
+    <string name="txt_tfecha">Fecha:</string>
+    <string name="txt_tpendiente">Pendiente:</string>
+    <string name="txt_tdescripcion">Descripción:</string>
+
+    //Strings Utilizados en los layouts "activity_ingre_pro_ter_punti"
+    <string name="txtTReferencia">Referencia:</string>
+    <string name="txtTCaja">Cantidad: </string>
+    <string name="txTNCaja"> 1 Cartón </string>
+    <string name="txtIngresar">INGRESAR</string>
+    <string name="txtDocumento">Cedula: </string>
+    <string name="txtTmesa">Mesa: </string>
+    <string name="txtTCodigo">Codigo Empacador: </string>
+    <string name="btnCancelarCaja">CANCELAR</string>
+    <string name="btnIngreTermiPunti">INGRESAR CAJA</string>
+
+    //Strings Utilizados en los layouts "activity_mesas_refe_punti"
+    <string name="btnVolver">VOLVER</string>
+    <string name="txtTMesas">MESAS</string>
+    <string name="txtTrefCaja">Referencia</string>
+    <string name="txtCfisica">Fisico:</string>
+    <string name="txtCsiste">Sistema:</string>
+
+</resources>

@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/ll_custom_toast_escribir_cedula"
+    android:orientation="horizontal"
+    android:background="@drawable/background_red"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:gravity="center|center_horizontal"
+    android:padding="10dp">
+
+    <ImageView
+        android:layout_width="40sp"
+        android:layout_height="40sp"
+        app:srcCompat="@drawable/error"
+        android:contentDescription="@string/contDescripError" />
+
+    <TextView
+        android:id="@+id/txtMensajeToast"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:fontFamily="sans-serif-condensed"
+        android:textStyle="bold"
+        android:paddingStart="10dp"
+        android:paddingEnd="10dp"
+        android:textSize="20sp"
+        android:text="@string/txtMensaCedula"
+        android:textColor="#fff"/>
+
+</LinearLayout>

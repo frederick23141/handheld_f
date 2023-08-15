@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/ll_custom_toast_atencion"
+    android:orientation="vertical"
+    android:background="@drawable/background_yellow"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:gravity="center|center_horizontal"
+    android:padding="10dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginTop="15dp"
+        android:gravity="center"
+        android:orientation="horizontal">
+
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="70sp"
+            app:srcCompat="@drawable/advertencia"
+            android:contentDescription="@string/contDescripError" />
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/txtMensajeToastAtencion"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:layout_marginBottom="20dp"
+        android:fontFamily="sans-serif-condensed"
+        android:paddingStart="10dp"
+        android:paddingEnd="10dp"
+        android:text="@string/txtMensaPer"
+        android:textAlignment="center"
+        android:textColor="#fff"
+        android:textSize="25sp"
+        android:textStyle="bold" />
+
+</LinearLayout>
