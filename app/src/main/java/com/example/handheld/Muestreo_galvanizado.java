@@ -68,6 +68,7 @@ public class Muestreo_galvanizado extends AppCompatActivity {
         conexion = new Conexion();
         obj_db = new objOperacionesDb();
         //Se inicializan los elementos del layout
+
         iniciar = findViewById(R.id.btn_iniciar);
         finalizar = findViewById(R.id.btn_terminar);
         agregar = findViewById(R.id.btn_registrar);
