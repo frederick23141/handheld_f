@@ -514,7 +514,7 @@ public class Escaner extends AppCompatActivity implements AdapterView.OnItemClic
             }
 
         }else{
-            toastError("Error al realizar la transacción!");
+            toastError("Error al realizar la transacción! Intentelo de nuevo");
             etCodigo.setEnabled(true);
             leer_nuevo();
             resp = false;

@@ -1,22 +1,40 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/ll_custom_toast_actualizado"
-    android:orientation="horizontal"
+    android:orientation="vertical"
     android:background="@drawable/backgroud_blue"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
     android:gravity="center|center_horizontal"
     android:padding="10dp">
 
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginTop="15dp"
+        android:gravity="center"
+        android:orientation="horizontal">
+
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="70sp"
+            android:contentDescription="@string/contDescripCheck"
+            app:srcCompat="@drawable/check_azul" />
+    </LinearLayout>
+
     <TextView
         android:id="@+id/txtMsgToast"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:layout_marginBottom="20dp"
         android:fontFamily="sans-serif-condensed"
         android:textStyle="bold"
-        android:paddingStart="10dp"
-        android:paddingEnd="10dp"
-        android:textSize="20sp"
+        android:paddingStart="40dp"
+        android:paddingEnd="40dp"
+        android:textAlignment="center"
+        android:textSize="25sp"
         android:text="@string/txtMensaAct"
         android:textColor="#fff"/>
 
